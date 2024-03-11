@@ -2,6 +2,8 @@ rootProject.name = "AniFlow"
 
 include(":composeApp", ":composeApp:sekret")
 include(":firebase")
+include(":anilist")
+include(":model")
 
 pluginManagement {
     repositories {

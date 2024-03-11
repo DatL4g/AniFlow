@@ -7,6 +7,10 @@ import coil3.memory.MemoryCache
 import coil3.network.ktor.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
+import com.apollographql.apollo3.ApolloClient
+import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
+import dev.datlag.aniflow.other.Constants
+import dev.datlag.tooling.compose.ioDispatcher
 import io.ktor.client.*
 import okio.FileSystem
 import org.kodein.di.DI
@@ -34,12 +38,23 @@ data object NetworkModule {
                 .diskCache {
                     DiskCache.Builder()
                         .directory(FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "image_cache")
-                        .maxSizeBytes(512L * 1024 * 1024) // 512
+                        .maxSizeBytes(512L * 1024 * 1024) // 512 MB
                         .build()
                 }
                 .crossfade(true)
                 .extendImageLoader()
                 .build()
+        }
+        bindSingleton<ApolloClient>(Constants.AniList.APOLLO_CLIENT) {
+            ApolloClient.Builder()
+                .dispatcher(ioDispatcher())
+                .serverUrl(Constants.AniList.SERVER_URL)
+                .build()
+        }
+        bindSingleton<TrendingAnimeStateMachine> {
+            TrendingAnimeStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT)
+            )
         }
     }
 }

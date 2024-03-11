@@ -1,0 +1,33 @@
+query HomeQuery(
+    $page: Int,
+    $perPage: Int,
+    $type: MediaType,
+    $sort: [MediaSort],
+    $adultContent: Boolean
+) {
+    Page(page: $page, perPage: $perPage) {
+        media(
+            type: $type,
+            sort: $sort,
+            isAdult: $adultContent
+        ) {
+            id,
+            idMal,
+            isAdult,
+            genres,
+            countryOfOrigin
+            title {
+                english,
+                native,
+                romaji,
+                userPreferred
+            },
+            coverImage {
+                color,
+                large,
+                extraLarge,
+                medium
+            }
+        }
+    }
+}
