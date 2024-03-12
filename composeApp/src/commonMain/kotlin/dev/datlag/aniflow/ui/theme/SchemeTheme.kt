@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import com.kmpalette.DominantColorState
 import com.kmpalette.palette.graphics.Palette
@@ -57,9 +58,15 @@ data object SchemeTheme {
         }
     }
 
-    suspend fun suspendUpdate(key: Any?, input: Painter?) {
-        if (_state == null || key == null ||  input == null) {
-            return
+    fun update(key: Any?, color: Color?, scope: CoroutineScope) {
+        scope.launchIO {
+            suspendUpdate(key, color)
+        }
+    }
+
+    suspend fun suspendUpdate(key: Any?, input: Painter?): Boolean {
+        if (key == null || input == null) {
+            return false
         }
 
         withIOContext {
@@ -72,7 +79,10 @@ data object SchemeTheme {
                 }
             }
         }
+        return true
     }
+
+    suspend fun suspendUpdate(key: Any?, color: Color?) = suspendUpdate(key, color?.let { ColorPainter(it) })
 }
 
 @Composable
@@ -128,6 +138,8 @@ fun rememberSchemeThemeDominantColorState(
     defaultColor: Color = MaterialTheme.colorScheme.primary,
     defaultOnColor: Color = MaterialTheme.colorScheme.onPrimary,
     clearFilter: Boolean = false,
+    applyMinContrast: Boolean = false,
+    minContrastBackgroundColor: Color = Color.Transparent,
     coroutineContext: CoroutineContext = ioDispatcher()
 ): DominantColorState<Painter> {
     return rememberSchemeThemeDominantColorState(
@@ -140,6 +152,13 @@ fun rememberSchemeThemeDominantColorState(
                 clearFilters()
             } else {
                 addFilter(Palette.DEFAULT_FILTER)
+            }
+        },
+        isSwatchValid = { swatch ->
+            if (applyMinContrast) {
+                Color(swatch.bodyTextColor).contrastAgainst(minContrastBackgroundColor) >= MinContrastRatio
+            } else {
+                true
             }
         }
     )
@@ -162,3 +181,14 @@ fun CommonSchemeTheme(content: @Composable () -> Unit) {
 
     SchemeTheme(key, content)
 }
+
+private fun Color.contrastAgainst(background: Color): Float {
+    val fg = if (alpha < 1f) compositeOver(background) else this
+
+    val fgLuminance = fg.luminance() + 0.05f
+    val bgLuminance = background.luminance() + 0.05f
+
+    return maxOf(fgLuminance, bgLuminance) / minOf(fgLuminance, bgLuminance)
+}
+
+private const val MinContrastRatio = 3f

@@ -7,12 +7,14 @@ import com.apollographql.apollo3.api.map
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class, ApolloExperimental::class)
 class TrendingAnimeStateMachine(
-    private val client: ApolloClient
+    private val client: ApolloClient,
+    private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<TrendingAnimeStateMachine.State, TrendingAnimeStateMachine.Action>(
     initialState = currentState
 ) {
@@ -31,20 +33,14 @@ class TrendingAnimeStateMachine(
                     val response = CatchResult.result {
                         client.query(state.snapshot.query).execute().dataOrThrow()
                     }.mapSuccess<State> {
-                        val data = it.copy(
-                            Page = it.Page?.copy(
-                                media = listOfNotNull(
-                                    *(state.snapshot.data?.Page?.mediaFilterNotNull()?.toTypedArray() ?: emptyArray()),
-                                    *(it.Page.mediaFilterNotNull()?.toTypedArray() ?: emptyArray())
-                                )
-                            )
-                        )
-                        State.Success(state.snapshot.query, data)
+                        State.Success(state.snapshot.query, it)
                     }
 
                     state.override {
                         response.asSuccess {
-                            State.Error(query, state.snapshot.data)
+                            crashlytics?.log(it)
+
+                            State.Error(query)
                         }
                     }
                 }
@@ -54,16 +50,6 @@ class TrendingAnimeStateMachine(
                     Cache.trendingAnime.put(it.query, it.data)
                     currentState = it
                 }
-                on<Action.Next> { _, state ->
-                    state.override {
-                        State.Loading(
-                            query.copy(
-                                page = query.page.map { it?.plus(1) }
-                            ),
-                            state.snapshot.data
-                        )
-                    }
-                }
             }
             inState<State.Error> {
                 onEnterEffect {
@@ -72,8 +58,7 @@ class TrendingAnimeStateMachine(
                 on<Action.Retry> { _, state ->
                     state.override {
                         State.Loading(
-                            state.snapshot.query,
-                            state.snapshot.data
+                            state.snapshot.query
                         )
                     }
                 }
@@ -83,41 +68,45 @@ class TrendingAnimeStateMachine(
 
     sealed interface State {
         data class Loading(
-            internal val query: HomeQuery,
-            val data: HomeQuery.Data?
+            internal val query: TrendingQuery,
         ) : State {
             constructor(
                 page: Int,
                 perPage: Int = 10,
                 adultContent: Boolean = false,
-                type: MediaType = MediaType.ANIME,
-                data: HomeQuery.Data? = null
+                type: MediaType = MediaType.ANIME
             ) : this(
-                HomeQuery(
+                TrendingQuery(
                     page = Optional.present(page),
                     perPage = Optional.present(perPage),
-                    adultContent = Optional.present(adultContent),
+                    adultContent = if (!adultContent) {
+                        Optional.present(adultContent)
+                    } else {
+                        Optional.absent()
+                    },
                     type = Optional.present(type),
-                    sort = Optional.present(listOf(MediaSort.TRENDING_DESC))
-                ),
-                data
+                    sort = Optional.present(listOf(MediaSort.TRENDING_DESC)),
+                    preventGenres = if (!adultContent) {
+                        Optional.present(listOf("Hentai", "Ecchi"))
+                    } else {
+                        Optional.absent()
+                    }
+                )
             )
         }
 
         data class Success(
-            internal val query: HomeQuery,
-            val data: HomeQuery.Data
+            internal val query: TrendingQuery,
+            val data: TrendingQuery.Data
         ) : State
 
         data class Error(
-            internal val query: HomeQuery,
-            val data: HomeQuery.Data?
+            internal val query: TrendingQuery
         ) : State
     }
 
     sealed interface Action {
         data object Retry : Action
-        data object Next : Action
     }
 
     companion object {

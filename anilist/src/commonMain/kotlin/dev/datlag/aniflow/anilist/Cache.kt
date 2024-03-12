@@ -5,10 +5,17 @@ import com.mayakapps.kache.KacheStrategy
 import kotlin.time.Duration.Companion.hours
 
 internal object Cache {
-    val trendingAnime = InMemoryKache<HomeQuery, HomeQuery.Data>(
+    val trendingAnime = InMemoryKache<TrendingQuery, TrendingQuery.Data>(
         maxSize = 5L * 1024 * 1024,
     ) {
         strategy = KacheStrategy.LRU
         expireAfterWriteDuration = 2.hours
+    }
+
+    val airing = InMemoryKache<AiringQuery, AiringQuery.Data>(
+        maxSize = 5L * 1024 * 1024
+    ) {
+        strategy = KacheStrategy.LRU
+        expireAfterWriteDuration = 1.hours
     }
 }

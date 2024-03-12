@@ -16,6 +16,7 @@ import okio.FileSystem
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import dev.datlag.aniflow.common.nullableFirebaseInstance
 
 data object NetworkModule {
 
@@ -53,7 +54,8 @@ data object NetworkModule {
         }
         bindSingleton<TrendingAnimeStateMachine> {
             TrendingAnimeStateMachine(
-                client = instance(Constants.AniList.APOLLO_CLIENT)
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
     }

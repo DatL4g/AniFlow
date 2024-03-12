@@ -93,6 +93,7 @@ kotlin {
             implementation(libs.ktor.serialization.json)
 
             implementation(libs.aboutlibraries)
+            implementation(libs.kasechange)
 
             implementation(project(":firebase"))
             implementation(project(":anilist"))

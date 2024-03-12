@@ -23,6 +23,7 @@ flowredux = "1.2.1"
 google-identity = "1.1.0"
 haze = "0.5.4"
 kache = "2.1.0-beta05"
+kasechange = "1.4.1"
 kmpalette = "3.1.0"
 kodein = "7.21.2"
 kolor = "1.4.3"
@@ -70,6 +71,7 @@ google-identity = { group = "com.google.android.libraries.identity.googleid", na
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 haze-materials = { group = "dev.chrisbanes.haze", name = "haze-materials", version.ref = "haze" }
 kache = { group = "com.mayakapps.kache", name = "kache", version.ref = "kache" }
+kasechange = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kasechange" }
 kmpalette = { group = "com.kmpalette", name = "kmpalette-core", version.ref = "kmpalette" }
 kodein = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein" }
 kodein-compose = { group = "org.kodein.di", name = "kodein-di-framework-compose", version.ref = "kodein" }

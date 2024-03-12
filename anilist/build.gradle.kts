@@ -31,8 +31,10 @@ kotlin {
             api(libs.apollo)
             implementation(libs.kache)
             api(libs.flowredux)
+            implementation(libs.datetime)
 
             implementation(project(":model"))
+            implementation(project(":firebase"))
         }
     }
 }

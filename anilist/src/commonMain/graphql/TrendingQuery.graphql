@@ -1,27 +1,31 @@
-query HomeQuery(
+query TrendingQuery(
     $page: Int,
     $perPage: Int,
     $type: MediaType,
     $sort: [MediaSort],
-    $adultContent: Boolean
+    $adultContent: Boolean,
+    $preventGenres: [String]
 ) {
     Page(page: $page, perPage: $perPage) {
         media(
             type: $type,
             sort: $sort,
-            isAdult: $adultContent
+            isAdult: $adultContent,
+            genre_not_in: $preventGenres
         ) {
             id,
             idMal,
             isAdult,
             genres,
-            countryOfOrigin
+            countryOfOrigin,
+            averageScore,
             title {
                 english,
                 native,
                 romaji,
                 userPreferred
             },
+            bannerImage,
             coverImage {
                 color,
                 large,
