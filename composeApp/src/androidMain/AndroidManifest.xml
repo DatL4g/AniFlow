@@ -49,5 +49,13 @@
         <meta-data
             android:name="instantapps.clients.allowed"
             android:value="true"/>
+
+        <meta-data
+            android:name="open_source"
+            android:value="true" />
+
+        <meta-data
+            android:name="open_source_license"
+            android:value="GNU AFFERO GENERAL PUBLIC LICENSE Version 3" />
     </application>
 </manifest>
