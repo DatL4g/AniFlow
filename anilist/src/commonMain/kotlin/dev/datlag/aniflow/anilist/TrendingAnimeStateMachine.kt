@@ -87,7 +87,7 @@ class TrendingAnimeStateMachine(
                     type = Optional.present(type),
                     sort = Optional.present(listOf(MediaSort.TRENDING_DESC)),
                     preventGenres = if (!adultContent) {
-                        Optional.present(listOf("Hentai", "Ecchi"))
+                        Optional.present(AdultContent.Genre.allTags)
                     } else {
                         Optional.absent()
                     }

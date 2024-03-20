@@ -17,12 +17,15 @@ class AiringTodayStateMachine(
     private val client: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<AiringTodayStateMachine.State, AiringTodayStateMachine.Action>(
-    initialState = State.Loading(0)
+    initialState = currentState
 ) {
 
     init {
         spec {
             inState<State.Loading> {
+                onEnterEffect {
+                    currentState = it
+                }
                 onEnter { state ->
                     val query = AiringQuery(
                         page = Optional.present(state.snapshot.page),
@@ -32,7 +35,7 @@ class AiringTodayStateMachine(
                             Clock.System.now().toLocalDateTime(
                                 TimeZone.currentSystemDefault()
                             ).date.atStartOfDayIn(
-                            TimeZone.currentSystemDefault()
+                                TimeZone.currentSystemDefault()
                             ).epochSeconds.toInt()
                         )
                     )
@@ -50,9 +53,9 @@ class AiringTodayStateMachine(
                                 c.media?.isAdult == true
                             }.filterNot { c ->
                                 val genres = c.media?.genresFilterNotNull() ?: emptyList()
+
                                 genres.any { g ->
-                                    g.equals("Hentai", ignoreCase = true)
-                                            || g.equals("Ecchi", ignoreCase = true)
+                                    AdultContent.Genre.exists(g)
                                 }
                             }
                             filtered
@@ -74,7 +77,7 @@ class AiringTodayStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error
+                            State.Error(state.snapshot.page, state.snapshot.perPage, state.snapshot.adultContent)
                         }
                     }
                 }
@@ -82,12 +85,17 @@ class AiringTodayStateMachine(
             inState<State.Success> {
                 onEnterEffect {
                     Cache.airing.put(it.query, it.data)
+
+                    currentState = it
                 }
             }
             inState<State.Error> {
+                onEnterEffect {
+                    currentState = it
+                }
                 on<Action.Retry> { _, state ->
                     state.override {
-                        State.Loading(0)
+                        State.Loading(state.snapshot.page, state.snapshot.perPage, state.snapshot.adultContent)
                     }
                 }
             }
@@ -106,10 +114,22 @@ class AiringTodayStateMachine(
             val data: AiringQuery.Data
         ) : State
 
-        data object Error : State
+        data class Error(
+            val page: Int,
+            val perPage: Int = 10,
+            val adultContent: Boolean = false,
+        ) : State
     }
 
     sealed interface Action {
         data object Retry : Action
+    }
+
+    companion object {
+        var currentState: State
+            get() = StateSaver.airing
+            set(value) {
+                StateSaver.airing = value
+            }
     }
 }

@@ -15,6 +15,7 @@ query AiringQuery(
                 isAdult,
                 genres,
                 countryOfOrigin,
+                averageScore,
                 title {
                     english,
                     native,

@@ -5,15 +5,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.view.WindowCompat
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.backhandler.backHandler
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
+import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.ui.navigation.RootComponent
+import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.lifecycle.LocalLifecycleOwner
 import dev.datlag.tooling.safeCast
+import io.github.aakira.napier.Napier
 import org.kodein.di.DIAware
 
 class MainActivity : AppCompatActivity() {
