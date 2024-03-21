@@ -17,6 +17,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.common.plus
+import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.MediumCard
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -33,6 +34,13 @@ fun HomeScreen(component: HomeComponent) {
         contentPadding = LocalPaddingValues.current?.plus(padding) ?: padding,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            AiringOverview(
+                state = component.airingState
+            ) {
+
+            }
+        }
         item {
             TrendingOverview(
                 state = component.trendingState

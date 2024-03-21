@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.model.round
 
 @Composable
 fun Rating(medium: TrendingQuery.Medium, color: Color = LocalContentColor.current) {
@@ -31,7 +32,7 @@ fun Rating(medium: TrendingQuery.Medium, color: Color = LocalContentColor.curren
                 tint = color
             )
             Text(
-                text = ((medium.averageScore ?: 0).toFloat() / 200F * 10F).toString(),
+                text = ((medium.averageScore ?: 0).toFloat() / 200F * 10F).round(decimals = 2).toString(),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 color = color

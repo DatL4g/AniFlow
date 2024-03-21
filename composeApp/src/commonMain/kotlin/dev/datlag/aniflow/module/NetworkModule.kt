@@ -8,6 +8,7 @@ import coil3.network.ktor.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
+import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
@@ -17,6 +18,7 @@ import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
+import org.kodein.di.bindProvider
 
 data object NetworkModule {
 
@@ -52,8 +54,14 @@ data object NetworkModule {
                 .serverUrl(Constants.AniList.SERVER_URL)
                 .build()
         }
-        bindSingleton<TrendingAnimeStateMachine> {
+        bindProvider<TrendingAnimeStateMachine> {
             TrendingAnimeStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<AiringTodayStateMachine> {
+            AiringTodayStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )

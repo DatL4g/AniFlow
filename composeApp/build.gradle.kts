@@ -97,6 +97,7 @@ kotlin {
 
             implementation(project(":firebase"))
             implementation(project(":anilist"))
+            implementation(project(":model"))
         }
 
         iosMain.dependencies {

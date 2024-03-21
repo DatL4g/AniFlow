@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,10 +54,16 @@ fun MediumCard(
                 modifier = Modifier.fillMaxSize()
             ) {
                 val scope = rememberCoroutineScope()
+                val color = medium.coverImage?.color?.substringAfter('#')?.let {
+                    val colorValue = it.hexToLong() or 0x00000000FF000000
+                    Color(colorValue)
+                }
                 val colorState = rememberSchemeThemeDominantColorState(
                     key = medium.id,
                     applyMinContrast = true,
-                    minContrastBackgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                    minContrastBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                    defaultColor = color ?: MaterialTheme.colorScheme.primary,
+                    defaultOnColor = contentColorFor(color ?: MaterialTheme.colorScheme.primary)
                 )
                 val animatedColor by animateColorAsState(
                     targetValue = colorState.color,
@@ -86,18 +93,6 @@ fun MediumCard(
                                 SchemeTheme.update(
                                     key = medium.id,
                                     input = state.painter,
-                                    scope = scope
-                                )
-                            },
-                            onError = {
-                                val color = medium.coverImage?.color?.substringAfter('#')?.let {
-                                    val colorValue = it.hexToLong() or 0x00000000FF000000
-                                    Color(colorValue)
-                                }
-
-                                SchemeTheme.update(
-                                    key = medium.id,
-                                    color = color,
                                     scope = scope
                                 )
                             }
