@@ -43,7 +43,8 @@ fun TrendingOverview(
 private fun Loading() {
     LazyRow(
         modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         repeat(5) {
             item {
@@ -77,7 +78,8 @@ private fun SuccessContent(
     LazyRow(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         itemsIndexed(data, key = { _, it -> it.id }) {index, medium ->
             MediumCard(

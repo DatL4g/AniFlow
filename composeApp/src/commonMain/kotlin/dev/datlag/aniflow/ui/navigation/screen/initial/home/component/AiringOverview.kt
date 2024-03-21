@@ -51,7 +51,8 @@ private fun Loading() {
         state = state,
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        flingBehavior = rememberSnapFlingBehavior(state)
+        flingBehavior = rememberSnapFlingBehavior(state),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         repeat(5) {
             item {
@@ -75,7 +76,8 @@ private fun SuccessContent(
         state = state,
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        flingBehavior = rememberSnapFlingBehavior(state)
+        flingBehavior = rememberSnapFlingBehavior(state),
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(data, key = { it.episode to it.media?.id }) { media ->
             AiringCard(

@@ -136,9 +136,10 @@ fun MediumCard(
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        color = colorState.onColor
                     )
-                    Rating(medium)
+                    Rating(medium, colorState.onColor)
                 }
             }
         }

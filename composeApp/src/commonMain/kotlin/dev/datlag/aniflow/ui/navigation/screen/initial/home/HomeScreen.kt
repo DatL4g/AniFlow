@@ -28,7 +28,7 @@ import io.github.aakira.napier.Napier
 
 @Composable
 fun HomeScreen(component: HomeComponent) {
-    val padding = PaddingValues(16.dp)
+    val padding = PaddingValues(vertical = 16.dp)
     val listState = rememberLazyListState()
 
     LazyColumn(
@@ -39,6 +39,7 @@ fun HomeScreen(component: HomeComponent) {
     ) {
         item {
             Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
                 text = "Schedule",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
@@ -53,10 +54,11 @@ fun HomeScreen(component: HomeComponent) {
         }
         item {
             Text(
+
                 text = "Trending",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
             )
         }
         item {
