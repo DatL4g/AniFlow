@@ -14,10 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.model.round
 
 @Composable
-fun Rating(medium: TrendingQuery.Medium, color: Color = LocalContentColor.current) {
+fun Rating(medium: Medium, color: Color = LocalContentColor.current) {
     if ((medium.averageScore ?: -1) > 0.0F) {
         Row(
             modifier = Modifier.fillMaxWidth()

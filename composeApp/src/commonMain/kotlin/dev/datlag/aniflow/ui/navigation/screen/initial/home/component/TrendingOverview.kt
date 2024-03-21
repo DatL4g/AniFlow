@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun TrendingOverview(
     state: StateFlow<TrendingAnimeStateMachine.State>,
-    onClick: (TrendingQuery.Medium) -> Unit,
+    onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle()
 
@@ -57,7 +58,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
-    onClick: (TrendingQuery.Medium) -> Unit
+    onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState()
     var highlightedItem by remember { mutableIntStateOf(0) }
@@ -80,7 +81,7 @@ private fun SuccessContent(
     ) {
         itemsIndexed(data, key = { _, it -> it.id }) {index, medium ->
             MediumCard(
-                medium = medium,
+                medium = Medium(medium),
                 isHighlighted = index == highlightedItem,
                 lazyListState = listState,
                 modifier = Modifier.width(200.dp).height(280.dp),

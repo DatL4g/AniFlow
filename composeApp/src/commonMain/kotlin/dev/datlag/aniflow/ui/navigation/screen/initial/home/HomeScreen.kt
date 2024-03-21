@@ -3,14 +3,17 @@ package dev.datlag.aniflow.ui.navigation.screen.initial.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
@@ -35,11 +38,26 @@ fun HomeScreen(component: HomeComponent) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
+            Text(
+                text = "Schedule",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        item {
             AiringOverview(
                 state = component.airingState
             ) {
 
             }
+        }
+        item {
+            Text(
+                text = "Trending",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
         item {
             TrendingOverview(

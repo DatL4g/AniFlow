@@ -3,6 +3,7 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult

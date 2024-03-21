@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.bottomShadowBrush
 import dev.datlag.aniflow.common.preferredTitle
 import dev.datlag.aniflow.common.shimmerPainter
@@ -30,11 +31,11 @@ import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun MediumCard(
-    medium: TrendingQuery.Medium,
+    medium: Medium,
     isHighlighted: Boolean,
     lazyListState: LazyListState?,
     modifier: Modifier = Modifier,
-    onClick: (TrendingQuery.Medium) -> Unit
+    onClick: (Medium) -> Unit
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isHighlighted) 1F else 0.95F,
@@ -54,7 +55,7 @@ fun MediumCard(
                 modifier = Modifier.fillMaxSize()
             ) {
                 val scope = rememberCoroutineScope()
-                val color = medium.coverImage?.color?.substringAfter('#')?.let {
+                val color = medium.coverImage.color?.substringAfter('#')?.let {
                     val colorValue = it.hexToLong() or 0x00000000FF000000
                     Color(colorValue)
                 }
@@ -71,9 +72,9 @@ fun MediumCard(
                 )
 
                 AsyncImage(
-                    model = medium.coverImage?.extraLarge,
+                    model = medium.coverImage.extraLarge,
                     modifier = Modifier.fillMaxSize(),
-                    contentDescription = medium.title?.userPreferred,
+                    contentDescription = medium.title.userPreferred,
                     contentScale = ContentScale.Crop,
                     alignment = if (lazyListState != null) {
                         rememberParallaxAlignment(lazyListState, medium.id)
@@ -82,11 +83,11 @@ fun MediumCard(
                     },
                     placeholder = shimmerPainter(),
                     error = rememberAsyncImagePainter(
-                        model = medium.coverImage?.large,
+                        model = medium.coverImage.large,
                         contentScale = ContentScale.Crop,
                         placeholder = shimmerPainter(),
                         error = rememberAsyncImagePainter(
-                            model = medium.coverImage?.medium,
+                            model = medium.coverImage.medium,
                             contentScale = ContentScale.Crop,
                             placeholder = shimmerPainter(),
                             onSuccess = { state ->
@@ -114,7 +115,7 @@ fun MediumCard(
                     }
                 )
 
-                medium.genres?.filterNotNull()?.firstOrNull()?.let {
+                medium.genres.firstOrNull()?.let {
                     GenreChip(
                         label = it,
                         modifier = Modifier.padding(16.dp).align(Alignment.TopEnd)

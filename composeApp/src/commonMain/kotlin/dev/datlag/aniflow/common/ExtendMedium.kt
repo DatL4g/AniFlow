@@ -1,5 +1,5 @@
 package dev.datlag.aniflow.common
 
-import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.model.Medium
 
-expect fun TrendingQuery.Medium.preferredTitle(): String
+expect fun Medium.preferredTitle(): String
