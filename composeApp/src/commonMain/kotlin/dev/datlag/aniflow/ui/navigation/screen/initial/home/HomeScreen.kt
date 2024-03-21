@@ -22,6 +22,7 @@ import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.MediumCard
+import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.PopularSeasonOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import io.github.aakira.napier.Napier
@@ -54,7 +55,6 @@ fun HomeScreen(component: HomeComponent) {
         }
         item {
             Text(
-
                 text = "Trending",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
@@ -64,6 +64,21 @@ fun HomeScreen(component: HomeComponent) {
         item {
             TrendingOverview(
                 state = component.trendingState
+            ) {
+
+            }
+        }
+        item {
+            Text(
+                text = "Popular This Season",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
+            )
+        }
+        item {
+            PopularSeasonOverview(
+                state = component.popularSeasonState
             ) {
 
             }

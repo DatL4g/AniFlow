@@ -18,4 +18,11 @@ internal object Cache {
         strategy = KacheStrategy.LRU
         expireAfterWriteDuration = 1.hours
     }
+
+    val popularSeason = InMemoryKache<SeasonQuery, SeasonQuery.Data>(
+        maxSize = 5L * 1024 * 1024
+    ) {
+        strategy = KacheStrategy.LRU
+        expireAfterWriteDuration = 2.hours
+    }
 }

@@ -134,12 +134,18 @@ fun MediumCard(
                     Text(
                         text = medium.preferredTitle(),
                         style = MaterialTheme.typography.titleLarge,
-                        maxLines = 1,
+                        maxLines = if (medium.averageScore > 0F) {
+                            1
+                        } else {
+                            2
+                        },
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(),
                         color = colorState.onColor
                     )
-                    Rating(medium, colorState.onColor)
+                    if (medium.averageScore > 0F) {
+                        Rating(medium, colorState.onColor)
+                    }
                 }
             }
         }

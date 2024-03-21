@@ -2,6 +2,7 @@ package dev.datlag.aniflow.anilist.model
 
 import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.AiringQuery
+import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
 
 data class Medium(
@@ -60,6 +61,30 @@ data class Medium(
             medium = airing.coverImage?.medium?.ifBlank { null },
             large = airing.coverImage?.large?.ifBlank { null },
             extraLarge = airing.coverImage?.extraLarge?.ifBlank { null }
+        )
+    )
+
+    constructor(season: SeasonQuery.Medium) : this(
+        id = season.id,
+        idMal = season.idMal,
+        isAdult = season.isAdult ?: season.genresFilterNotNull()?.any {
+            AdultContent.Genre.exists(it)
+        } ?: false,
+        genres = season.genresFilterNotNull()?.toSet() ?: emptySet(),
+        countryOfOrigin = season.countryOfOrigin?.toString()?.ifBlank { null },
+        averageScore = season.averageScore ?: -1,
+        title = Title(
+            english = season.title?.english?.ifBlank { null },
+            native = season.title?.native?.ifBlank { null },
+            romaji = season.title?.romaji?.ifBlank { null },
+            userPreferred = season.title?.userPreferred?.ifBlank { null }
+        ),
+        bannerImage = season.bannerImage?.ifBlank { null },
+        coverImage = CoverImage(
+            color = season.coverImage?.color?.ifBlank { null },
+            medium = season.coverImage?.medium?.ifBlank { null },
+            large = season.coverImage?.large?.ifBlank { null },
+            extraLarge = season.coverImage?.extraLarge?.ifBlank { null }
         )
     )
 

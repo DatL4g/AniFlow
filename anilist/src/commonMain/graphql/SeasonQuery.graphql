@@ -1,0 +1,34 @@
+query SeasonQuery(
+    $page: Int,
+    $perPage: Int,
+    $sort: [MediaSort],
+    $year: Int,
+    $season: MediaSeason,
+    $preventGenres: [String],
+    $type: MediaType,
+    $adultContent: Boolean
+) {
+    Page(page: $page, perPage: $perPage) {
+        media(sort: $sort, seasonYear: $year, season: $season, genre_not_in: $preventGenres, type: $type, isAdult: $adultContent) {
+            id,
+            idMal,
+            isAdult,
+            genres,
+            countryOfOrigin,
+            averageScore,
+            title {
+                english,
+                native,
+                romaji,
+                userPreferred
+            },
+            bannerImage,
+            coverImage {
+                color,
+                large,
+                medium,
+                extraLarge
+            }
+        }
+    }
+}

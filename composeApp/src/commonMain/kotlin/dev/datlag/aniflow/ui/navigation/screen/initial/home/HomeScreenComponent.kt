@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.initial.home
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
+import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.tooling.compose.ioDispatcher
@@ -35,6 +36,15 @@ class HomeScreenComponent(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = TrendingAnimeStateMachine.currentState
+    )
+
+    private val popularSeasonStateMachine by di.instance<PopularSeasonStateMachine>()
+    override val popularSeasonState: StateFlow<PopularSeasonStateMachine.State> = popularSeasonStateMachine.state.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = PopularSeasonStateMachine.currentState
     )
 
     @Composable
