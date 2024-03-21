@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,6 +17,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import dev.datlag.aniflow.LocalPaddingValues
 
 fun Modifier.bottomShadowBrush(color: Color, alpha: Float = 1F): Modifier {
     val maxAlpha = kotlin.math.min(alpha, 1F)
@@ -42,6 +47,55 @@ operator fun PaddingValues.plus(other: PaddingValues): PaddingValues {
         end = this.calculateEndPadding(direction) + other.calculateEndPadding(direction),
         bottom = this.calculateBottomPadding() + other.calculateBottomPadding()
     )
+}
+
+@Composable
+fun PaddingValues.merge(other: PaddingValues): PaddingValues {
+    val direction = LocalLayoutDirection.current
+
+    return PaddingValues(
+        start = max(this.calculateStartPadding(direction), other.calculateStartPadding(direction)),
+        top = max(this.calculateTopPadding(), other.calculateTopPadding()),
+        end = max(this.calculateEndPadding(direction), other.calculateEndPadding(direction)),
+        bottom = max(this.calculateBottomPadding(), other.calculateBottomPadding())
+    )
+}
+
+fun Modifier.localPadding(additional: PaddingValues = PaddingValues(0.dp)) = composed {
+    this.padding(LocalPaddingValues.current?.plus(additional) ?: additional)
+}
+
+fun Modifier.localPadding(all: Dp) = composed {
+    this.localPadding(PaddingValues(all))
+}
+
+fun Modifier.localPadding(horizontal: Dp, vertical: Dp = 0.dp) = composed {
+    this.localPadding(PaddingValues(horizontal = horizontal, vertical = vertical))
+}
+
+@Composable
+fun LocalPadding(additional: PaddingValues = PaddingValues(0.dp)): PaddingValues {
+    return LocalPaddingValues.current?.plus(additional) ?: additional
+}
+
+@Composable
+fun LocalPadding(additional: Dp): PaddingValues {
+    return LocalPaddingValues.current?.plus(PaddingValues(additional)) ?: PaddingValues(additional)
+}
+
+@Composable
+fun LocalPadding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): PaddingValues {
+    return LocalPaddingValues.current?.plus(
+        PaddingValues(horizontal = horizontal, vertical = vertical)
+    ) ?: PaddingValues(horizontal = horizontal, vertical = vertical)
+}
+
+fun Modifier.mergedLocalPadding(other: PaddingValues, additional: PaddingValues = PaddingValues(0.dp)) = composed {
+    this.padding((LocalPaddingValues.current?.merge(other) ?: other).plus(additional))
+}
+
+fun Modifier.mergedLocalPadding(other: PaddingValues, additional: Dp) = composed {
+    this.mergedLocalPadding(other, PaddingValues(additional))
 }
 
 @Composable

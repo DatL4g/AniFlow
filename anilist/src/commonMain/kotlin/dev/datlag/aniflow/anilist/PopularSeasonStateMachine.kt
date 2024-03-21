@@ -4,6 +4,8 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.common.nextSeason
+import dev.datlag.aniflow.anilist.common.season
+import dev.datlag.aniflow.anilist.common.year
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
@@ -12,6 +14,8 @@ import dev.datlag.aniflow.model.CatchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PopularSeasonStateMachine(
@@ -77,8 +81,8 @@ class PopularSeasonStateMachine(
                 perPage: Int = 10,
                 adultContent: Boolean = false,
                 type: MediaType = MediaType.ANIME,
-                season: MediaSeason = Clock.System.now().nextSeason.first,
-                year: Int = Clock.System.now().nextSeason.second
+                season: MediaSeason = Clock.System.now().season,
+                year: Int = Clock.System.now().year
             ) : this(
                 SeasonQuery(
                     page = Optional.present(page),
@@ -115,8 +119,8 @@ class PopularSeasonStateMachine(
                 perPage = perPage,
                 adultContent = adultContent,
                 type = type,
-                season = now.nextSeason.first,
-                year = now.nextSeason.second
+                season = now.season,
+                year = now.year
             )
         }
 

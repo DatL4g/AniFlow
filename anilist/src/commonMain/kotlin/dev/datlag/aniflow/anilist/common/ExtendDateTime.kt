@@ -17,6 +17,12 @@ internal val Month.season: MediaSeason
         }
     }
 
+internal val Instant.season: MediaSeason
+    get() = this.toLocalDateTime(TimeZone.currentSystemDefault()).month.season
+
+internal val Instant.year: Int
+    get() = this.toLocalDateTime(TimeZone.currentSystemDefault()).year
+
 internal val Instant.nextSeason: Pair<MediaSeason, Int>
     get() {
         val date = this.toLocalDateTime(TimeZone.currentSystemDefault())
