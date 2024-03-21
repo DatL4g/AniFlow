@@ -4,7 +4,9 @@ import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Medium(
     val id: Int,
     val idMal: Int?,
@@ -88,6 +90,7 @@ data class Medium(
         )
     )
 
+    @Serializable
     data class Title(
         /**
          * The official english title
@@ -111,6 +114,7 @@ data class Medium(
         val userPreferred: String?
     )
 
+    @Serializable
     data class CoverImage(
         /**
          * Average #hex color of cover image

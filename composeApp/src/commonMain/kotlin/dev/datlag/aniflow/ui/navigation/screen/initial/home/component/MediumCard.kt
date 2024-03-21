@@ -96,6 +96,13 @@ fun MediumCard(
                                     input = state.painter,
                                     scope = scope
                                 )
+                            },
+                            onError = {
+                                SchemeTheme.update(
+                                    key = medium.id,
+                                    color = color,
+                                    scope = scope
+                                )
                             }
                         ),
                         onSuccess = { state ->

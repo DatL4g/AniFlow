@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.apollo)
+    alias(libs.plugins.serialization)
 }
 
 val artifact = VersionCatalog.artifactName("anilist")
@@ -32,6 +33,7 @@ kotlin {
             implementation(libs.kache)
             api(libs.flowredux)
             implementation(libs.datetime)
+            implementation(libs.serialization)
 
             implementation(project(":model"))
             implementation(project(":firebase"))
