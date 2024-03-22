@@ -34,6 +34,7 @@ kotlin {
             api(libs.flowredux)
             implementation(libs.datetime)
             implementation(libs.serialization)
+            implementation(libs.tooling)
 
             implementation(project(":model"))
             implementation(project(":firebase"))

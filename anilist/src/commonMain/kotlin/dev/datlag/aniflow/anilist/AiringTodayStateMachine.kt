@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -41,7 +42,7 @@ class AiringTodayStateMachine(
                         )
                     )
 
-                    Cache.airing.get(query)?.let {
+                    Cache.getAiring(query)?.let {
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
@@ -85,7 +86,7 @@ class AiringTodayStateMachine(
             }
             inState<State.Success> {
                 onEnterEffect {
-                    Cache.airing.put(it.query, it.data)
+                    Cache.setAiring(it.query, it.data)
 
                     currentState = it
                 }

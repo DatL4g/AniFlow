@@ -9,6 +9,7 @@ import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class, ApolloExperimental::class)
@@ -26,7 +27,7 @@ class TrendingAnimeStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.trendingAnime.get(state.snapshot.query)?.let {
+                    Cache.getTrending(state.snapshot.query)?.let {
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
@@ -47,7 +48,7 @@ class TrendingAnimeStateMachine(
             }
             inState<State.Success> {
                 onEnterEffect {
-                    Cache.trendingAnime.put(it.query, it.data)
+                    Cache.setTrending(it.query, it.data)
                     currentState = it
                 }
             }

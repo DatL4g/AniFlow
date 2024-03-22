@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.state.SeasonAction
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -23,7 +24,7 @@ class PopularNextSeasonStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.popularSeason.get(state.snapshot.query)?.let {
+                    Cache.getSeason(state.snapshot.query)?.let {
                         return@onEnter state.override { SeasonState.Success(query, it) }
                     }
 
@@ -44,7 +45,7 @@ class PopularNextSeasonStateMachine(
             }
             inState<SeasonState.Success> {
                 onEnterEffect {
-                    Cache.popularSeason.put(it.query, it.data)
+                    Cache.setSeason(it.query, it.data)
                     currentState = it
                 }
             }

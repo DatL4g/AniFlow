@@ -13,6 +13,7 @@ import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -34,7 +35,7 @@ class PopularSeasonStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.popularSeason.get(state.snapshot.query)?.let {
+                    Cache.getSeason(state.snapshot.query)?.let {
                         return@onEnter state.override { SeasonState.Success(query, it) }
                     }
 
@@ -55,7 +56,7 @@ class PopularSeasonStateMachine(
             }
             inState<SeasonState.Success> {
                 onEnterEffect {
-                    Cache.popularSeason.put(it.query, it.data)
+                    Cache.setSeason(it.query, it.data)
                     currentState = it
                 }
             }

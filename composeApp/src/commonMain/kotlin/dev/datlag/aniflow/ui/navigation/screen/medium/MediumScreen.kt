@@ -163,6 +163,7 @@ fun MediumScreen(component: MediumComponent) {
             LocalPaddingValues provides LocalPadding().merge(it)
         ) {
             val description by component.description.collectAsStateWithLifecycle()
+            var descriptionExpandable by remember(description) { mutableStateOf(false) }
             var descriptionExpanded by remember(description) { mutableStateOf(false) }
 
             LazyColumn(
@@ -292,27 +293,34 @@ fun MediumScreen(component: MediumComponent) {
                                 text = description!!.htmlToAnnotatedString(),
                                 maxLines = max(animatedLines, 1),
                                 softWrap = true,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                onTextLayout = { result ->
+                                    if (!descriptionExpanded) {
+                                        descriptionExpandable = result.hasVisualOverflow
+                                    }
+                                }
                             )
                         }
                     }
-                    item {
-                        IconButton(
-                            modifier = Modifier.fillParentMaxWidth(),
-                            onClick = {
-                                descriptionExpanded = !descriptionExpanded
-                            }
-                        ) {
-                            val icon = if (descriptionExpanded) {
-                                Icons.Default.ExpandLess
-                            } else {
-                                Icons.Default.ExpandMore
-                            }
+                    if (descriptionExpandable) {
+                        item {
+                            IconButton(
+                                modifier = Modifier.fillParentMaxWidth(),
+                                onClick = {
+                                    descriptionExpanded = !descriptionExpanded
+                                }
+                            ) {
+                                val icon = if (descriptionExpanded) {
+                                    Icons.Default.ExpandLess
+                                } else {
+                                    Icons.Default.ExpandMore
+                                }
 
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = null
-                            )
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     }
                 }

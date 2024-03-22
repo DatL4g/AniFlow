@@ -6,6 +6,7 @@ import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -27,7 +28,7 @@ class MediumStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.medium.get(state.snapshot.query)?.let {
+                    Cache.getMedium(state.snapshot.query)?.let {
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
@@ -50,7 +51,7 @@ class MediumStateMachine(
             }
             inState<State.Success> {
                 onEnterEffect {
-                    Cache.medium.put(it.query, it.data)
+                    Cache.setMedium(it.query, it.data)
                     currentState = it
                 }
             }
