@@ -411,7 +411,9 @@ fun MediumScreen(component: MediumComponent) {
                                 CharacterCard(
                                     char = char,
                                     modifier = Modifier.width(96.dp).height(200.dp)
-                                )
+                                ) {
+                                    // ToDo("character dialog")
+                                }
                             }
                         }
                     }

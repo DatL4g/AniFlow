@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,14 +23,28 @@ import dev.datlag.aniflow.common.preferredName
 import dev.datlag.aniflow.common.shimmerPainter
 
 @Composable
-fun CharacterCard(char: Medium.Character, modifier: Modifier = Modifier) {
+fun CharacterCard(
+    char: Medium.Character,
+    modifier: Modifier = Modifier,
+    onClick: (Medium.Character) -> Unit
+) {
     Card(
-        modifier = modifier
+        modifier = modifier,
+        onClick = {
+            onClick(char)
+        }
     ) {
         AsyncImage(
             model = char.image.large,
             contentDescription = null,
-            modifier = Modifier.fillMaxWidth().aspectRatio(0.7F).clip(MaterialTheme.shapes.medium),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(0.7F)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = MaterialTheme.shapes.medium,
+                    spotColor = MaterialTheme.colorScheme.primary
+                ),
             contentScale = ContentScale.Crop,
             placeholder = shimmerPainter(),
             error = rememberAsyncImagePainter(

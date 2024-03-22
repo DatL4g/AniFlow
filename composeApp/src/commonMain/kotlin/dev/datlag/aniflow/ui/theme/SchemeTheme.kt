@@ -72,7 +72,7 @@ data object SchemeTheme {
             itemScheme.getAndUpdate {
                 it.toMutableMap().apply {
                     put(key, useState?.color)
-                }
+                }.toMap()
             }
         }
         return true
@@ -95,7 +95,7 @@ fun rememberSchemeThemeDominantColor(
     SchemeTheme.colorState.update {
         it.toMutableMap().apply {
             put(key, state)
-        }
+        }.toMap()
     }
 
     val color by remember(key) {
