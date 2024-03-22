@@ -89,7 +89,7 @@ fun rememberSchemeThemeDominantColor(
         return null
     }
 
-    val state = rememberPainterDominantColorState(
+    val state = SchemeTheme.colorState.value[key] ?: rememberPainterDominantColorState(
         coroutineContext = ioDispatcher()
     )
     SchemeTheme.colorState.update {
