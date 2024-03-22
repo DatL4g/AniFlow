@@ -12,6 +12,7 @@ import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
@@ -19,16 +20,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun PopularSeasonOverview(
-    state: StateFlow<PopularSeasonStateMachine.State>,
+    state: StateFlow<SeasonState>,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle()
 
     when (val reachedState = loadingState) {
-        is PopularSeasonStateMachine.State.Loading -> {
+        is SeasonState.Loading -> {
             Loading()
         }
-        is PopularSeasonStateMachine.State.Success -> {
+        is SeasonState.Success -> {
             SuccessContent(
                 data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
                 onClick = onClick

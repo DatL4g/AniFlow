@@ -19,10 +19,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
-import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.bottomShadowBrush
-import dev.datlag.aniflow.common.preferredTitle
+import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.common.shimmerPainter
 import dev.datlag.aniflow.ui.custom.alignment.rememberParallaxAlignment
 import dev.datlag.aniflow.ui.theme.SchemeTheme
@@ -139,7 +138,7 @@ fun MediumCard(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = medium.preferredTitle(),
+                        text = medium.preferred(),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = if (medium.averageScore > 0F) {
                             1

@@ -33,17 +33,13 @@ data object SchemeTheme {
     internal val colorState = MutableStateFlow<Map<Any, DominantColorState<Painter>>>(emptyMap())
     internal val itemScheme = MutableStateFlow<Map<Any, Color?>>(emptyMap())
 
-    internal var _state: DominantColorState<Painter>? = null
-    internal val state: DominantColorState<Painter>
-        get() = _state!!
-
     fun setCommon(key: Any?) {
         commonSchemeKey.update { key }
     }
 
     @Composable
     fun update(key: Any?, input: Painter?) {
-        if (_state == null || input == null) {
+        if (input == null) {
             return
         }
 
@@ -70,12 +66,12 @@ data object SchemeTheme {
         }
 
         withIOContext {
-            val useState = (colorState.firstOrNull() ?: colorState.value)[key] ?: state
-            useState.updateFrom(input)
+            val useState = (colorState.firstOrNull() ?: colorState.value)[key]
+            useState?.updateFrom(input)
 
             itemScheme.getAndUpdate {
                 it.toMutableMap().apply {
-                    put(key, useState.color)
+                    put(key, useState?.color)
                 }
             }
         }
@@ -89,10 +85,17 @@ data object SchemeTheme {
 fun rememberSchemeThemeDominantColor(
     key: Any?
 ): Color? {
-    if (SchemeTheme._state == null) {
-        SchemeTheme._state = rememberPainterDominantColorState(
-            coroutineContext = ioDispatcher()
-        )
+    if (key == null) {
+        return null
+    }
+
+    val state = rememberPainterDominantColorState(
+        coroutineContext = ioDispatcher()
+    )
+    SchemeTheme.colorState.update {
+        it.toMutableMap().apply {
+            put(key, state)
+        }
     }
 
     val color by remember(key) {

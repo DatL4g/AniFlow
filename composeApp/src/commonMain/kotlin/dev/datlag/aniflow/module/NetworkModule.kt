@@ -9,6 +9,7 @@ import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
+import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.other.Constants
@@ -69,6 +70,12 @@ data object NetworkModule {
         }
         bindProvider<PopularSeasonStateMachine> {
             PopularSeasonStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<PopularNextSeasonStateMachine> {
+            PopularNextSeasonStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )

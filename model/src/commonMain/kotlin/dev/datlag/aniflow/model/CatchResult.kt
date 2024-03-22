@@ -84,9 +84,11 @@ sealed interface CatchResult<T> {
         }
     }
 
-    suspend fun <M : Any> mapSuccess(block: suspend (T & Any) -> M): CatchResult<M> {
+    suspend fun <M : Any> mapSuccess(block: suspend (T & Any) -> M?): CatchResult<M> {
         return when (this) {
-            is Success -> Success(block(this.data))
+            is Success -> {
+                block(this.data)?.let(::Success) ?: Error(null)
+            }
             else -> Error(null)
         }
     }

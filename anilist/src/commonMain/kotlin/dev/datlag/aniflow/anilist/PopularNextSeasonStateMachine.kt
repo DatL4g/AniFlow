@@ -1,26 +1,15 @@
 package dev.datlag.aniflow.anilist
 
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
-import dev.datlag.aniflow.anilist.common.nextSeason
-import dev.datlag.aniflow.anilist.common.season
-import dev.datlag.aniflow.anilist.common.year
 import dev.datlag.aniflow.anilist.state.SeasonAction
 import dev.datlag.aniflow.anilist.state.SeasonState
-import dev.datlag.aniflow.anilist.type.MediaSeason
-import dev.datlag.aniflow.anilist.type.MediaSort
-import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class PopularSeasonStateMachine(
+class PopularNextSeasonStateMachine(
     private val client: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<SeasonState, SeasonAction>(
@@ -76,9 +65,9 @@ class PopularSeasonStateMachine(
 
     companion object {
         var currentState: SeasonState
-            get() = StateSaver.popularSeason
+            get() = StateSaver.popularNextSeason
             set(value) {
-                StateSaver.popularSeason = value
+                StateSaver.popularNextSeason = value
             }
     }
 }

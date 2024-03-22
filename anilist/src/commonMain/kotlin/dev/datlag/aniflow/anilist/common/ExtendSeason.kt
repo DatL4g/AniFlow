@@ -17,3 +17,13 @@ internal fun MediaSeason.next(date: LocalDate): Pair<MediaSeason, Int> {
         else -> MediaSeason.UNKNOWN__ to date.year
     }
 }
+
+internal fun MediaSeason.lastMonth(): Month? {
+    return when (this) {
+        MediaSeason.WINTER -> Month.FEBRUARY
+        MediaSeason.SPRING -> Month.MAY
+        MediaSeason.SUMMER -> Month.AUGUST
+        MediaSeason.FALL -> Month.NOVEMBER
+        MediaSeason.UNKNOWN__ -> null
+    }
+}

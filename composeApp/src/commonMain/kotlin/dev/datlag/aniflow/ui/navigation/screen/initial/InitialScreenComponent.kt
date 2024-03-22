@@ -9,6 +9,7 @@ import com.arkivanov.decompose.router.pages.*
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
@@ -18,6 +19,7 @@ import org.kodein.di.DI
 class InitialScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
+    private val onMediumDetails: (Medium) -> Unit
 ) : InitialComponent, ComponentContext by componentContext {
 
     override val pagerItems: List<InitialComponent.PagerItem> = listOf(
@@ -62,7 +64,8 @@ class InitialScreenComponent(
         return when (view) {
             is View.Home -> HomeScreenComponent(
                 componentContext = componentContext,
-                di = di
+                di = di,
+                onMediumDetails = onMediumDetails
             )
         }
     }

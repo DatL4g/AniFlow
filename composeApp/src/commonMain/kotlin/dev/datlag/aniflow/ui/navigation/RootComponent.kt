@@ -8,8 +8,11 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialScreenComponent
+import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreen
+import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import org.kodein.di.DI
 
 class RootComponent(
@@ -32,7 +35,16 @@ class RootComponent(
         return when (rootConfig) {
             is RootConfig.Home -> InitialScreenComponent(
                 componentContext = componentContext,
-                di = di
+                di = di,
+                onMediumDetails = {
+                    navigation.push(RootConfig.Details(it))
+                }
+            )
+            is RootConfig.Details -> MediumScreenComponent(
+                componentContext = componentContext,
+                di = di,
+                initialMedium = rootConfig.medium,
+                onBack = navigation::pop
             )
         }
     }

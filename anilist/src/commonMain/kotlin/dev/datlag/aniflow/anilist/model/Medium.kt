@@ -1,22 +1,23 @@
 package dev.datlag.aniflow.anilist.model
 
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.AdultContent
-import dev.datlag.aniflow.anilist.AiringQuery
-import dev.datlag.aniflow.anilist.SeasonQuery
-import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.common.lastMonth
+import dev.datlag.aniflow.anilist.type.MediaStatus
+import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Medium(
-    val id: Int,
-    val idMal: Int?,
-    val isAdult: Boolean,
-    val genres: Set<String>,
-    val countryOfOrigin: String?,
-    val averageScore: Int,
-    val title: Title,
-    val bannerImage: String?,
-    val coverImage: CoverImage
+open class Medium(
+    open val id: Int,
+    open val idMal: Int?,
+    open val isAdult: Boolean,
+    open val genres: Set<String>,
+    open val countryOfOrigin: String?,
+    open val averageScore: Int,
+    open val title: Title,
+    open val bannerImage: String?,
+    open val coverImage: CoverImage
 ) {
     constructor(trending: TrendingQuery.Medium) : this(
         id = trending.id,
@@ -90,6 +91,30 @@ data class Medium(
         )
     )
 
+    constructor(query: MediumQuery.Media) : this(
+        id = query.id,
+        idMal = query.idMal,
+        isAdult = query.isAdult ?: query.genresFilterNotNull()?.any {
+            AdultContent.Genre.exists(it)
+        } ?: false,
+        genres = query.genresFilterNotNull()?.toSet() ?: emptySet(),
+        countryOfOrigin = query.countryOfOrigin?.toString()?.ifBlank { null },
+        averageScore = query.averageScore ?: -1,
+        title = Title(
+            english = query.title?.english?.ifBlank { null },
+            native = query.title?.native?.ifBlank { null },
+            romaji = query.title?.romaji?.ifBlank { null },
+            userPreferred = query.title?.userPreferred?.ifBlank { null }
+        ),
+        bannerImage = query.bannerImage?.ifBlank { null },
+        coverImage = CoverImage(
+            color = query.coverImage?.color?.ifBlank { null },
+            medium = query.coverImage?.medium?.ifBlank { null },
+            large = query.coverImage?.large?.ifBlank { null },
+            extraLarge = query.coverImage?.extraLarge?.ifBlank { null }
+        )
+    )
+
     @Serializable
     data class Title(
         /**
@@ -137,4 +162,167 @@ data class Medium(
          */
         val medium: String?,
     )
+
+    @Serializable
+    data class Character(
+        /**
+         * The names of the character
+         */
+        val name: Name,
+
+        /**
+         * Character images
+         */
+        val image: Image
+    ) {
+
+        @Serializable
+        data class Name(
+            /**
+             * The character's given name
+             */
+            val first: String?,
+
+            /**
+             * The character's middle name
+             */
+            val middle: String?,
+
+            /**
+             * The character's surname
+             */
+            val last: String?,
+
+            /**
+             * The character's first and last name
+             */
+            val full: String?,
+
+            /**
+             * The character's full name in their native language
+             */
+            val native: String?,
+
+            /**
+             * The currently authenticated users preferred name language. Default romaji for
+             * non-authenticated
+             */
+            val userPreferred: String?
+        ) {
+            constructor(name: MediumQuery.Name) : this(
+                first = name.first?.ifBlank { null },
+                middle = name.middle?.ifBlank { null },
+                last = name.last?.ifBlank { null },
+                full = name.full?.ifBlank { null },
+                native = name.native?.ifBlank { null },
+                userPreferred = name.userPreferred?.ifBlank { null }
+            )
+        }
+
+        @Serializable
+        data class Image(
+            val large: String?,
+            val medium: String?
+        ) {
+            constructor(image: MediumQuery.Image) : this(
+                large = image.large?.ifBlank { null },
+                medium = image.medium?.ifBlank { null }
+            )
+        }
+
+        companion object {
+            operator fun invoke(character: MediumQuery.Node) : Character? {
+                val name = character.name?.let(::Name) ?: return null
+                val image = character.image?.let(::Image) ?: return null
+
+                return Character(
+                    name = name,
+                    image = image
+                )
+            }
+        }
+    }
+
+    @Serializable
+    data class Ranking(
+        /**
+         * The numerical rank of the media
+         */
+        val rank: Int,
+
+        /**
+         * If the ranking is based on all time instead of a season/year
+         */
+        val allTime: Boolean,
+
+        /**
+         * The year the media is ranked within
+         */
+        val year: Int,
+
+        /**
+         * The season the media is ranked within
+         */
+        val season: Month?
+    ) {
+        constructor(ranking: MediumQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth()
+        )
+    }
+
+    data class Full(
+        override val id: Int,
+        override val idMal: Int?,
+        val status: MediaStatus,
+        val description: String?,
+        val episodes: Int,
+        val avgEpisodeDurationInMin: Int?,
+        override val isAdult: Boolean,
+        override val genres: Set<String>,
+        override val countryOfOrigin: String?,
+        override val averageScore: Int,
+        override val title: Title,
+        override val bannerImage: String?,
+        override val coverImage: CoverImage,
+        val nextAiringEpisode: MediumQuery.NextAiringEpisode?,
+        val ranking: Set<Ranking>,
+        val characters: Set<Character>
+    ) : Medium(
+        id = id,
+        idMal = idMal,
+        isAdult = isAdult,
+        genres = genres,
+        countryOfOrigin = countryOfOrigin,
+        averageScore = averageScore,
+        title = title,
+        bannerImage = bannerImage,
+        coverImage = coverImage
+    ) {
+        constructor(medium: Medium, mediumQuery: MediumQuery.Media) : this(
+            id = medium.id,
+            idMal = medium.idMal,
+            status = mediumQuery.status ?: MediaStatus.UNKNOWN__,
+            description = mediumQuery.description?.ifBlank { null },
+            episodes = mediumQuery.episodes ?: -1,
+            avgEpisodeDurationInMin = mediumQuery.duration ?: -1,
+            isAdult = medium.isAdult,
+            genres = medium.genres,
+            countryOfOrigin = medium.countryOfOrigin?.ifBlank { null },
+            averageScore = medium.averageScore,
+            title = medium.title,
+            bannerImage = medium.bannerImage?.ifBlank { null },
+            coverImage = medium.coverImage,
+            nextAiringEpisode = mediumQuery.nextAiringEpisode,
+            ranking = mediumQuery.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet()
+        )
+
+        constructor(mediumQuery: MediumQuery.Media) : this(
+            medium = Medium(mediumQuery),
+            mediumQuery = mediumQuery
+        )
+    }
 }

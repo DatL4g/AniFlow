@@ -1,0 +1,57 @@
+query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
+    Media(id: $id) {
+        id,
+        idMal,
+        status(version: $statusVersion),
+        description(asHtml: $html),
+        episodes,
+        duration,
+        chapters,
+        countryOfOrigin,
+        popularity,
+        isFavourite,
+        isFavouriteBlocked,
+        isAdult,
+        bannerImage,
+        coverImage {
+            extraLarge,
+            large,
+            medium,
+            color
+        },
+        averageScore,
+        title {
+            english,
+            native,
+            romaji,
+            userPreferred
+        },
+        nextAiringEpisode {
+            episode,
+            airingAt
+        },
+        rankings {
+            rank,
+            allTime,
+            year,
+            season
+        },
+        genres,
+        characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
+            nodes {
+                name {
+                    first,
+                    middle
+                    last,
+                    full,
+                    native,
+                    userPreferred
+                },
+                image {
+                    large,
+                    medium
+                }
+            }
+        }
+    }
+}

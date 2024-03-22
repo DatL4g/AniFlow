@@ -4,8 +4,8 @@ import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import java.util.Locale
 
-actual fun Medium.preferredTitle(): String {
-    return this.title.userPreferred?.ifBlank { null } ?: run {
+actual fun Medium.Title.preferred(): String {
+    return this.userPreferred?.ifBlank { null } ?: run {
 
         val locale = Locale.getDefault()
         val isJapanese = locale.language.equals("jp", ignoreCase = true)
@@ -13,13 +13,13 @@ actual fun Medium.preferredTitle(): String {
                 || locale.isO3Language.equals("jpn", ignoreCase = true)
 
         if (isJapanese) {
-            this.title.native?.ifBlank { null }
-                ?: this.title.romaji?.ifBlank { null }
-                ?: this.title.english?.ifBlank { null }
+            this.native?.ifBlank { null }
+                ?: this.romaji?.ifBlank { null }
+                ?: this.english?.ifBlank { null }
         } else {
-            this.title.english?.ifBlank { null }
-                ?: this.title.romaji?.ifBlank { null }
-                ?: this.title.native?.ifBlank { null }
+            this.english?.ifBlank { null }
+                ?: this.romaji?.ifBlank { null }
+                ?: this.native?.ifBlank { null }
         }
-    } ?: this.id.toString()
+    } ?: ""
 }

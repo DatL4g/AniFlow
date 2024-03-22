@@ -90,6 +90,13 @@ fun LocalPadding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): PaddingValues {
     ) ?: PaddingValues(horizontal = horizontal, vertical = vertical)
 }
 
+@Composable
+fun LocalPadding(top: Dp = 0.dp, start: Dp = 0.dp, bottom: Dp = 0.dp, end: Dp = 0.dp): PaddingValues {
+    return LocalPaddingValues.current?.plus(
+        PaddingValues(top = top, start = start, bottom = bottom, end = end)
+    ) ?: PaddingValues(top = top, start = start, bottom = bottom, end = end)
+}
+
 fun Modifier.mergedLocalPadding(other: PaddingValues, additional: PaddingValues = PaddingValues(0.dp)) = composed {
     this.padding((LocalPaddingValues.current?.merge(other) ?: other).plus(additional))
 }
