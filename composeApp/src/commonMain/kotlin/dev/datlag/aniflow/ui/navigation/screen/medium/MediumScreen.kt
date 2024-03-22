@@ -207,6 +207,7 @@ fun MediumScreen(component: MediumComponent) {
                         ) {
                             val format by component.format.collectAsStateWithLifecycle()
                             val episodes by component.episodes.collectAsStateWithLifecycle()
+                            val duration by component.duration.collectAsStateWithLifecycle()
                             val status by component.status.collectAsStateWithLifecycle()
 
                             Row(
@@ -231,6 +232,19 @@ fun MediumScreen(component: MediumComponent) {
                                         contentDescription = null
                                     )
                                     Text(text = "$episodes Episodes")
+                                }
+                            }
+                            if (duration > -1) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timelapse,
+                                        contentDescription = null
+                                    )
+                                    Text(text = "${duration}min / Episode")
                                 }
                             }
                             Row(

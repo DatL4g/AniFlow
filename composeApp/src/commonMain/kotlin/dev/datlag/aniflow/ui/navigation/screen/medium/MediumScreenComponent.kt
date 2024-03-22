@@ -120,6 +120,16 @@ class MediumScreenComponent(
         initialValue = -1
     )
 
+    override val duration: StateFlow<Int> = mediumSuccessState.mapNotNull {
+        it?.data?.avgEpisodeDurationInMin
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = -1
+    )
+
     override val status: StateFlow<MediaStatus> = mediumSuccessState.mapNotNull {
         it?.data?.status
     }.flowOn(

@@ -18,6 +18,7 @@ interface MediumComponent : ContentHolderComponent {
 
     val format: StateFlow<MediaFormat>
     val episodes: StateFlow<Int>
+    val duration: StateFlow<Int>
     val status: StateFlow<MediaStatus>
 
     fun back()
