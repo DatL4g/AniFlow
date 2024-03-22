@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -39,6 +40,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.tooling.compose.onClick
@@ -164,12 +166,17 @@ fun MediumScreen(component: MediumComponent) {
         CompositionLocalProvider(
             LocalPaddingValues provides LocalPadding().merge(it)
         ) {
+            val listState = rememberLazyListState(
+                initialFirstVisibleItemIndex = StateSaver.List.mediaOverview,
+                initialFirstVisibleItemScrollOffset = StateSaver.List.mediaOverviewOffset
+            )
             val description by component.description.collectAsStateWithLifecycle()
             var descriptionExpandable by remember(description) { mutableStateOf(false) }
             var descriptionExpanded by remember(description) { mutableStateOf(false) }
             val characters by component.characters.collectAsStateWithLifecycle()
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = LocalPadding(top = 16.dp)
@@ -417,6 +424,13 @@ fun MediumScreen(component: MediumComponent) {
                             }
                         }
                     }
+                }
+            }
+
+            DisposableEffect(listState) {
+                onDispose {
+                    StateSaver.List.mediaOverview = listState.firstVisibleItemIndex
+                    StateSaver.List.mediaOverviewOffset = listState.firstVisibleItemScrollOffset
                 }
             }
         }

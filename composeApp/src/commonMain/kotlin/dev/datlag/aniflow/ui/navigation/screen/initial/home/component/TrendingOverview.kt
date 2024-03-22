@@ -12,6 +12,7 @@ import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -61,7 +62,10 @@ private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
     onClick: (Medium) -> Unit
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = StateSaver.List.Home.trendingOverview,
+        initialFirstVisibleItemScrollOffset = StateSaver.List.Home.trendingOverviewOffset
+    )
     var highlightedItem by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(listState) {
@@ -88,6 +92,13 @@ private fun SuccessContent(
                 modifier = Modifier.width(200.dp).height(280.dp),
                 onClick = onClick
             )
+        }
+    }
+
+    DisposableEffect(listState) {
+        onDispose {
+            StateSaver.List.Home.trendingOverview = listState.firstVisibleItemIndex
+            StateSaver.List.Home.trendingOverviewOffset = listState.firstVisibleItemScrollOffset
         }
     }
 }

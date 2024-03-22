@@ -12,6 +12,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +22,7 @@ import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.common.plus
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.PopularSeasonOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
@@ -33,7 +35,10 @@ fun HomeScreen(component: HomeComponent) {
 @Composable
 private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
     val padding = PaddingValues(vertical = 16.dp)
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = StateSaver.List.homeOverview,
+        initialFirstVisibleItemScrollOffset = StateSaver.List.homeOverviewOffset
+    )
 
     LazyColumn(
         state = listState,
@@ -80,7 +85,8 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             PopularSeasonOverview(
                 state = component.popularSeasonState,
-                onClick = component::details
+                current = true,
+                onClick = component::details,
             )
         }
         item {
@@ -94,8 +100,16 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             PopularSeasonOverview(
                 state = component.popularNextSeasonState,
+                current = false,
                 onClick = component::details
             )
+        }
+    }
+
+    DisposableEffect(listState) {
+        onDispose {
+            StateSaver.List.homeOverview = listState.firstVisibleItemIndex
+            StateSaver.List.homeOverviewOffset = listState.firstVisibleItemScrollOffset
         }
     }
 }

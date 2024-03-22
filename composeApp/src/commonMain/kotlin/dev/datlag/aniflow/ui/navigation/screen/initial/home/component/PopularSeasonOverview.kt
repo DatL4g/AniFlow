@@ -14,6 +14,7 @@ import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.shimmer
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun PopularSeasonOverview(
     state: StateFlow<SeasonState>,
+    current: Boolean,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle()
@@ -32,6 +34,7 @@ fun PopularSeasonOverview(
         is SeasonState.Success -> {
             SuccessContent(
                 data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
+                current = current,
                 onClick = onClick
             )
         }
@@ -61,9 +64,21 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<SeasonQuery.Medium>,
+    current: Boolean,
     onClick: (Medium) -> Unit
 ) {
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = if (current) {
+            StateSaver.List.Home.popularOverview
+        } else {
+            StateSaver.List.Home.popularNextOverview
+        },
+        initialFirstVisibleItemScrollOffset = if (current) {
+            StateSaver.List.Home.popularOverviewOffset
+        } else {
+            StateSaver.List.Home.popularNextOverviewOffset
+        },
+    )
     var highlightedItem by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(listState) {
@@ -90,6 +105,18 @@ private fun SuccessContent(
                 modifier = Modifier.width(200.dp).height(280.dp),
                 onClick = onClick
             )
+        }
+    }
+
+    DisposableEffect(listState) {
+        onDispose {
+            if (current) {
+                StateSaver.List.Home.popularOverview = listState.firstVisibleItemIndex
+                StateSaver.List.Home.popularOverviewOffset = listState.firstVisibleItemScrollOffset
+            } else {
+                StateSaver.List.Home.popularNextOverview = listState.firstVisibleItemIndex
+                StateSaver.List.Home.popularNextOverviewOffset = listState.firstVisibleItemScrollOffset
+            }
         }
     }
 }

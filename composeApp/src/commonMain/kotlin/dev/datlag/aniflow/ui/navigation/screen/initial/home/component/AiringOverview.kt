@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,6 +17,7 @@ import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 
@@ -70,7 +72,10 @@ private fun SuccessContent(
     data: List<AiringQuery.AiringSchedule>,
     onClick: (Medium) -> Unit
 ) {
-    val state = rememberLazyListState()
+    val state = rememberLazyListState(
+        initialFirstVisibleItemIndex = StateSaver.List.Home.airingOverview,
+        initialFirstVisibleItemScrollOffset = StateSaver.List.Home.airingOverviewOffset
+    )
 
     LazyRow(
         state = state,
@@ -85,6 +90,13 @@ private fun SuccessContent(
                 modifier = Modifier.size(width = 300.dp, height = 150.dp),
                 onClick = onClick
             )
+        }
+    }
+
+    DisposableEffect(state) {
+        onDispose {
+            StateSaver.List.Home.airingOverview = state.firstVisibleItemIndex
+            StateSaver.List.Home.airingOverviewOffset = state.firstVisibleItemScrollOffset
         }
     }
 }
