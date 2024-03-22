@@ -87,7 +87,6 @@ private fun SuccessContent(
             MediumCard(
                 medium = Medium(medium),
                 isHighlighted = index == highlightedItem,
-                lazyListState = listState,
                 modifier = Modifier.width(200.dp).height(280.dp),
                 onClick = onClick
             )

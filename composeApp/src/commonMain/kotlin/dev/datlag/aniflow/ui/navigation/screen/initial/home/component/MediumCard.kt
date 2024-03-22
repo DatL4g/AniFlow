@@ -32,7 +32,6 @@ import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 fun MediumCard(
     medium: Medium,
     isHighlighted: Boolean,
-    lazyListState: LazyListState?,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
@@ -75,11 +74,6 @@ fun MediumCard(
                     modifier = Modifier.fillMaxSize(),
                     contentDescription = medium.title.userPreferred,
                     contentScale = ContentScale.Crop,
-                    alignment = if (lazyListState != null) {
-                        rememberParallaxAlignment(lazyListState, medium.id)
-                    } else {
-                        Alignment.Center
-                    },
                     placeholder = shimmerPainter(),
                     error = rememberAsyncImagePainter(
                         model = medium.coverImage.large,

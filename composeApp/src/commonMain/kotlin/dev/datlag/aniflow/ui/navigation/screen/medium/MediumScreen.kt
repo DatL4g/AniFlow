@@ -89,23 +89,49 @@ fun MediumScreen(component: MediumComponent) {
                         }
                     },
                     title = {
-                        Text(
-                            text = component.initialMedium.preferred(),
-                            softWrap = true,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            style = if (!isCollapsed) {
-                                LocalTextStyle.current.copy(
-                                    shadow = Shadow(
-                                        color = MaterialTheme.colorScheme.surface,
-                                        offset = Offset(4F, 4F),
-                                        blurRadius = 8F
+                        val title by component.title.collectAsStateWithLifecycle()
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+                        ) {
+                            Text(
+                                text = title.preferred(),
+                                softWrap = true,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                style = if (!isCollapsed) {
+                                    LocalTextStyle.current.copy(
+                                        shadow = Shadow(
+                                            color = MaterialTheme.colorScheme.surface,
+                                            offset = Offset(4F, 4F),
+                                            blurRadius = 8F
+                                        )
                                     )
+                                } else {
+                                    LocalTextStyle.current
+                                }
+                            )
+                            title.notPreferred()?.let {
+                                Text(
+                                    text = it,
+                                    softWrap = true,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    style = if (!isCollapsed) {
+                                        MaterialTheme.typography.labelMedium.copy(
+                                            shadow = Shadow(
+                                                color = MaterialTheme.colorScheme.surface,
+                                                offset = Offset(4F, 4F),
+                                                blurRadius = 8F
+                                            )
+                                        )
+                                    } else {
+                                        MaterialTheme.typography.labelMedium
+                                    }
                                 )
-                            } else {
-                                LocalTextStyle.current
                             }
-                        )
+                        }
                     },
                     scrollBehavior = scrollState,
                     colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -138,8 +164,6 @@ fun MediumScreen(component: MediumComponent) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        val title by component.title.collectAsStateWithLifecycle()
-
                         AsyncImage(
                             modifier = Modifier
                                 .width(140.dp)
@@ -151,7 +175,7 @@ fun MediumScreen(component: MediumComponent) {
                                 ),
                             model = coverImage.extraLarge,
                             contentScale = ContentScale.Crop,
-                            contentDescription = title.preferred(),
+                            contentDescription = null,
                             placeholder = shimmerPainter(),
                             error = rememberAsyncImagePainter(
                                 model = coverImage.large,
