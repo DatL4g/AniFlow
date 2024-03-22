@@ -115,6 +115,7 @@ kotlin {
                 implementation(libs.appcompat)
                 implementation(libs.multidex)
                 implementation(libs.splashscreen)
+                implementation(libs.html.converter)
 
                 implementation(libs.ktor.jvm)
                 implementation(libs.coroutines.android)

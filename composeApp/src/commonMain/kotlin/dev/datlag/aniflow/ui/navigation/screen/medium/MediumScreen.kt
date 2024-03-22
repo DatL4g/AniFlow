@@ -73,7 +73,11 @@ fun MediumScreen(component: MediumComponent) {
                 LargeTopAppBar(
                     navigationIcon = {
                         IconButton(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape),
+                            modifier = if (isCollapsed) {
+                                Modifier
+                            } else {
+                                Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
+                            },
                             onClick = {
                                 component.back()
                             }
@@ -180,7 +184,7 @@ fun MediumScreen(component: MediumComponent) {
                         SelectionContainer {
                             Text(
                                 modifier = Modifier.padding(horizontal = 16.dp),
-                                text = description!!
+                                text = description!!.htmlToAnnotatedString()
                             )
                         }
                     }
