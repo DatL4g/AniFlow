@@ -21,6 +21,12 @@ interface MediumComponent : ContentHolderComponent {
     val duration: StateFlow<Int>
     val status: StateFlow<MediaStatus>
 
+    val rated: StateFlow<Medium.Ranking?>
+    val popular: StateFlow<Medium.Ranking?>
+    val score: StateFlow<Int?>
+
+    val characters: StateFlow<Set<Medium.Character>>
+
     fun back()
     override fun dismissContent() {
         back()

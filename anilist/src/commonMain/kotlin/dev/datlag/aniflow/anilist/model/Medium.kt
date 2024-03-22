@@ -4,6 +4,7 @@ import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.common.lastMonth
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
@@ -264,13 +265,19 @@ open class Medium(
         /**
          * The season the media is ranked within
          */
-        val season: Month?
+        val season: Month?,
+
+        /**
+         * The type of ranking
+         */
+        val type: MediaRankType
     ) {
         constructor(ranking: MediumQuery.Ranking) : this(
             rank = ranking.rank,
             allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
             year = ranking.year ?: -1,
-            season = ranking.season?.lastMonth()
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
         )
     }
 

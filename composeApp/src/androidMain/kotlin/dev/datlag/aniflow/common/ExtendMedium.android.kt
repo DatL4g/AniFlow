@@ -23,3 +23,35 @@ actual fun Medium.Title.preferred(): String {
         }
     } ?: ""
 }
+
+actual fun Medium.Character.Name.preferred(): String {
+    return this.userPreferred?.ifBlank { null } ?: run {
+
+        val locale = Locale.getDefault()
+        val isJapanese = locale.language.equals("jp", ignoreCase = true)
+                || locale.language.equals("ja", ignoreCase = true)
+                || locale.isO3Language.equals("jpn", ignoreCase = true)
+
+        if (isJapanese) {
+            this.native?.ifBlank { null }
+                ?: this.full?.ifBlank { null }
+                ?: buildString {
+                    append(this@preferred.first)
+                    append(" ")
+                    append(this@preferred.middle)
+                    append(" ")
+                    append(this@preferred.last)
+                }.ifBlank { null }
+        } else {
+            this.full?.ifBlank { null }
+                ?: buildString {
+                    append(this@preferred.first)
+                    append(" ")
+                    append(this@preferred.middle)
+                    append(" ")
+                    append(this@preferred.last)
+                }.ifBlank { null }
+                ?: this.native
+        }
+    } ?: ""
+}

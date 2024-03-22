@@ -10,3 +10,17 @@ actual fun Medium.Title.preferred(): String {
         ?: this.native?.ifBlank { null }
         ?: ""
 }
+
+actual fun Medium.Character.Name.preferred(): String {
+    return this.userPreferred?.ifBlank { null }
+        ?: this.full?.ifBlank { null }
+        ?: buildString {
+            append(this@preferred.first)
+            append(" ")
+            append(this@preferred.middle)
+            append(" ")
+            append(this@preferred.last)
+        }.ifBlank { null }
+        ?: this.native?.ifBlank { null }
+        ?: ""
+}

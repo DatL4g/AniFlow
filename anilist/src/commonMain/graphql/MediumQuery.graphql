@@ -35,7 +35,8 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
             rank,
             allTime,
             year,
-            season
+            season,
+            type
         },
         genres,
         characters(sort: [FAVOURITES_DESC,RELEVANCE]) {

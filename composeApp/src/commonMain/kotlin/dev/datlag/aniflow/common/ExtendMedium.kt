@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.icerock.moko.resources.StringResource
 
@@ -85,3 +86,39 @@ fun MediaStatus.text(): StringResource {
 fun Medium.Full.statusText(): StringResource {
     return this.status.text()
 }
+
+fun Collection<Medium.Ranking>.rated(): Medium.Ranking? {
+    val filtered = this.filter { it.type == MediaRankType.RATED }
+
+    return filtered.firstOrNull {
+        it.allTime
+    } ?: filtered.sortedWith(
+        compareByDescending<Medium.Ranking> {
+            it.year
+        }.thenBy {
+            it.season
+        }
+    ).firstOrNull()
+}
+
+fun Medium.Full.rated(): Medium.Ranking? = this.ranking.rated()
+
+fun Collection<Medium.Ranking>.popular(): Medium.Ranking? {
+    val filtered = this.filter { it.type == MediaRankType.POPULAR }
+
+    return filtered.firstOrNull {
+        it.allTime
+    } ?: filtered.sortedWith(
+        compareByDescending<Medium.Ranking> {
+            it.year
+        }.thenBy {
+            it.season
+        }
+    ).firstOrNull()
+}
+
+fun Medium.Full.popular(): Medium.Ranking? = this.ranking.popular()
+
+expect fun Medium.Character.Name.preferred(): String
+
+fun Medium.Character.preferredName(): String = this.name.preferred()

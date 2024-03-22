@@ -31,6 +31,8 @@ internal fun App(
         LocalDarkMode provides systemDarkTheme,
         LocalDI provides di
     ) {
+        SystemAppearance()
+
         MaterialTheme(
             colorScheme = if (systemDarkTheme) Colors.getDarkScheme() else Colors.getLightScheme(),
             typography = ManropeFontFamily().toTypography()
@@ -75,3 +77,6 @@ fun ManropeFontFamily(): FontFamily {
 
     return FontFamily(fonts)
 }
+
+@Composable
+expect fun SystemAppearance(isDark: Boolean = LocalDarkMode.current)

@@ -37,8 +37,10 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
+import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
@@ -165,6 +167,7 @@ fun MediumScreen(component: MediumComponent) {
             val description by component.description.collectAsStateWithLifecycle()
             var descriptionExpandable by remember(description) { mutableStateOf(false) }
             var descriptionExpanded by remember(description) { mutableStateOf(false) }
+            val characters by component.characters.collectAsStateWithLifecycle()
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
@@ -262,6 +265,63 @@ fun MediumScreen(component: MediumComponent) {
                     }
                 }
                 item {
+                    Row(
+                        modifier = Modifier.fillParentMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        val rated by component.rated.collectAsStateWithLifecycle()
+                        val popular by component.popular.collectAsStateWithLifecycle()
+                        val score by component.score.collectAsStateWithLifecycle()
+
+                        rated?.let {
+                            Column(
+                                verticalArrangement = Arrangement.SpaceEvenly,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stringResource(SharedRes.strings.rated),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "#${it.rank}",
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+                            }
+                        }
+                        popular?.let {
+                            Column(
+                                verticalArrangement = Arrangement.SpaceEvenly,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stringResource(SharedRes.strings.popular),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "#${it.rank}",
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+                            }
+                        }
+                        score?.let {
+                            Column(
+                                verticalArrangement = Arrangement.SpaceEvenly,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stringResource(SharedRes.strings.score),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                                Text(
+                                    text = "${it}%",
+                                    style = MaterialTheme.typography.displaySmall
+                                )
+                            }
+                        }
+                    }
+                }
+                item {
                     val genres by component.genres.collectAsStateWithLifecycle()
 
                     if (genres.isNotEmpty()) {
@@ -286,35 +346,29 @@ fun MediumScreen(component: MediumComponent) {
                         )
                     }
                     item {
-                        SelectionContainer(
-                            modifier = Modifier.animateContentSize(
-                                animationSpec = tween()
-                            )
-                        ) {
-                            val animatedLines by animateIntAsState(
-                                targetValue = if (descriptionExpanded) {
-                                    Int.MAX_VALUE
-                                } else {
-                                    3
-                                },
-                                animationSpec = tween()
-                            )
+                        val animatedLines by animateIntAsState(
+                            targetValue = if (descriptionExpanded) {
+                                Int.MAX_VALUE
+                            } else {
+                                3
+                            },
+                            animationSpec = tween()
+                        )
 
-                            Text(
-                                modifier = Modifier.padding(horizontal = 16.dp).onClick {
-                                    descriptionExpanded = !descriptionExpanded
-                                },
-                                text = description!!.htmlToAnnotatedString(),
-                                maxLines = max(animatedLines, 1),
-                                softWrap = true,
-                                overflow = TextOverflow.Ellipsis,
-                                onTextLayout = { result ->
-                                    if (!descriptionExpanded) {
-                                        descriptionExpandable = result.hasVisualOverflow
-                                    }
+                        Text(
+                            modifier = Modifier.padding(horizontal = 16.dp).onClick {
+                                descriptionExpanded = !descriptionExpanded
+                            },
+                            text = description!!.htmlToAnnotatedString(),
+                            maxLines = max(animatedLines, 1),
+                            softWrap = true,
+                            overflow = TextOverflow.Ellipsis,
+                            onTextLayout = { result ->
+                                if (!descriptionExpanded) {
+                                    descriptionExpandable = result.hasVisualOverflow
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                     if (descriptionExpandable) {
                         item {
@@ -333,6 +387,30 @@ fun MediumScreen(component: MediumComponent) {
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = null
+                                )
+                            }
+                        }
+                    }
+                }
+                if (characters.isNotEmpty()) {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
+                            text = "Characters",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                    item {
+                        LazyRow(
+                            modifier = Modifier.fillParentMaxWidth(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                        ) {
+                            items(characters.toList()) { char ->
+                                CharacterCard(
+                                    char = char,
+                                    modifier = Modifier.width(96.dp).height(200.dp)
                                 )
                             }
                         }

@@ -14,6 +14,8 @@ import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
+import dev.datlag.aniflow.common.popular
+import dev.datlag.aniflow.common.rated
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
@@ -138,6 +140,59 @@ class MediumScreenComponent(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = MediaStatus.UNKNOWN__
+    )
+
+    override val rated: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
+        it?.data?.rated()
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = null
+    )
+
+    override val popular: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
+        it?.data?.popular()
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = null
+    )
+
+    override val score: StateFlow<Int?> = mediumSuccessState.mapNotNull {
+        val received = it?.data?.averageScore
+        if (received == null || received == -1) {
+            null
+        } else {
+            received
+        }
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = run {
+            val initial = initialMedium.averageScore
+
+            if (initial == -1) {
+                null
+            } else {
+                initial
+            }
+        }
+    )
+
+    override val characters: StateFlow<Set<Medium.Character>> = mediumSuccessState.mapNotNull {
+        it?.data?.characters
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = emptySet()
     )
 
     @Composable
