@@ -1,13 +1,19 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.chrisbanes.haze.haze
@@ -31,7 +38,11 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
+import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -152,6 +163,7 @@ fun MediumScreen(component: MediumComponent) {
             LocalPaddingValues provides LocalPadding().merge(it)
         ) {
             val description by component.description.collectAsStateWithLifecycle()
+            var descriptionExpanded by remember(description) { mutableStateOf(false) }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
@@ -190,9 +202,63 @@ fun MediumScreen(component: MediumComponent) {
                         )
                         Column(
                             modifier = Modifier.weight(1F).fillMaxHeight(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
                         ) {
-                            Text("Episode Info etc.")
+                            val format by component.format.collectAsStateWithLifecycle()
+                            val episodes by component.episodes.collectAsStateWithLifecycle()
+                            val status by component.status.collectAsStateWithLifecycle()
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.OndemandVideo,
+                                    contentDescription = null
+                                )
+                                Text(text = stringResource(format.text()))
+                            }
+                            if (episodes > -1) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.List,
+                                        contentDescription = null
+                                    )
+                                    Text(text = "$episodes Episodes")
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.RssFeed,
+                                    contentDescription = null
+                                )
+                                Text(text = stringResource(status.text()))
+                            }
+                        }
+                    }
+                }
+                item {
+                    val genres by component.genres.collectAsStateWithLifecycle()
+
+                    if (genres.isNotEmpty()) {
+                        LazyRow(
+                            modifier = Modifier.fillParentMaxWidth(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                        ) {
+                            items(genres.toList()) { genre ->
+                                GenreChip(label = genre)
+                            }
                         }
                     }
                 }
@@ -205,10 +271,47 @@ fun MediumScreen(component: MediumComponent) {
                         )
                     }
                     item {
-                        SelectionContainer {
+                        SelectionContainer(
+                            modifier = Modifier.animateContentSize(
+                                animationSpec = tween()
+                            )
+                        ) {
+                            val animatedLines by animateIntAsState(
+                                targetValue = if (descriptionExpanded) {
+                                    Int.MAX_VALUE
+                                } else {
+                                    3
+                                },
+                                animationSpec = tween()
+                            )
+
                             Text(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                text = description!!.htmlToAnnotatedString()
+                                modifier = Modifier.padding(horizontal = 16.dp).onClick {
+                                    descriptionExpanded = !descriptionExpanded
+                                },
+                                text = description!!.htmlToAnnotatedString(),
+                                maxLines = max(animatedLines, 1),
+                                softWrap = true,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    item {
+                        IconButton(
+                            modifier = Modifier.fillParentMaxWidth(),
+                            onClick = {
+                                descriptionExpanded = !descriptionExpanded
+                            }
+                        ) {
+                            val icon = if (descriptionExpanded) {
+                                Icons.Default.ExpandLess
+                            } else {
+                                Icons.Default.ExpandMore
+                            }
+
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null
                             )
                         }
                     }

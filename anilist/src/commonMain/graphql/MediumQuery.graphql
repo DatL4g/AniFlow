@@ -12,6 +12,7 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
         isFavourite,
         isFavouriteBlocked,
         isAdult,
+        format,
         bannerImage,
         coverImage {
             extraLarge,

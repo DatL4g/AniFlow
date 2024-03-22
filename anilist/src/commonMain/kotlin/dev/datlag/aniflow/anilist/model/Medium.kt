@@ -3,6 +3,7 @@ package dev.datlag.aniflow.anilist.model
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.common.lastMonth
+import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
@@ -280,6 +281,7 @@ open class Medium(
         val description: String?,
         val episodes: Int,
         val avgEpisodeDurationInMin: Int?,
+        val format: MediaFormat,
         override val isAdult: Boolean,
         override val genres: Set<String>,
         override val countryOfOrigin: String?,
@@ -308,6 +310,7 @@ open class Medium(
             description = mediumQuery.description?.ifBlank { null },
             episodes = mediumQuery.episodes ?: -1,
             avgEpisodeDurationInMin = mediumQuery.duration ?: -1,
+            format = mediumQuery.format ?: MediaFormat.UNKNOWN__,
             isAdult = medium.isAdult,
             genres = medium.genres,
             countryOfOrigin = medium.countryOfOrigin?.ifBlank { null },

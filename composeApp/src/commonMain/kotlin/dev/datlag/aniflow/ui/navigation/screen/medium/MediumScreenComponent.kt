@@ -10,6 +10,8 @@ import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.other.Constants
@@ -86,6 +88,46 @@ class MediumScreenComponent(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = null
+    )
+
+    override val genres: StateFlow<Set<String>> = mediumSuccessState.mapNotNull {
+        it?.data?.genres?.ifEmpty { null }
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.genres
+    )
+
+    override val format: StateFlow<MediaFormat> = mediumSuccessState.mapNotNull {
+        it?.data?.format
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = MediaFormat.UNKNOWN__
+    )
+
+    override val episodes: StateFlow<Int> = mediumSuccessState.mapNotNull {
+        it?.data?.episodes
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = -1
+    )
+
+    override val status: StateFlow<MediaStatus> = mediumSuccessState.mapNotNull {
+        it?.data?.status
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = MediaStatus.UNKNOWN__
     )
 
     @Composable
