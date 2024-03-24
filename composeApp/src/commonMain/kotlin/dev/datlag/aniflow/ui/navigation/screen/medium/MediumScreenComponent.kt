@@ -8,6 +8,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.backhandler.BackCallback
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.MediumQuery
 import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
@@ -21,6 +22,8 @@ import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
 import kotlinx.coroutines.flow.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -112,14 +115,47 @@ class MediumScreenComponent(
         initialValue = MediaFormat.UNKNOWN__
     )
 
-    override val episodes: StateFlow<Int> = mediumSuccessState.mapNotNull {
-        it?.data?.episodes
+    private val nextAiringEpisode: StateFlow<MediumQuery.NextAiringEpisode?> = mediumSuccessState.mapNotNull {
+        it?.data?.nextAiringEpisode
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = -1
+        initialValue = null
+    )
+
+    override val episodes: StateFlow<Int> = combine(
+        mediumSuccessState.mapNotNull {
+            it?.data?.episodes
+        },
+        nextAiringEpisode
+    ) { episodes, airing ->
+        if (episodes > -1) {
+            episodes
+        } else if (airing != null) {
+            if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
+                airing.episode
+            } else {
+                airing.episode - 1
+            }
+        } else {
+            episodes
+        }
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = run {
+            val airing = nextAiringEpisode.value ?: return@run -1
+
+            if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
+                airing.episode
+            } else {
+                airing.episode - 1
+            }
+        }
     )
 
     override val duration: StateFlow<Int> = mediumSuccessState.mapNotNull {
