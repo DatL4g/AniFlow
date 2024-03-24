@@ -19,6 +19,8 @@ import dev.datlag.tooling.decompose.lifecycle.LocalLifecycleOwner
 import dev.datlag.tooling.safeCast
 import io.github.aakira.napier.Napier
 import org.kodein.di.DIAware
+import org.kodein.di.instance
+import org.publicvalue.multiplatform.oidc.appsupport.AndroidCodeAuthFlowFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         val lifecycleOwner = object : LifecycleOwner {
             override val lifecycle: Lifecycle = essentyLifecycle()
         }
+        val factory by di.instance<AndroidCodeAuthFlowFactory>()
+        factory.registerActivity(this)
 
         val root = RootComponent(
             componentContext = DefaultComponentContext(

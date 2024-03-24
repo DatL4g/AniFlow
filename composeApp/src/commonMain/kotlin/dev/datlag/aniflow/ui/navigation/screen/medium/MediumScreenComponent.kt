@@ -21,11 +21,14 @@ import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
+import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
+import org.publicvalue.multiplatform.oidc.appsupport.CodeAuthFlowFactory
 
 class MediumScreenComponent(
     componentContext: ComponentContext,
@@ -246,5 +249,16 @@ class MediumScreenComponent(
 
     override fun back() {
         onBack()
+    }
+
+    override fun login() {
+        val factory by di.instance<CodeAuthFlowFactory>()
+        val client by di.instance<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT)
+        val flow = factory.createAuthFlow(client)
+
+        launchIO {
+            val token = flow.getAccessToken()
+            Napier.e(token.toString())
+        }
     }
 }

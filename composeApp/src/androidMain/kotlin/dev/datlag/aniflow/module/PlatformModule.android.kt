@@ -8,6 +8,7 @@ import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.firebase.initialize
 import dev.datlag.aniflow.getPackageName
+import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -60,6 +61,12 @@ actual object PlatformModule {
             } else {
                 FirebaseFactory.Empty
             }
+        }
+        bindSingleton(Constants.Sekret.ANILIST_CLIENT_ID) {
+            Sekret.anilistClientId(getPackageName()) ?: ""
+        }
+        bindSingleton(Constants.Sekret.ANILIST_CLIENT_SECRET) {
+            Sekret.anilistClientSecret(getPackageName()) ?: ""
         }
     }
 }

@@ -2,22 +2,18 @@ package dev.datlag.aniflow.module
 
 import coil3.ImageLoader
 import coil3.PlatformContext
+import dev.datlag.aniflow.*
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.firebase.initialize
-import dev.datlag.aniflow.firebaseIosApiKey
-import dev.datlag.aniflow.firebaseIosApplication
-import dev.datlag.aniflow.firebaseProject
-import dev.datlag.aniflow.getPackageName
+import dev.datlag.aniflow.other.Constants
 import io.ktor.client.*
 import io.ktor.client.engine.darwin.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import org.kodein.di.DI
-import org.kodein.di.bindSingleton
-import org.kodein.di.instance
-import org.kodein.di.instanceOrNull
+import org.kodein.di.*
+import org.publicvalue.multiplatform.oidc.appsupport.IosCodeAuthFlowFactory
 
 actual object PlatformModule {
 
@@ -53,6 +49,15 @@ actual object PlatformModule {
                 apiKey = firebaseIosApiKey(getPackageName()),
                 googleAuthProvider = instanceOrNull()
             )
+        }
+        bindEagerSingleton<IosCodeAuthFlowFactory> {
+            IosCodeAuthFlowFactory()
+        }
+        bindSingleton(Constants.Sekret.ANILIST_CLIENT_ID) {
+            anilistClientId(getPackageName())
+        }
+        bindSingleton(Constants.Sekret.ANILIST_CLIENT_SECRET) {
+            anilistClientSecret(getPackageName())
         }
     }
 }

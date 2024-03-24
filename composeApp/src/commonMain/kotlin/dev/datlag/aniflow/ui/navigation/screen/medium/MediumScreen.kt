@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.tooling.compose.onClick
@@ -161,6 +163,16 @@ fun MediumScreen(component: MediumComponent) {
                     ).fillMaxWidth()
                 )
             }
+        },
+        floatingActionButton = {
+            EditFAB(
+                onRate = {
+                    component.login()
+                },
+                onProgress = {
+
+                }
+            )
         }
     ) {
         CompositionLocalProvider(

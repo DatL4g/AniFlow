@@ -95,6 +95,8 @@ kotlin {
             implementation(libs.aboutlibraries)
             implementation(libs.kasechange)
 
+            implementation(libs.oidc)
+
             implementation(project(":firebase"))
             implementation(project(":anilist"))
             implementation(project(":model"))
@@ -142,6 +144,10 @@ android {
 
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
+
+        addManifestPlaceholders(
+            mapOf("oidcRedirectScheme" to "datlag")
+        )
     }
     packaging {
         resources {

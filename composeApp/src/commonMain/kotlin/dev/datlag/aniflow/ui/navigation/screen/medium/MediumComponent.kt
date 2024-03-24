@@ -31,4 +31,5 @@ interface MediumComponent : ContentHolderComponent {
     override fun dismissContent() {
         back()
     }
+    fun login()
 }
