@@ -87,7 +87,7 @@ private fun SuccessContent(
         items(data, key = { it.episode to it.media?.id }) { media ->
             AiringCard(
                 airing = media,
-                modifier = Modifier.size(width = 300.dp, height = 150.dp),
+                modifier = Modifier.height(150.dp).fillParentMaxWidth(fraction = 0.9F),
                 onClick = onClick
             )
         }

@@ -8,11 +8,13 @@ import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.tooling.async.suspendCatching
+import dev.datlag.tooling.safeSubList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.hours
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringTodayStateMachine(
@@ -29,25 +31,12 @@ class AiringTodayStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    val query = AiringQuery(
-                        page = Optional.present(state.snapshot.page),
-                        perPage = Optional.present(state.snapshot.perPage),
-                        sort = Optional.present(listOf(AiringSort.TIME)),
-                        airingAtGreater = Optional.present(
-                            Clock.System.now().toLocalDateTime(
-                                TimeZone.currentSystemDefault()
-                            ).date.atStartOfDayIn(
-                                TimeZone.currentSystemDefault()
-                            ).epochSeconds.toInt()
-                        )
-                    )
-
-                    Cache.getAiring(query)?.let {
+                    Cache.getAiring(state.snapshot.query)?.let {
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
                     val response = CatchResult.result {
-                        client.query(query).execute().dataOrThrow()
+                        client.query(state.snapshot.query).execute().dataOrThrow()
                     }.mapSuccess<State> {
                         val wantedContent = if (!state.snapshot.adultContent) {
                             val content = it.Page?.airingSchedulesFilterNotNull() ?: emptyList()
@@ -66,10 +55,10 @@ class AiringTodayStateMachine(
                         }
 
                         State.Success(
-                            query,
+                            state.snapshot.query,
                             it.copy(
                                 Page = it.Page?.copy(
-                                    airingSchedules = wantedContent
+                                    airingSchedules = wantedContent.safeSubList(0, 10)
                                 )
                             )
                         )
@@ -79,7 +68,7 @@ class AiringTodayStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error(state.snapshot.page, state.snapshot.perPage, state.snapshot.adultContent)
+                            State.Error(state.snapshot.query, state.snapshot.adultContent)
                         }
                     }
                 }
@@ -97,7 +86,7 @@ class AiringTodayStateMachine(
                 }
                 on<Action.Retry> { _, state ->
                     state.override {
-                        State.Loading(state.snapshot.page, state.snapshot.perPage, state.snapshot.adultContent)
+                        State.Loading(state.snapshot.query, state.snapshot.adultContent)
                     }
                 }
             }
@@ -106,10 +95,25 @@ class AiringTodayStateMachine(
 
     sealed interface State {
         data class Loading(
-            val page: Int,
-            val perPage: Int = 10,
-            val adultContent: Boolean = false,
-        ) : State
+            internal val query: AiringQuery,
+            val adultContent: Boolean = false
+        ) : State {
+            constructor(
+                page: Int,
+                perPage: Int = 20,
+                adultContent: Boolean = false
+            ) : this(
+                query = AiringQuery(
+                    page = Optional.present(page),
+                    perPage = Optional.present(perPage),
+                    sort = Optional.present(listOf(AiringSort.TIME)),
+                    airingAtGreater = Optional.present(
+                        Clock.System.now().minus(1.hours).epochSeconds.toInt()
+                    )
+                ),
+                adultContent = adultContent
+            )
+        }
 
         data class Success(
             internal val query: AiringQuery,
@@ -117,9 +121,8 @@ class AiringTodayStateMachine(
         ) : State
 
         data class Error(
-            val page: Int,
-            val perPage: Int = 10,
-            val adultContent: Boolean = false,
+            internal val query: AiringQuery,
+            val adultContent: Boolean = false
         ) : State
     }
 
