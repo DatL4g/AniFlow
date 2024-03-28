@@ -40,6 +40,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.ui.custom.EditFAB
@@ -48,6 +49,7 @@ import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.map
 import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
@@ -165,14 +167,23 @@ fun MediumScreen(component: MediumComponent) {
             }
         },
         floatingActionButton = {
-            EditFAB(
-                onRate = {
-                    component.login()
-                },
-                onProgress = {
-
-                }
+            val notReleased by component.status.map {
+                it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
+            }.collectAsStateWithLifecycle(
+                initialValue = component.status.value == MediaStatus.UNKNOWN__
+                        || component.status.value == MediaStatus.NOT_YET_RELEASED
             )
+
+            if (!notReleased) {
+                EditFAB(
+                    onRate = {
+                        component.login()
+                    },
+                    onProgress = {
+
+                    }
+                )
+            }
         }
     ) {
         CompositionLocalProvider(
