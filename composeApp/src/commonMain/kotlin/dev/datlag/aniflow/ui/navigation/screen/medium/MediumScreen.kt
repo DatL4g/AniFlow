@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -33,6 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.IconSource
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.rating.RatingDialog
+import com.maxkeppeler.sheets.rating.models.RatingBody
+import com.maxkeppeler.sheets.rating.models.RatingConfig
+import com.maxkeppeler.sheets.rating.models.RatingSelection
+import com.maxkeppeler.sheets.rating.models.RatingViewStyle
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -48,7 +58,9 @@ import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.map
 import kotlin.math.max
 
@@ -63,6 +75,27 @@ fun MediumScreen(component: MediumComponent) {
     val isCollapsed by remember(appBarState) {
         derivedStateOf { appBarState.collapsedFraction >= 0.99F }
     }
+    val ratingState = rememberUseCaseState()
+    val userRating by component.rating.collectAsStateWithLifecycle()
+
+    RatingDialog(
+        state = ratingState,
+        selection = RatingSelection(
+            onSelectRating = { rating, _ ->
+                component.rate(rating)
+            }
+        ),
+        header = Header.Default(
+            title = "Rate this Anime",
+            icon = IconSource(Icons.Filled.Star)
+        ),
+        body = RatingBody.Default(
+            bodyText = ""
+        ),
+        config = RatingConfig(
+            ratingOptionsCount = 5
+        )
+    )
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollState.nestedScrollConnection),
@@ -167,20 +200,19 @@ fun MediumScreen(component: MediumComponent) {
             }
         },
         floatingActionButton = {
-            val notReleased by component.status.map {
+            val notReleased by component.status.mapCollect {
                 it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
-            }.collectAsStateWithLifecycle(
-                initialValue = component.status.value == MediaStatus.UNKNOWN__
-                        || component.status.value == MediaStatus.NOT_YET_RELEASED
-            )
+            }
 
             if (!notReleased) {
                 EditFAB(
                     onRate = {
-                        component.login()
+                        component.rate {
+                            ratingState.show()
+                        }
                     },
                     onProgress = {
-
+                        // ratingState.show()
                     }
                 )
             }
@@ -443,6 +475,46 @@ fun MediumScreen(component: MediumComponent) {
                                     modifier = Modifier.width(96.dp).height(200.dp)
                                 ) {
                                     // ToDo("character dialog")
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    val trailer by component.trailer.collectAsStateWithLifecycle()
+                    val uriHandler = LocalUriHandler.current
+
+                    trailer?.let { t ->
+                        Card(
+                            modifier = Modifier.fillParentMaxWidth().height(200.dp).padding(16.dp),
+                            onClick = {
+                                Napier.e(t.id ?: t.website)
+                                uriHandler.openUri(t.youtubeVideo ?: t.website)
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                AsyncImage(
+                                    modifier = Modifier.fillMaxSize(),
+                                    model = t.thumbnail,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop
+                                )
+                                if (t.isYoutube) {
+                                    Image(
+                                        modifier = Modifier.size(48.dp),
+                                        painter = painterResource(SharedRes.images.youtube),
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(LocalContentColor.current)
+                                    )
+                                } else {
+                                    Icon(
+                                        modifier = Modifier.size(48.dp),
+                                        imageVector = Icons.Filled.PlayCircleFilled,
+                                        contentDescription = null
+                                    )
                                 }
                             }
                         }

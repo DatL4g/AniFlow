@@ -41,7 +41,11 @@ class TrendingAnimeStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error(query)
+                            if (retry <= 3) {
+                                State.Loading(query, retry + 1)
+                            } else {
+                                State.Error(query)
+                            }
                         }
                     }
                 }
@@ -70,6 +74,7 @@ class TrendingAnimeStateMachine(
     sealed interface State {
         data class Loading(
             internal val query: TrendingQuery,
+            internal val retry: Int = 0
         ) : State {
             constructor(
                 page: Int,

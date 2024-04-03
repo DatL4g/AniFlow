@@ -8,7 +8,7 @@ data object Constants {
 
         data object Auth {
             const val BASE_URL = "https://anilist.co/api/v2/oauth/"
-            const val REDIRECT_URL = "datlag://aniflow/anilist"
+            const val REDIRECT_URL = "aniflow://anilist"
             const val CLIENT = "AniListAuthClient"
         }
     }

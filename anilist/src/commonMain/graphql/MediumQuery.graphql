@@ -54,6 +54,14 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
                     medium
                 }
             }
+        },
+        mediaListEntry {
+            score(format: POINT_5)
+        },
+        trailer {
+            id,
+            site,
+            thumbnail
         }
     }
 }

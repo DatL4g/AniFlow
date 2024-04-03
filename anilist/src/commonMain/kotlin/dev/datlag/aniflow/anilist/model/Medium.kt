@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.common.lastMonth
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaTrailer
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
 
@@ -298,7 +299,9 @@ open class Medium(
         override val coverImage: CoverImage,
         val nextAiringEpisode: MediumQuery.NextAiringEpisode?,
         val ranking: Set<Ranking>,
-        val characters: Set<Character>
+        val characters: Set<Character>,
+        val entry: Entry?,
+        val trailer: Trailer?
     ) : Medium(
         id = id,
         idMal = idMal,
@@ -327,12 +330,74 @@ open class Medium(
             coverImage = medium.coverImage,
             nextAiringEpisode = mediumQuery.nextAiringEpisode,
             ranking = mediumQuery.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet()
+            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+            entry = mediumQuery.mediaListEntry?.let(::Entry),
+            trailer = mediumQuery.trailer?.let {
+                val site = it.site?.ifBlank { null }
+                val thumbnail = it.thumbnail?.ifBlank { null }
+
+                if (site == null || thumbnail == null) {
+                    null
+                } else {
+                    Trailer(
+                        id = it.id?.ifBlank { null },
+                        site = site,
+                        thumbnail = thumbnail
+                    )
+                }
+            }
         )
 
         constructor(mediumQuery: MediumQuery.Media) : this(
             medium = Medium(mediumQuery),
             mediumQuery = mediumQuery
         )
+
+        data class Entry(
+            val score: Double?
+        ) {
+            constructor(entry: MediumQuery.MediaListEntry) : this(
+                score = entry.score
+            )
+        }
+
+        data class Trailer(
+            val id: String?,
+            val site: String,
+            val thumbnail: String
+        ) {
+            val website: String = run {
+                val prefix = if (site.startsWith("https://", ignoreCase = true) || site.startsWith("http://", ignoreCase = true)) {
+                    ""
+                } else {
+                    "https://"
+                }
+                val suffix = if (site.substringAfterLast('.', missingDelimiterValue = "").isBlank()) {
+                    ".com"
+                } else {
+                    ""
+                }
+                "$prefix$site$suffix"
+            }
+
+            val isYoutube: Boolean = site.contains("youtu.be", ignoreCase = true)
+                    || site.contains("youtube", ignoreCase = true)
+
+            private val youtubeVideoId: String? = run {
+                val afterVi = thumbnail.substringAfter(
+                    delimiter = "vi/",
+                    missingDelimiterValue = thumbnail.substringAfter(
+                        delimiter = "vi_webp/",
+                        missingDelimiterValue = ""
+                    )
+                ).ifBlank { null } ?: return@run null
+
+                afterVi.substringBefore('/', missingDelimiterValue = "").ifBlank { null }
+            }
+
+            val youtubeVideo = (id ?: youtubeVideoId)?.let {
+                "https://youtube.com/watch?v=$it"
+            }
+        }
     }
 }

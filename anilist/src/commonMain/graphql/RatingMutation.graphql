@@ -1,0 +1,8 @@
+mutation RatingMutation(
+    $mediaId: Int,
+    $rating: Int
+) {
+    SaveMediaListEntry(mediaId: $mediaId, scoreRaw: $rating) {
+        score(format: POINT_5)
+    }
+}

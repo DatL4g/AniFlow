@@ -44,7 +44,11 @@ class MediumStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error(query)
+                            if (retry <= 3) {
+                                State.Loading(query, retry + 1)
+                            } else {
+                                State.Error(query)
+                            }
                         }
                     }
                 }
@@ -70,7 +74,8 @@ class MediumStateMachine(
 
     sealed interface State {
         data class Loading(
-            internal val query: MediumQuery
+            internal val query: MediumQuery,
+            internal val retry: Int = 0
         ) : State {
             constructor(id: Int) : this(
                 MediumQuery(

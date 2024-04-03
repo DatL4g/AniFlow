@@ -49,7 +49,11 @@ class PopularSeasonStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            SeasonState.Error(query)
+                            if (retry <= 3) {
+                                SeasonState.Loading(query, retry + 1)
+                            } else {
+                                SeasonState.Error(query)
+                            }
                         }
                     }
                 }

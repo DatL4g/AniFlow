@@ -13,7 +13,8 @@ import kotlinx.datetime.Instant
 
 sealed interface SeasonState {
     data class Loading(
-        internal val query: SeasonQuery
+        internal val query: SeasonQuery,
+        internal val retry: Int = 0
     ) : SeasonState {
         constructor(
             page: Int,

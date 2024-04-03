@@ -4,6 +4,7 @@ include(":composeApp", ":composeApp:sekret")
 include(":firebase")
 include(":anilist")
 include(":model")
+include(":settings")
 
 pluginManagement {
     repositories {

@@ -38,7 +38,11 @@ class PopularNextSeasonStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            SeasonState.Error(query)
+                            if (state.snapshot.retry <= 3) {
+                                SeasonState.Loading(state.snapshot.query, state.snapshot.retry + 1)
+                            } else {
+                                SeasonState.Error(query)
+                            }
                         }
                     }
                 }

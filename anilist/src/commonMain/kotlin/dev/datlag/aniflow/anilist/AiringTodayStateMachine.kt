@@ -68,7 +68,15 @@ class AiringTodayStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error(state.snapshot.query, state.snapshot.adultContent)
+                            if (retry <= 3) {
+                                State.Loading(
+                                    query,
+                                    adultContent,
+                                    retry + 1
+                                )
+                            } else {
+                                State.Error(query, adultContent)
+                            }
                         }
                     }
                 }
@@ -96,7 +104,8 @@ class AiringTodayStateMachine(
     sealed interface State {
         data class Loading(
             internal val query: AiringQuery,
-            val adultContent: Boolean = false
+            val adultContent: Boolean = false,
+            internal val retry: Int = 0
         ) : State {
             constructor(
                 page: Int,

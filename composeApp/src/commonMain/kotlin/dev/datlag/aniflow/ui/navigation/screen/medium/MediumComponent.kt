@@ -26,10 +26,13 @@ interface MediumComponent : ContentHolderComponent {
     val score: StateFlow<Int?>
 
     val characters: StateFlow<Set<Medium.Character>>
+    val rating: StateFlow<Int>
+    val trailer: StateFlow<Medium.Full.Trailer?>
 
     fun back()
     override fun dismissContent() {
         back()
     }
-    fun login()
+    fun rate(onLoggedIn: () -> Unit)
+    fun rate(value: Int)
 }

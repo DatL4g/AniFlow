@@ -7,6 +7,9 @@ import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.decompose.lifecycle.LocalLifecycleOwner
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 
 /**
  * Can be placed in the Component interface again when
@@ -45,4 +48,13 @@ fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable () -> Un
             SchemeTheme.setCommon(null)
         }
     }
+}
+
+@Composable
+fun <T, R> StateFlow<T>.mapCollect(transform: (value: T) -> R): State<R> {
+    return remember(this) {
+        this.map(transform)
+    }.collectAsStateWithLifecycle(
+        initialValue = transform(this.value)
+    )
 }

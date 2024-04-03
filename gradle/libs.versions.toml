@@ -12,8 +12,10 @@ compose = "1.6.1"
 complete-kotlin = "1.1.0"
 coroutines = "1.8.0"
 crashlytics-plugin = "2.9.9"
+datastore = "1.1.0-beta02"
 datetime = "0.5.0"
 decompose = "3.0.0-alpha09"
+desugar = "2.0.4"
 firebase = "1.11.1"
 firebase-android = "20.4.3"
 firebase-android-analytics = "21.6.1"
@@ -59,9 +61,11 @@ coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil"
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "coroutines" }
+datastore = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "datastore" }
 datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "datetime" }
 decompose = { group = "com.arkivanov.decompose", name = "decompose", version.ref = "decompose" }
 decompose-compose = { group = "com.arkivanov.decompose", name = "extensions-compose", version.ref = "decompose" }
+desugar = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 firebase-auth = { group = "dev.gitlive", name = "firebase-auth", version.ref = "firebase" }
 firebase-crashlytics = { group = "dev.gitlive", name = "firebase-crashlytics", version.ref = "firebase" }
 firebase-android = { group = "com.google.firebase", name = "firebase-common", version.ref = "firebase-android" }

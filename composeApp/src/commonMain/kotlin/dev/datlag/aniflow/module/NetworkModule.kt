@@ -8,6 +8,10 @@ import coil3.network.ktor.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.http.HttpRequest
+import com.apollographql.apollo3.api.http.HttpResponse
+import com.apollographql.apollo3.network.http.HttpInterceptor
+import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
@@ -20,6 +24,9 @@ import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
+import dev.datlag.aniflow.other.TokenRefreshHandler
+import dev.datlag.tooling.async.suspendCatching
+import io.github.aakira.napier.Napier
 import org.kodein.di.bindProvider
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 
@@ -52,9 +59,28 @@ data object NetworkModule {
                 .build()
         }
         bindSingleton<ApolloClient>(Constants.AniList.APOLLO_CLIENT) {
+            val oidc = instance<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT)
+            val tokenHandler = instance<TokenRefreshHandler>()
+
             ApolloClient.Builder()
                 .dispatcher(ioDispatcher())
                 .serverUrl(Constants.AniList.SERVER_URL)
+                .addHttpInterceptor(object : HttpInterceptor {
+                    override suspend fun intercept(request: HttpRequest, chain: HttpInterceptorChain): HttpResponse {
+                        val req = request.newBuilder().apply {
+                            val refreshedToken = tokenHandler.getAccessToken()?.let {
+                                suspendCatching {
+                                    tokenHandler.refreshAndSaveToken(oidc, it).accessToken
+                                }.getOrNull() ?: it
+                            }
+
+                            refreshedToken?.let {
+                                addHeader("Authorization", "Bearer $it")
+                            }
+                        }.build()
+                        return chain.proceed(req)
+                    }
+                })
                 .build()
         }
         bindProvider<TrendingAnimeStateMachine> {
@@ -93,6 +119,9 @@ data object NetworkModule {
                 clientSecret = instance<String>(Constants.Sekret.ANILIST_CLIENT_SECRET).ifBlank { null }
                 redirectUri = Constants.AniList.Auth.REDIRECT_URL
             }
+        }
+        bindSingleton<TokenRefreshHandler> {
+            TokenRefreshHandler(instance())
         }
     }
 }

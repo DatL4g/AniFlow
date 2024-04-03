@@ -4,12 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.backhandler.BackCallback
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.MediumQuery
 import dev.datlag.aniflow.anilist.MediumStateMachine
+import dev.datlag.aniflow.anilist.RatingMutation
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
@@ -17,8 +20,13 @@ import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.common.popular
 import dev.datlag.aniflow.common.rated
+import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.other.TokenRefreshHandler
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
+import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
 import io.github.aakira.napier.Napier
@@ -234,6 +242,49 @@ class MediumScreenComponent(
         initialValue = emptySet()
     )
 
+    private val mediaId: StateFlow<Int> = mediumSuccessState.mapNotNull {
+        it?.data?.id
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.id
+    )
+
+    private val changedRating: MutableStateFlow<Int> = MutableStateFlow(-1)
+    override val rating: StateFlow<Int> = combine(
+        mediumSuccessState.mapNotNull {
+            it?.data?.entry?.score?.toInt()
+        },
+        changedRating
+    ) { t1, t2 ->
+        if (t2 > -1) {
+            t2
+        } else {
+            t1
+        }
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = changedRating.value
+    )
+
+    override val trailer: StateFlow<Medium.Full.Trailer?> = mediumSuccessState.mapNotNull {
+        it?.data?.trailer
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = null
+    )
+
+    private val userSettings by di.instance<Settings.PlatformUserSettings>()
+    private val apolloClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
+
     @Composable
     override fun render() {
         val state = HazeState()
@@ -251,14 +302,55 @@ class MediumScreenComponent(
         onBack()
     }
 
-    override fun login() {
+    private suspend fun login(): Boolean {
         val factory by di.instance<CodeAuthFlowFactory>()
         val client by di.instance<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT)
-        val flow = factory.createAuthFlow(client)
+        val flow = withMainContext {
+            factory.createAuthFlow(client)
+        }
 
+        val tokenResult = suspendCatching {
+            flow.getAccessToken()
+        }
+
+        tokenResult.getOrNull()?.let {
+            userSettings.setAniListTokens(
+                access = it.access_token,
+                refresh = it.refresh_token,
+                id = it.id_token
+            )
+        }
+
+        return tokenResult.isSuccess
+    }
+
+    override fun rate(onLoggedIn: () -> Unit) {
         launchIO {
-            val token = flow.getAccessToken()
-            Napier.e(token.toString())
+            val isLoggedIn = userSettings.isAniListLoggedIn.saveFirstOrNull() ?: false
+
+            if (!isLoggedIn) {
+                if (login()) {
+                    withMainContext {
+                        onLoggedIn()
+                    }
+                }
+            } else {
+                withMainContext {
+                    onLoggedIn()
+                }
+            }
+        }
+    }
+
+    override fun rate(value: Int) {
+        val mutation = RatingMutation(
+            mediaId = Optional.present(mediaId.value),
+            rating = Optional.present(value * 20)
+        )
+        launchIO {
+            apolloClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
+                changedRating.emit(it.toInt())
+            }
         }
     }
 }

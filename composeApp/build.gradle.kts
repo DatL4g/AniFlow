@@ -97,9 +97,12 @@ kotlin {
 
             implementation(libs.oidc)
 
+            implementation("dev.datlag.sheets-compose-dialogs:rating:2.0.0-SNAPSHOT")
+
             implementation(project(":firebase"))
             implementation(project(":anilist"))
             implementation(project(":model"))
+            implementation(project(":settings"))
         }
 
         iosMain.dependencies {
@@ -128,6 +131,10 @@ kotlin {
     }
 }
 
+dependencies {
+    coreLibraryDesugaring(libs.desugar)
+}
+
 android {
     sourceSets["main"].setRoot("src/androidMain/")
     sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/resources")
@@ -146,15 +153,18 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         addManifestPlaceholders(
-            mapOf("oidcRedirectScheme" to "datlag")
+            mapOf("oidcRedirectScheme" to "aniflow")
         )
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            merges += "values**"
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = CompileOptions.sourceCompatibility
         targetCompatibility = CompileOptions.targetCompatibility
     }
