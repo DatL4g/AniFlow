@@ -47,14 +47,14 @@ fun EditFAB(
             )
         ) {
             LabelFAB(
-                label = "Rating",
+                label = "Progress",
                 onClick = {
                     showOtherFABs = false
-                    onRate()
+                    onProgress()
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Star,
+                    imageVector = Icons.Default.Visibility,
                     contentDescription = null
                 )
             }
@@ -74,14 +74,14 @@ fun EditFAB(
             )
         ) {
             LabelFAB(
-                label = "Progress",
+                label = "Rating",
                 onClick = {
                     showOtherFABs = false
-                    onProgress()
+                    onRate()
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Visibility,
+                    imageVector = Icons.Default.Star,
                     contentDescription = null
                 )
             }

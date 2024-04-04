@@ -383,6 +383,8 @@ open class Medium(
             val isYoutube: Boolean = site.contains("youtu.be", ignoreCase = true)
                     || site.contains("youtube", ignoreCase = true)
 
+            val isDailymotion: Boolean = site.contains("dailymotion", ignoreCase = true)
+
             private val youtubeVideoId: String? = run {
                 val afterVi = thumbnail.substringAfter(
                     delimiter = "vi/",
@@ -395,8 +397,18 @@ open class Medium(
                 afterVi.substringBefore('/', missingDelimiterValue = "").ifBlank { null }
             }
 
-            val youtubeVideo = (id ?: youtubeVideoId)?.let {
+            private val youtubeVideo = (id ?: youtubeVideoId)?.let {
                 "https://youtube.com/watch?v=$it"
+            }
+
+            private val dailymotionVideo = id?.let {
+                "https://dailymotion.com/video/$it"
+            }
+
+            val videoUrl = when {
+                isYoutube -> youtubeVideo
+                isDailymotion -> dailymotionVideo
+                else -> null
             }
         }
     }

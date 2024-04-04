@@ -28,10 +28,6 @@ class MediumStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.getMedium(state.snapshot.query)?.let {
-                        return@onEnter state.override { State.Success(query, it) }
-                    }
-
                     val response = CatchResult.result {
                         client.query(state.snapshot.query).execute().dataOrThrow()
                     }.mapSuccess<State> {
@@ -40,14 +36,20 @@ class MediumStateMachine(
                         }
                     }
 
+                    val cached = Cache.getMedium(state.snapshot.query)
+
                     state.override {
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            if (retry <= 3) {
-                                State.Loading(query, retry + 1)
+                            if (cached != null) {
+                                State.Success(query, cached)
                             } else {
-                                State.Error(query)
+                                if (retry <= 3) {
+                                    State.Loading(query, retry + 1)
+                                } else {
+                                    State.Error(query)
+                                }
                             }
                         }
                     }

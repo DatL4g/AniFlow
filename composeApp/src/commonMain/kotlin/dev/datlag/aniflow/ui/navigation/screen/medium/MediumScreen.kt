@@ -93,7 +93,9 @@ fun MediumScreen(component: MediumComponent) {
             bodyText = ""
         ),
         config = RatingConfig(
-            ratingOptionsCount = 5
+            ratingOptionsCount = 5,
+            ratingOptionsSelected = userRating.takeIf { it > 0 },
+            ratingZeroValid = true
         )
     )
 
@@ -488,8 +490,7 @@ fun MediumScreen(component: MediumComponent) {
                         Card(
                             modifier = Modifier.fillParentMaxWidth().height(200.dp).padding(16.dp),
                             onClick = {
-                                Napier.e(t.id ?: t.website)
-                                uriHandler.openUri(t.youtubeVideo ?: t.website)
+                                uriHandler.openUri(t.videoUrl ?: t.website)
                             }
                         ) {
                             Box(
