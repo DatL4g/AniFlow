@@ -44,9 +44,9 @@ actual object PlatformModule {
         }
         bindSingleton<FirebaseFactory> {
             FirebaseFactory.initialize(
-                projectId = firebaseProject(getPackageName()),
-                applicationId = firebaseIosApplication(getPackageName()),
-                apiKey = firebaseIosApiKey(getPackageName()),
+                projectId = firebaseProject(BuildKonfig.packageName),
+                applicationId = firebaseIosApplication(BuildKonfig.packageName),
+                apiKey = firebaseIosApiKey(BuildKonfig.packageName),
                 googleAuthProvider = instanceOrNull()
             )
         }
@@ -54,10 +54,10 @@ actual object PlatformModule {
             IosCodeAuthFlowFactory()
         }
         bindSingleton(Constants.Sekret.ANILIST_CLIENT_ID) {
-            anilistClientId(getPackageName())
+            anilistClientId(BuildKonfig.packageName)
         }
         bindSingleton(Constants.Sekret.ANILIST_CLIENT_SECRET) {
-            anilistClientSecret(getPackageName())
+            anilistClientSecret(BuildKonfig.packageName)
         }
     }
 }

@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
 import org.jetbrains.compose.ExperimentalComposeLibrary
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose)
+    alias(libs.plugins.konfig)
     alias(libs.plugins.moko.resources)
     alias(libs.plugins.sekret)
     alias(libs.plugins.serialization)
@@ -30,6 +32,14 @@ aboutLibraries {
     duplicationMode = DuplicateMode.MERGE
     duplicationRule = DuplicateRule.GROUP
     excludeFields = arrayOf("generated")
+}
+
+buildkonfig {
+    packageName = artifact
+
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "packageName", artifact)
+    }
 }
 
 sekret {

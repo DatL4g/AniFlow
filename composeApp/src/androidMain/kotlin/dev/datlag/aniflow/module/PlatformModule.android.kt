@@ -6,10 +6,10 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
 import coil3.ImageLoader
 import coil3.request.allowHardware
+import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.firebase.initialize
-import dev.datlag.aniflow.getPackageName
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.DataStoreUserSettings
@@ -65,9 +65,9 @@ actual object PlatformModule {
             if (StateSaver.sekretLibraryLoaded) {
                 FirebaseFactory.initialize(
                     context = instance<Context>(),
-                    projectId = Sekret.firebaseProject(getPackageName()),
-                    applicationId = Sekret.firebaseAndroidApplication(getPackageName())!!,
-                    apiKey = Sekret.firebaseAndroidApiKey(getPackageName())!!,
+                    projectId = Sekret.firebaseProject(BuildKonfig.packageName),
+                    applicationId = Sekret.firebaseAndroidApplication(BuildKonfig.packageName)!!,
+                    apiKey = Sekret.firebaseAndroidApiKey(BuildKonfig.packageName)!!,
                     googleAuthProvider = instanceOrNull()
                 )
             } else {
@@ -75,10 +75,10 @@ actual object PlatformModule {
             }
         }
         bindSingleton(Constants.Sekret.ANILIST_CLIENT_ID) {
-            Sekret.anilistClientId(getPackageName()) ?: ""
+            Sekret.anilistClientId(BuildKonfig.packageName) ?: ""
         }
         bindSingleton(Constants.Sekret.ANILIST_CLIENT_SECRET) {
-            Sekret.anilistClientSecret(getPackageName()) ?: ""
+            Sekret.anilistClientSecret(BuildKonfig.packageName) ?: ""
         }
         bindSingleton {
             val app: Context = instance()
