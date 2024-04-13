@@ -202,12 +202,14 @@ fun MediumScreen(component: MediumComponent) {
             }
         },
         floatingActionButton = {
+            val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle()
             val notReleased by component.status.mapCollect {
                 it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
             }
 
             if (!notReleased) {
                 EditFAB(
+                    displayAdd = !alreadyAdded,
                     onRate = {
                         component.rate {
                             ratingState.show()

@@ -27,6 +27,7 @@ interface MediumComponent : ContentHolderComponent {
 
     val characters: StateFlow<Set<Medium.Character>>
     val rating: StateFlow<Int>
+    val alreadyAdded: StateFlow<Boolean>
     val trailer: StateFlow<Medium.Full.Trailer?>
 
     fun back()

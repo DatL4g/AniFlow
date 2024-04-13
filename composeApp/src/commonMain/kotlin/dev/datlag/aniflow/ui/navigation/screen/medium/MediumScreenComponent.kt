@@ -282,6 +282,16 @@ class MediumScreenComponent(
         initialValue = null
     )
 
+    override val alreadyAdded: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
+        it?.data?.entry != null
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = false
+    )
+
     private val userSettings by di.instance<Settings.PlatformUserSettings>()
     private val apolloClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
 
