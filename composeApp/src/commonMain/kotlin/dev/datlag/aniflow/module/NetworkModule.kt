@@ -12,6 +12,8 @@ import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
+import dev.datlag.aniflow.BuildKonfig
+import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
@@ -115,8 +117,8 @@ data object NetworkModule {
                         tokenEndpoint = "token"
                     }
                 }
-                clientId = instance<String>(Constants.Sekret.ANILIST_CLIENT_ID).ifBlank { null }
-                clientSecret = instance<String>(Constants.Sekret.ANILIST_CLIENT_SECRET).ifBlank { null }
+                clientId = Sekret.anilistClientId(BuildKonfig.packageName)
+                clientSecret = Sekret.anilistClientSecret(BuildKonfig.packageName)
                 redirectUri = Constants.AniList.Auth.REDIRECT_URL
             }
         }

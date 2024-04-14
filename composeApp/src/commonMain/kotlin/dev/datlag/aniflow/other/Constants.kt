@@ -12,9 +12,4 @@ data object Constants {
             const val CLIENT = "AniListAuthClient"
         }
     }
-
-    data object Sekret {
-        const val ANILIST_CLIENT_ID = "AniListClientId"
-        const val ANILIST_CLIENT_SECRET = "AniListClientSecret"
-    }
 }

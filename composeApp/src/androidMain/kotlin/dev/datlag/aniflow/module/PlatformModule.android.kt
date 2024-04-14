@@ -74,12 +74,6 @@ actual object PlatformModule {
                 FirebaseFactory.Empty
             }
         }
-        bindSingleton(Constants.Sekret.ANILIST_CLIENT_ID) {
-            Sekret.anilistClientId(BuildKonfig.packageName) ?: ""
-        }
-        bindSingleton(Constants.Sekret.ANILIST_CLIENT_SECRET) {
-            Sekret.anilistClientSecret(BuildKonfig.packageName) ?: ""
-        }
         bindSingleton {
             val app: Context = instance()
             DataStoreFactory.create(
