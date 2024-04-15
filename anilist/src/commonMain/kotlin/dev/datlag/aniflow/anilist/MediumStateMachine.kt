@@ -6,12 +6,15 @@ import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.aniflow.model.mapError
+import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediumStateMachine(
     private val client: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?,
     private val id: Int
 ) : FlowReduxStateMachine<MediumStateMachine.State, MediumStateMachine.Action>(
@@ -28,8 +31,14 @@ class MediumStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    val response = CatchResult.result {
-                        client.query(state.snapshot.query).execute().dataOrThrow()
+                    val response = CatchResult.repeat(times = 2) {
+                        val query = client.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                    }.mapError {
+                        val query = fallbackClient.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
                     }.mapSuccess<State> {
                         it.Media?.let { data ->
                             State.Success(state.snapshot.query, Medium.Full(data))
@@ -45,11 +54,7 @@ class MediumStateMachine(
                             if (cached != null) {
                                 State.Success(query, cached)
                             } else {
-                                if (retry <= 3) {
-                                    State.Loading(query, retry + 1)
-                                } else {
-                                    State.Error(query)
-                                }
+                                State.Error(query)
                             }
                         }
                     }
@@ -76,8 +81,7 @@ class MediumStateMachine(
 
     sealed interface State {
         data class Loading(
-            internal val query: MediumQuery,
-            internal val retry: Int = 0
+            internal val query: MediumQuery
         ) : State {
             constructor(id: Int) : this(
                 MediumQuery(

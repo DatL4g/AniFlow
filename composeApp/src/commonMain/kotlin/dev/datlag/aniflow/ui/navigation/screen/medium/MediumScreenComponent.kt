@@ -46,8 +46,10 @@ class MediumScreenComponent(
 ) : MediumComponent, ComponentContext by componentContext {
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
+    private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,
+        fallbackClient = aniListFallbackClient,
         crashlytics = di.nullableFirebaseInstance()?.crashlytics,
         id = initialMedium.id
     )

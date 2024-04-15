@@ -8,13 +8,14 @@ import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
-import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.aniflow.model.*
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class, ApolloExperimental::class)
 class TrendingAnimeStateMachine(
     private val client: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<TrendingAnimeStateMachine.State, TrendingAnimeStateMachine.Action>(
     initialState = currentState
@@ -31,8 +32,14 @@ class TrendingAnimeStateMachine(
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
-                    val response = CatchResult.result {
-                        client.query(state.snapshot.query).execute().dataOrThrow()
+                    val response = CatchResult.repeat(2) {
+                        val query = client.query(state.snapshot.query)
+
+                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                    }.mapError {
+                        val query = fallbackClient.query(state.snapshot.query)
+                        
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
                     }.mapSuccess<State> {
                         State.Success(state.snapshot.query, it)
                     }
@@ -41,11 +48,7 @@ class TrendingAnimeStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            if (retry <= 3) {
-                                State.Loading(query, retry + 1)
-                            } else {
-                                State.Error(query)
-                            }
+                            State.Error(query)
                         }
                     }
                 }
@@ -73,8 +76,7 @@ class TrendingAnimeStateMachine(
 
     sealed interface State {
         data class Loading(
-            internal val query: TrendingQuery,
-            internal val retry: Int = 0
+            internal val query: TrendingQuery
         ) : State {
             constructor(
                 page: Int,

@@ -7,6 +7,8 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.aniflow.model.mapError
+import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.safeSubList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,6 +21,7 @@ import kotlin.time.Duration.Companion.hours
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringTodayStateMachine(
     private val client: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<AiringTodayStateMachine.State, AiringTodayStateMachine.Action>(
     initialState = currentState
@@ -35,8 +38,14 @@ class AiringTodayStateMachine(
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
-                    val response = CatchResult.result {
-                        client.query(state.snapshot.query).execute().dataOrThrow()
+                    val response = CatchResult.repeat(times = 2) {
+                        val query = client.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                    }.mapError {
+                        val query = fallbackClient.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
                     }.mapSuccess<State> {
                         val wantedContent = if (!state.snapshot.adultContent) {
                             val content = it.Page?.airingSchedulesFilterNotNull() ?: emptyList()
@@ -68,15 +77,7 @@ class AiringTodayStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            if (retry <= 3) {
-                                State.Loading(
-                                    query,
-                                    adultContent,
-                                    retry + 1
-                                )
-                            } else {
-                                State.Error(query, adultContent)
-                            }
+                            State.Error(query, adultContent)
                         }
                     }
                 }
@@ -104,8 +105,7 @@ class AiringTodayStateMachine(
     sealed interface State {
         data class Loading(
             internal val query: AiringQuery,
-            val adultContent: Boolean = false,
-            internal val retry: Int = 0
+            val adultContent: Boolean = false
         ) : State {
             constructor(
                 page: Int,

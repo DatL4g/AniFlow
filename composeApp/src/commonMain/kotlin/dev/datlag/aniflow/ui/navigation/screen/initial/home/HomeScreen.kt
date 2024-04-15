@@ -6,13 +6,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.CameraEnhance
+import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -21,11 +24,13 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.PopularSeasonOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
+import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 
 @Composable
 fun HomeScreen(component: HomeComponent) {
@@ -39,6 +44,13 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         initialFirstVisibleItemIndex = StateSaver.List.homeOverview,
         initialFirstVisibleItemScrollOffset = StateSaver.List.homeOverviewOffset
     )
+
+    LaunchedEffect(listState) {
+        FABConfig.state.value = FABConfig.Scan(
+            listState = listState,
+            onClick = { }
+        )
+    }
 
     LazyColumn(
         state = listState,
@@ -110,6 +122,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         onDispose {
             StateSaver.List.homeOverview = listState.firstVisibleItemIndex
             StateSaver.List.homeOverviewOffset = listState.firstVisibleItemScrollOffset
+            FABConfig.state.value = null
         }
     }
 }

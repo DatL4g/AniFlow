@@ -85,27 +85,37 @@ data object NetworkModule {
                 })
                 .build()
         }
+        bindSingleton<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT) {
+            ApolloClient.Builder()
+                .dispatcher(ioDispatcher())
+                .serverUrl(Constants.AniList.SERVER_URL)
+                .build()
+        }
         bindProvider<TrendingAnimeStateMachine> {
             TrendingAnimeStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
         bindProvider<AiringTodayStateMachine> {
             AiringTodayStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
         bindProvider<PopularSeasonStateMachine> {
             PopularSeasonStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
         bindProvider<PopularNextSeasonStateMachine> {
             PopularNextSeasonStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }

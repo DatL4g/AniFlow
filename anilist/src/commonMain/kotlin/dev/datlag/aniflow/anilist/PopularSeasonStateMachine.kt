@@ -13,6 +13,8 @@ import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.aniflow.model.mapError
+import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
@@ -23,6 +25,7 @@ import kotlinx.datetime.toLocalDateTime
 @OptIn(ExperimentalCoroutinesApi::class)
 class PopularSeasonStateMachine(
     private val client: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<SeasonState, SeasonAction>(
     initialState = currentState
@@ -39,8 +42,14 @@ class PopularSeasonStateMachine(
                         return@onEnter state.override { SeasonState.Success(query, it) }
                     }
 
-                    val response = CatchResult.result {
-                        client.query(state.snapshot.query).execute().dataOrThrow()
+                    val response = CatchResult.repeat(times = 2) {
+                        val query = client.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                    }.mapError {
+                        val query = fallbackClient.query(state.snapshot.query)
+
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
                     }.mapSuccess<SeasonState> {
                         SeasonState.Success(state.snapshot.query, it)
                     }
@@ -49,11 +58,7 @@ class PopularSeasonStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            if (retry <= 3) {
-                                SeasonState.Loading(query, retry + 1)
-                            } else {
-                                SeasonState.Error(query)
-                            }
+                            SeasonState.Error(query)
                         }
                     }
                 }

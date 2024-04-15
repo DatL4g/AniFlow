@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,7 +19,9 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialComponent
+import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.icerock.moko.resources.compose.stringResource
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalDecomposeApi::class, ExperimentalHazeMaterialsApi::class)
@@ -50,6 +54,30 @@ fun CompactScreen(component: InitialComponent) {
                         alwaysShowLabel = true
                     )
                 }
+            }
+        },
+        floatingActionButton = {
+            val state by FABConfig.state
+
+            when (val current = state) {
+                is FABConfig.Scan -> {
+                    ExtendedFloatingActionButton(
+                        onClick = current.onClick,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.CameraEnhance,
+                                contentDescription = null
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "Scan"
+                            )
+                        },
+                        expanded = current.listState.isScrollingUp()
+                    )
+                }
+                else -> { }
             }
         }
     ) {

@@ -1,8 +1,13 @@
 package dev.datlag.aniflow.model
 
+import dev.datlag.aniflow.model.CatchResult.Companion.result
+import dev.datlag.aniflow.model.CatchResult.Success
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 sealed interface CatchResult<T> {
 
@@ -11,12 +16,6 @@ sealed interface CatchResult<T> {
 
     val isError: Boolean
         get() = this is Error
-
-    fun onError(callback: (Throwable?) -> Unit) = apply {
-        if (this is Error) {
-            callback(this.throwable)
-        }
-    }
 
     fun onSuccess(callback: (T & Any) -> Unit) = apply {
         if (this is Success) {
@@ -48,14 +47,6 @@ sealed interface CatchResult<T> {
         }
     }
 
-    fun asError(onSuccess: () -> Throwable? = { null }): Throwable? {
-        return if (this is Error) {
-            this.throwable
-        } else {
-            onSuccess()
-        }
-    }
-
     fun validate(predicate: (CatchResult<T>) -> Boolean): CatchResult<T> {
         return if (predicate(this)) {
             this
@@ -77,19 +68,14 @@ sealed interface CatchResult<T> {
         }
     }
 
-    suspend fun resultOnError(block: suspend CoroutineScope.() -> T): CatchResult<out T> {
-        return when (this) {
-            is Error -> result(block)
-            else -> this
-        }
-    }
-
     suspend fun <M : Any> mapSuccess(block: suspend (T & Any) -> M?): CatchResult<M> {
         return when (this) {
             is Success -> {
                 block(this.data)?.let(::Success) ?: Error(null)
             }
-            else -> Error(null)
+            is Error -> {
+                Error(this.throwable)
+            }
         }
     }
 
@@ -110,5 +96,59 @@ sealed interface CatchResult<T> {
                 } ?: Error(result.exceptionOrNull())
             }
         }
+
+        suspend fun <T> repeat(
+            times: Int,
+            delayDuration: Duration = 0.seconds,
+            block: suspend CoroutineScope.() -> T
+        ): CatchResult<T & Any> = coroutineScope {
+            var result = suspendCatching(block)
+            var request = 1
+
+            while (result.isFailure && request < times) {
+                delay(delayDuration)
+                result = suspendCatching(block)
+                request++
+            }
+            return@coroutineScope if (result.isFailure) {
+                Error(result.exceptionOrNull())
+            } else {
+                result.getOrNull()?.let {
+                    Success(it)
+                } ?: Error(result.exceptionOrNull())
+            }
+        }
+    }
+}
+
+suspend inline fun <T : Any> CatchResult<T>.resultOnError(noinline block: CoroutineScope.() -> T): CatchResult<out T> {
+    return when (this) {
+        is CatchResult.Error -> result(block)
+        else -> this
+    }
+}
+
+suspend inline fun <reified M : Any> CatchResult<*>.mapError(block: () -> M?): CatchResult<M> {
+    return when (this) {
+        is CatchResult.Error -> {
+            block()?.let(::Success) ?: CatchResult.Error(null)
+        }
+        is Success -> {
+            (this.data as? M)?.let(::Success) ?: block()?.let(::Success) ?: CatchResult.Error(null)
+        }
+    }
+}
+
+inline fun <T> CatchResult<T>.asError(onSuccess: () -> Throwable? = { null }): Throwable? {
+    return if (this is CatchResult.Error) {
+        this.throwable
+    } else {
+        onSuccess()
+    }
+}
+
+inline fun <T> CatchResult<T>.onError(callback: (Throwable?) -> Unit) = apply {
+    if (this is CatchResult.Error) {
+        callback(this.throwable)
     }
 }
