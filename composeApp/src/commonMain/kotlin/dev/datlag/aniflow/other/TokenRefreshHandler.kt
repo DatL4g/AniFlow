@@ -17,7 +17,7 @@ class TokenRefreshHandler(
     private val mutex = Mutex()
 
     suspend fun getAccessToken(): String? {
-        return storeUserSettings.aniList.firstOrNull()?.accessToken
+        return storeUserSettings.aniList.saveFirstOrNull()?.accessToken
     }
 
     suspend fun refreshAndSaveToken(client: OpenIdConnectClient, oldAccessToken: String): OauthTokens {

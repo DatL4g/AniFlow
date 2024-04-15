@@ -7,12 +7,16 @@ import kotlinx.serialization.protobuf.ProtoNumber
 @Serializable
 @OptIn(ExperimentalSerializationApi::class)
 data class UserSettings(
-    @ProtoNumber(1) val aniList: AniList = AniList()
+    @ProtoNumber(1) val aniList: AniList = AniList(
+        accessToken = null,
+        refreshToken = null,
+        idToken = null
+    )
 ) {
     @Serializable
     data class AniList(
-        @ProtoNumber(1) val accessToken: String? = null,
-        @ProtoNumber(2) val refreshToken: String? = null,
-        @ProtoNumber(3) val idToken: String? = null,
+        @ProtoNumber(1) val accessToken: String?,
+        @ProtoNumber(2) val refreshToken: String?,
+        @ProtoNumber(3) val idToken: String?,
     )
 }
