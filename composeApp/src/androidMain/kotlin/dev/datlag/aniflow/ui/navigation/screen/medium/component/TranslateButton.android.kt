@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Translate
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
@@ -20,7 +18,10 @@ import io.github.aakira.napier.Napier
 import java.util.Locale
 
 @Composable
-actual fun TranslateButton(text: String, onTranslation: (String?) -> Unit) {
+actual fun TranslateButton(
+    text: String,
+    onTranslation: (String?) -> Unit,
+) {
     val locale = remember { Locale.getDefault() }
     if (locale.language.equals(Locale.forLanguageTag("en").language, ignoreCase = true)) {
         Napier.e("Language is english")
@@ -60,6 +61,7 @@ actual fun TranslateButton(text: String, onTranslation: (String?) -> Unit) {
     }
     var enabled by remember { mutableStateOf(true) }
     var translated by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf(false) }
 
     TextButton(
         onClick = {
@@ -67,19 +69,27 @@ actual fun TranslateButton(text: String, onTranslation: (String?) -> Unit) {
                 translated = false
                 onTranslation(null)
             } else {
+                progress = true
+                enabled = false
+
                 englishLocaleTranslator
                     .downloadModelIfNeeded(downloadConditions)
                     .addOnFailureListener {
+                        progress = false
                         enabled = false
                     }.addOnSuccessListener {
-                        enabled = true
-
                         englishLocaleTranslator
                             .translate(text)
                             .addOnFailureListener {
+                                progress = false
+                                enabled = true
+
                                 translated = false
                                 onTranslation(null)
                             }.addOnSuccessListener {
+                                progress = false
+                                enabled = true
+
                                 translated = true
                                 onTranslation(it)
                             }
@@ -88,11 +98,19 @@ actual fun TranslateButton(text: String, onTranslation: (String?) -> Unit) {
         },
         enabled = enabled
     ) {
-        Icon(
-            modifier = Modifier.size(ButtonDefaults.IconSize),
-            imageVector = Icons.Default.Translate,
-            contentDescription = null
-        )
+        if (progress) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(ButtonDefaults.IconSize),
+                strokeWidth = 2.dp,
+                color = LocalContentColor.current
+            )
+        } else {
+            Icon(
+                modifier = Modifier.size(ButtonDefaults.IconSize),
+                imageVector = Icons.Default.Translate,
+                contentDescription = null
+            )
+        }
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
         Text(stringResource(SharedRes.strings.translate))
     }
