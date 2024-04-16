@@ -138,6 +138,8 @@ kotlin {
                 implementation(libs.coroutines.android)
 
                 implementation(libs.android.credentials.play.services)
+
+                implementation(libs.translate)
             }
         }
     }

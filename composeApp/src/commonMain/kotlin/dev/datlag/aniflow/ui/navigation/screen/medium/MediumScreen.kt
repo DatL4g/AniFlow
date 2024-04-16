@@ -56,6 +56,7 @@ import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
+import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
@@ -405,13 +406,23 @@ fun MediumScreen(component: MediumComponent) {
                 }
                 if (!description.isNullOrBlank()) {
                     item {
-                        Text(
-                            modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
-                            text = "Description",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
+                        Row(
+                            modifier = Modifier.fillParentMaxWidth().padding(top = 16.dp).padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(1F),
+                                text = stringResource(SharedRes.strings.description),
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            TranslateButton(description!!) { text ->
+                                component.descriptionTranslation(text)
+                            }
+                        }
                     }
                     item {
+                        val translatedDescription by component.translatedDescription.collectAsStateWithLifecycle()
                         val animatedLines by animateIntAsState(
                             targetValue = if (descriptionExpanded) {
                                 Int.MAX_VALUE
@@ -425,7 +436,7 @@ fun MediumScreen(component: MediumComponent) {
                             modifier = Modifier.padding(horizontal = 16.dp).onClick {
                                 descriptionExpanded = !descriptionExpanded
                             },
-                            text = description!!.htmlToAnnotatedString(),
+                            text = (translatedDescription ?: description)!!.htmlToAnnotatedString(),
                             maxLines = max(animatedLines, 1),
                             softWrap = true,
                             overflow = TextOverflow.Ellipsis,

@@ -14,6 +14,7 @@ interface MediumComponent : ContentHolderComponent {
     val coverImage: StateFlow<Medium.CoverImage>
     val title: StateFlow<Medium.Title>
     val description: StateFlow<String?>
+    val translatedDescription: StateFlow<String?>
     val genres: StateFlow<Set<String>>
 
     val format: StateFlow<MediaFormat>
@@ -36,4 +37,5 @@ interface MediumComponent : ContentHolderComponent {
     }
     fun rate(onLoggedIn: () -> Unit)
     fun rate(value: Int)
+    fun descriptionTranslation(text: String?)
 }

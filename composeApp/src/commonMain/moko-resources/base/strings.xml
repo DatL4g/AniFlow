@@ -21,4 +21,6 @@
     <string name="rated">Rated</string>
     <string name="popular">Popular</string>
     <string name="score">Score</string>
+    <string name="translate">Translate</string>
+    <string name="description">Description</string>
 </resources>

@@ -108,6 +108,8 @@ class MediumScreenComponent(
         initialValue = null
     )
 
+    override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
+
     override val genres: StateFlow<Set<String>> = mediumSuccessState.mapNotNull {
         it?.data?.genres?.ifEmpty { null }
     }.flowOn(
@@ -363,6 +365,12 @@ class MediumScreenComponent(
             apolloClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
                 changedRating.emit(it.toInt())
             }
+        }
+    }
+
+    override fun descriptionTranslation(text: String?) {
+        launchIO {
+            translatedDescription.emit(text)
         }
     }
 }
