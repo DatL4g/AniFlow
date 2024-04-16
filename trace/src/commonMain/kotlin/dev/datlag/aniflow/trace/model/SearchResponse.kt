@@ -15,7 +15,7 @@ data class SearchResponse(
 
     @Transient
     private val onlyHighResults: List<Result> = result.filter {
-        it.similarity >= 0.9F
+        it.similarity >= 0.7F
     }
 
     @Transient
