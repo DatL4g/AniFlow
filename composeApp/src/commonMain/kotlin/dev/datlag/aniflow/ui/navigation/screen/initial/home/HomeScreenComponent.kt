@@ -11,6 +11,7 @@ import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.tooling.compose.ioDispatcher
@@ -64,6 +65,15 @@ class HomeScreenComponent(
         initialValue = PopularNextSeasonStateMachine.currentState
     )
 
+    private val traceStateMachine by di.instance<TraceStateMachine>()
+    override val traceState: StateFlow<TraceStateMachine.State> = traceStateMachine.state.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = TraceStateMachine.State.Waiting
+    )
+
     @Composable
     override fun render() {
         onRender {
@@ -77,5 +87,11 @@ class HomeScreenComponent(
 
     override fun details(medium: Medium) {
         onMediumDetails(medium)
+    }
+
+    override fun trace(channel: ByteArray) {
+        launchIO {
+            traceStateMachine.dispatch(TraceStateMachine.Action.Load(channel))
+        }
     }
 }

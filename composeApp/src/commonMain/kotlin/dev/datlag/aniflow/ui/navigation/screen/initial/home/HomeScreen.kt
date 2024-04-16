@@ -27,10 +27,12 @@ import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.other.rememberImagePickerState
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.PopularSeasonOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 
 @Composable
 fun HomeScreen(component: HomeComponent) {
@@ -44,11 +46,18 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         initialFirstVisibleItemIndex = StateSaver.List.homeOverview,
         initialFirstVisibleItemScrollOffset = StateSaver.List.homeOverviewOffset
     )
+    val imagePicker = rememberImagePickerState {
+        it?.let(component::trace)
+    }
+    val traceState by component.traceState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(listState) {
+    LaunchedEffect(listState, traceState) {
         FABConfig.state.value = FABConfig.Scan(
             listState = listState,
-            onClick = { }
+            loading = traceState.isLoading,
+            onClick = {
+                imagePicker.launch()
+            }
         )
     }
 

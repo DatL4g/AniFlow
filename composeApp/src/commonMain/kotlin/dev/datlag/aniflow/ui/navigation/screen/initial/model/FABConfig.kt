@@ -7,6 +7,7 @@ sealed interface FABConfig {
 
     data class Scan(
         val listState: LazyListState,
+        val loading: Boolean = false,
         val onClick: () -> Unit
     ) : FABConfig
 

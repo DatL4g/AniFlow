@@ -115,6 +115,7 @@ kotlin {
             implementation(project(":anilist"))
             implementation(project(":model"))
             implementation(project(":settings"))
+            implementation(project(":trace"))
         }
 
         iosMain.dependencies {

@@ -14,7 +14,6 @@ import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import dev.datlag.aniflow.SharedRes
 import dev.icerock.moko.resources.compose.stringResource
-import io.github.aakira.napier.Napier
 import java.util.Locale
 
 @Composable
@@ -24,15 +23,12 @@ actual fun TranslateButton(
 ) {
     val locale = remember { Locale.getDefault() }
     if (locale.language.equals(Locale.forLanguageTag("en").language, ignoreCase = true)) {
-        Napier.e("Language is english")
         return
     }
     if (locale.toLanguageTag().equals("en", ignoreCase = true)) {
-        Napier.e("LanguageTag is english")
         return
     }
     if (locale.isO3Language.equals("ENG", ignoreCase = true)) {
-        Napier.e("Language ISO is english")
         return
     }
 
@@ -43,7 +39,6 @@ actual fun TranslateButton(
     }
 
     if (targetLanguage == null || targetLanguage == TranslateLanguage.ENGLISH) {
-        Napier.e("TargetLanguage is: $targetLanguage, ${locale.toLanguageTag()}")
         return
     }
 

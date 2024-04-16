@@ -5,6 +5,7 @@ include(":firebase")
 include(":anilist")
 include(":model")
 include(":settings")
+include(":trace")
 
 pluginManagement {
     repositories {

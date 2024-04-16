@@ -12,6 +12,8 @@ import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
+import de.jensklingenberg.ktorfit.Ktorfit
+import de.jensklingenberg.ktorfit.ktorfitBuilder
 import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
@@ -27,6 +29,8 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.other.TokenRefreshHandler
+import dev.datlag.aniflow.trace.Trace
+import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.tooling.async.suspendCatching
 import io.github.aakira.napier.Napier
 import org.kodein.di.bindProvider
@@ -134,6 +138,23 @@ data object NetworkModule {
         }
         bindSingleton<TokenRefreshHandler> {
             TokenRefreshHandler(instance())
+        }
+        bindSingleton<Ktorfit.Builder> {
+            ktorfitBuilder {
+                httpClient(instance<HttpClient>())
+            }
+        }
+        bindSingleton<Trace> {
+            val builder = instance<Ktorfit.Builder>()
+            builder.build {
+                baseUrl("https://api.trace.moe/")
+            }.create<Trace>()
+        }
+        bindProvider<TraceStateMachine> {
+            TraceStateMachine(
+                trace = instance(),
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
         }
     }
 }

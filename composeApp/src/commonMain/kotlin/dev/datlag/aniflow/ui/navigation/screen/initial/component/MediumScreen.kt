@@ -26,21 +26,23 @@ fun MediumScreen(component: InitialComponent) {
 
             when (val current = state) {
                 is FABConfig.Scan -> {
-                    ExtendedFloatingActionButton(
-                        onClick = current.onClick,
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Filled.CameraEnhance,
-                                contentDescription = null
-                            )
-                        },
-                        text = {
-                            Text(
-                                text = "Scan"
-                            )
-                        },
-                        expanded = current.listState.isScrollingUp()
-                    )
+                    if (!current.loading) {
+                        ExtendedFloatingActionButton(
+                            onClick = current.onClick,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Filled.CameraEnhance,
+                                    contentDescription = null
+                                )
+                            },
+                            text = {
+                                Text(
+                                    text = "Scan"
+                                )
+                            },
+                            expanded = current.listState.isScrollingUp(),
+                        )
+                    }
                 }
                 else -> { }
             }
