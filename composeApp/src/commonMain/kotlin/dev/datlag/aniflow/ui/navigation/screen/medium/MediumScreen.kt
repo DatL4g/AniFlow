@@ -57,6 +57,7 @@ import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.CharacterCard
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
+import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
@@ -247,15 +248,19 @@ fun MediumScreen(component: MediumComponent) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        var coverShadow by remember(coverImage) { mutableStateOf(false) }
+
                         AsyncImage(
                             modifier = Modifier
                                 .width(140.dp)
                                 .height(200.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = MaterialTheme.shapes.medium,
-                                    spotColor = MaterialTheme.colorScheme.primary
-                                ),
+                                .ifTrue(coverShadow) {
+                                    shadow(
+                                        elevation = 8.dp,
+                                        shape = MaterialTheme.shapes.medium,
+                                        spotColor = MaterialTheme.colorScheme.primary
+                                    )
+                                },
                             model = coverImage.extraLarge,
                             contentScale = ContentScale.Crop,
                             contentDescription = null,
@@ -267,9 +272,18 @@ fun MediumScreen(component: MediumComponent) {
                                 error = rememberAsyncImagePainter(
                                     model = coverImage.medium,
                                     contentScale = ContentScale.Crop,
-                                    placeholder = shimmerPainter()
-                                )
-                            )
+                                    placeholder = shimmerPainter(),
+                                    onSuccess = {
+                                        coverShadow = true
+                                    }
+                                ),
+                                onSuccess = {
+                                    coverShadow = true
+                                }
+                            ),
+                            onSuccess = {
+                                coverShadow = true
+                            }
                         )
                         Column(
                             modifier = Modifier.weight(1F).fillMaxHeight(),

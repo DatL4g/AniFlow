@@ -67,6 +67,9 @@ class TraceStateMachine(
         val isLoading: Boolean
             get() = this is Loading
 
+        val isSuccess: Boolean
+            get() = this is Success
+
         data object Waiting : State
 
         class Loading(

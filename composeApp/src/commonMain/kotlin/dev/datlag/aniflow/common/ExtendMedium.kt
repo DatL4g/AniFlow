@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.trace.model.SearchResponse
 import dev.icerock.moko.resources.StringResource
 
 fun Medium.preferred(): String {
@@ -122,3 +123,33 @@ fun Medium.Full.popular(): Medium.Ranking? = this.ranking.popular()
 expect fun Medium.Character.Name.preferred(): String
 
 fun Medium.Character.preferredName(): String = this.name.preferred()
+
+private fun SearchResponse.Result.AniList.Title?.asMediumTitle(): Medium.Title {
+    return Medium.Title(
+        native = this?.native,
+        english = this?.english,
+        romaji = this?.romaji,
+        userPreferred = null
+    )
+}
+
+fun SearchResponse.Result.AniList.asMedium(): Medium {
+    return Medium(
+        id = this.id,
+        idMal = this.idMal,
+        isAdult = this.isAdult,
+        genres = emptySet(),
+        bannerImage = null,
+        coverImage = Medium.CoverImage(
+            color = null,
+            medium = null,
+            large = null,
+            extraLarge = null
+        ),
+        countryOfOrigin = null,
+        averageScore = -1,
+        title = this.title.asMediumTitle()
+    )
+}
+
+fun SearchResponse.Result.AniList.Title.preferred(): String = this.asMediumTitle().preferred()

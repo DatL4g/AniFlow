@@ -12,6 +12,7 @@ interface Trace {
     @POST("search")
     suspend fun search(
         @Body image: ByteArray,
-        @Query("cutBorders") cutBorders: Boolean? = true
+        @Query("cutBorders") cutBorders: Boolean? = true,
+        @Query("anilistInfo") anilistInfo: Boolean? = true
     ): SearchResponse
 }

@@ -1,8 +1,6 @@
 package dev.datlag.aniflow.trace.model
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.*
 
 @Serializable
 data class SearchResponse(
@@ -14,23 +12,28 @@ data class SearchResponse(
     val isError = !error.isNullOrBlank()
 
     @Transient
-    private val onlyHighResults: List<Result> = result.filter {
-        it.similarity >= 0.7F
-    }
-
-    @Transient
-    private val groupedResults: Map<Int, List<Result>> = onlyHighResults.groupBy {
-        it.aniList
-    }
-
-    @Transient
-    val bestResult: Result? = groupedResults.maxByOrNull {
-        it.value.map { v -> v.similarity }.average()
-    }?.value?.maxByOrNull { it.similarity }
+    val bestResult: Result? = result.maxByOrNull { it.similarity }
 
     @Serializable
     data class Result(
-        @SerialName("anilist") val aniList: Int,
+        @SerialName("anilist") val aniList: AniList,
         @SerialName("similarity") val similarity: Float = 0F,
-    )
+    ) {
+
+        @Serializable
+        data class AniList(
+            @SerialName("id") val id: Int,
+            @SerialName("idMal") val idMal: Int?,
+            @SerialName("isAdult") val isAdult: Boolean = false,
+            @SerialName("title") val title: Title? = null,
+        ) {
+
+            @Serializable
+            data class Title(
+                @SerialName("native") val native: String? = null,
+                @SerialName("romaji") val romaji: String? = null,
+                @SerialName("english") val english: String? = null,
+            )
+        }
+    }
 }

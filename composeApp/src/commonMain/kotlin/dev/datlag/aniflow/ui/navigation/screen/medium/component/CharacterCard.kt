@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +21,7 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferredName
 import dev.datlag.aniflow.common.shimmerPainter
+import dev.datlag.tooling.compose.ifTrue
 
 @Composable
 fun CharacterCard(
@@ -34,24 +35,34 @@ fun CharacterCard(
             onClick(char)
         }
     ) {
+        var imageShadow by remember(char.image) { mutableStateOf(false) }
+
         AsyncImage(
             model = char.image.large,
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(0.7F)
-                .shadow(
-                    elevation = 8.dp,
-                    shape = MaterialTheme.shapes.medium,
-                    spotColor = MaterialTheme.colorScheme.primary
-                ),
+                .ifTrue(imageShadow) {
+                    shadow(
+                        elevation = 8.dp,
+                        shape = MaterialTheme.shapes.medium,
+                        spotColor = MaterialTheme.colorScheme.primary
+                    )
+                },
             contentScale = ContentScale.Crop,
             placeholder = shimmerPainter(),
             error = rememberAsyncImagePainter(
                 model = char.image.medium,
                 contentScale = ContentScale.Crop,
-                placeholder = shimmerPainter()
-            )
+                placeholder = shimmerPainter(),
+                onSuccess = {
+                    imageShadow = true
+                }
+            ),
+            onSuccess = {
+                imageShadow = true
+            }
         )
 
         Box(
