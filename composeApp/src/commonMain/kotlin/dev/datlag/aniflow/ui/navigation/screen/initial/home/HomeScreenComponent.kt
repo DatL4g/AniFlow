@@ -16,10 +16,7 @@ import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -66,12 +63,8 @@ class HomeScreenComponent(
     )
 
     private val traceStateMachine by di.instance<TraceStateMachine>()
-    override val traceState: StateFlow<TraceStateMachine.State> = traceStateMachine.state.flowOn(
+    override val traceState: Flow<TraceStateMachine.State> = traceStateMachine.state.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = TraceStateMachine.State.Waiting
     )
 
     @Composable

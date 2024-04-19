@@ -52,7 +52,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
     val imagePicker = rememberImagePickerState {
         it?.let(component::trace)
     }
-    val traceState by component.traceState.collectAsStateWithLifecycle()
+    val traceState by component.traceState.collectAsStateWithLifecycle(TraceStateMachine.State.Waiting)
 
     LaunchedEffect(listState, traceState) {
         FABConfig.state.value = FABConfig.Scan(

@@ -11,6 +11,7 @@ import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import io.ktor.utils.io.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface HomeComponent : ContentHolderComponent {
@@ -18,7 +19,7 @@ interface HomeComponent : ContentHolderComponent {
     val trendingState: StateFlow<TrendingAnimeStateMachine.State>
     val popularSeasonState: StateFlow<SeasonState>
     val popularNextSeasonState: StateFlow<SeasonState>
-    val traceState: StateFlow<TraceStateMachine.State>
+    val traceState: Flow<TraceStateMachine.State>
 
     fun details(medium: Medium)
     fun trace(channel: ByteArray)

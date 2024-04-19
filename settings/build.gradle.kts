@@ -22,6 +22,7 @@ kotlin {
 
             implementation(libs.serialization.protobuf)
             implementation(libs.tooling)
+            implementation(libs.datetime)
         }
     }
 }
