@@ -332,7 +332,7 @@ class MediumScreenComponent(
                 access = it.access_token,
                 refresh = it.refresh_token,
                 id = it.id_token,
-                expires = (it.expires_in ?: it.refresh_token_expires_in)?.let { time ->
+                expires = (it.refresh_token_expires_in ?: it.expires_in)?.let { time ->
                     Clock.System.now().epochSeconds + time
                 }?.toInt()
             )

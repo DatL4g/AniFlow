@@ -52,7 +52,7 @@ class TokenRefreshHandler(
                     access = newTokens.access_token,
                     refresh = newTokens.refresh_token,
                     id = newTokens.id_token,
-                    expires = (newTokens.expires_in ?: newTokens.refresh_token_expires_in)?.let {
+                    expires = (newTokens.refresh_token_expires_in ?: newTokens.expires_in)?.let {
                         Clock.System.now().epochSeconds + it
                     }?.toInt()
                 )
