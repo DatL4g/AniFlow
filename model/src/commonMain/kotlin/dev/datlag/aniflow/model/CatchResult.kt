@@ -6,7 +6,9 @@ import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 sealed interface CatchResult<T> {
@@ -91,9 +93,7 @@ sealed interface CatchResult<T> {
             return@coroutineScope if (result.isFailure) {
                 Error(result.exceptionOrNull())
             } else {
-                result.getOrNull()?.let {
-                    Success(it)
-                } ?: Error(result.exceptionOrNull())
+                result.getOrNull()?.let(::Success) ?: Error(result.exceptionOrNull())
             }
         }
 
@@ -113,10 +113,30 @@ sealed interface CatchResult<T> {
             return@coroutineScope if (result.isFailure) {
                 Error(result.exceptionOrNull())
             } else {
-                result.getOrNull()?.let {
-                    Success(it)
-                } ?: Error(result.exceptionOrNull())
+                result.getOrNull()?.let(::Success) ?: Error(result.exceptionOrNull())
             }
+        }
+
+        suspend fun <T> timeout(
+            time: Duration,
+            block: suspend CoroutineScope.() -> T
+        ): CatchResult<T & Any> = coroutineScope {
+            val result = suspendCatching {
+                withTimeout(time, block)
+            }
+
+            return@coroutineScope if (result.isFailure) {
+                Error(result.exceptionOrNull())
+            } else {
+                result.getOrNull()?.let(::Success) ?: Error(result.exceptionOrNull())
+            }
+        }
+
+        suspend fun <T> timeout(
+            timeMillis: Long,
+            block: suspend CoroutineScope.() -> T
+        ): CatchResult<T & Any> {
+            return timeout(timeMillis.milliseconds, block)
         }
     }
 }

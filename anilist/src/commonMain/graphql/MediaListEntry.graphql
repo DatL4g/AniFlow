@@ -1,0 +1,5 @@
+query MediaListEntry($id: Int) {
+    MediaList(mediaId: $id) {
+        score(format: POINT_5)
+    }
+}

@@ -10,6 +10,7 @@ import com.arkivanov.essenty.backhandler.BackCallback
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.MediaListEntryQuery
 import dev.datlag.aniflow.anilist.MediumQuery
 import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.RatingMutation
@@ -20,6 +21,8 @@ import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.common.popular
 import dev.datlag.aniflow.common.rated
+import dev.datlag.aniflow.model.CatchResult
+import dev.datlag.aniflow.model.alsoTrue
 import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.TokenRefreshHandler
@@ -37,6 +40,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 import org.publicvalue.multiplatform.oidc.appsupport.CodeAuthFlowFactory
+import kotlin.time.Duration.Companion.seconds
 
 class MediumScreenComponent(
     componentContext: ComponentContext,
@@ -47,6 +51,8 @@ class MediumScreenComponent(
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
+    private val tokenRefreshHandler by di.instance<TokenRefreshHandler>()
+
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,
         fallbackClient = aniListFallbackClient,
@@ -328,17 +334,21 @@ class MediumScreenComponent(
         }
 
         tokenResult.getOrNull()?.let {
-            userSettings.setAniListTokens(
-                access = it.access_token,
-                refresh = it.refresh_token,
-                id = it.id_token,
-                expires = (it.refresh_token_expires_in ?: it.expires_in)?.let { time ->
-                    Clock.System.now().epochSeconds + time
-                }?.toInt()
-            )
+            tokenRefreshHandler.updateStoredToken(it)
         }
 
-        return tokenResult.isSuccess
+        return tokenResult.isSuccess.alsoTrue {
+            val query = MediaListEntryQuery(
+                id = Optional.present(mediaId.saveFirstOrNull() ?: mediaId.value)
+            )
+            val execution = CatchResult.timeout(5.seconds) {
+                apolloClient.query(query).execute()
+            }.asNullableSuccess()
+
+            execution?.data?.MediaList?.let { entry ->
+                changedRating.emit(entry.score?.toInt() ?: changedRating.value)
+            }
+        }
     }
 
     override fun rate(onLoggedIn: () -> Unit) {

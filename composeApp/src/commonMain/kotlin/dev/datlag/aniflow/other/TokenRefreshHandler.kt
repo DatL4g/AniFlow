@@ -20,9 +20,12 @@ class TokenRefreshHandler(
 
     private val mutex = Mutex()
     private var lastRefresh: Int = 0
+    private var memoryAccessToken: String? = null
 
     suspend fun getAccessToken(): String? {
-        return storeUserSettings.aniList.saveFirstOrNull()?.accessToken
+        return mutex.withLock(storeUserSettings) {
+            storeUserSettings.aniList.saveFirstOrNull()?.accessToken?.ifBlank { null }
+        } ?: memoryAccessToken
     }
 
     suspend fun refreshAndSaveToken(client: OpenIdConnectClient, oldAccessToken: String): OauthTokens {
@@ -31,7 +34,9 @@ class TokenRefreshHandler(
 
     suspend fun refreshAndSaveToken(refreshCall: suspend (String) -> AccessTokenResponse, oldAccessToken: String): OauthTokens {
         mutex.withLock {
-            val storeData = storeUserSettings.aniList.saveFirstOrNull()
+            val storeData = mutex.withLock(storeUserSettings) {
+                storeUserSettings.aniList.saveFirstOrNull()
+            }
             val currentTokens = storeData?.let {
                 OauthTokens(
                     accessToken = it.accessToken ?: return@let null,
@@ -46,16 +51,11 @@ class TokenRefreshHandler(
             return if (currentTokens != null && currentTokens.accessToken != oldAccessToken && !requiresRefresh) {
                 currentTokens
             } else {
-                val refreshToken = storeUserSettings.aniListRefreshToken.saveFirstOrNull()
+                val refreshToken = mutex.withLock(storeUserSettings) {
+                    storeUserSettings.aniListRefreshToken.saveFirstOrNull()
+                }
                 val newTokens = refreshCall(refreshToken ?: "")
-                storeUserSettings.setAniListTokens(
-                    access = newTokens.access_token,
-                    refresh = newTokens.refresh_token,
-                    id = newTokens.id_token,
-                    expires = (newTokens.refresh_token_expires_in ?: newTokens.expires_in)?.let {
-                        Clock.System.now().epochSeconds + it
-                    }?.toInt()
-                )
+                updateStoredToken(newTokens)
                 lastRefresh = Clock.System.now().epochSeconds.toInt()
 
                 OauthTokens(
@@ -64,6 +64,21 @@ class TokenRefreshHandler(
                     idToken = newTokens.id_token
                 )
             }
+        }
+    }
+
+    suspend fun updateStoredToken(tokenResponse: AccessTokenResponse) {
+        mutex.withLock(storeUserSettings) {
+            memoryAccessToken = tokenResponse.access_token
+
+            storeUserSettings.setAniListTokens(
+                access = tokenResponse.access_token,
+                refresh = tokenResponse.refresh_token,
+                id = tokenResponse.id_token,
+                expires = (tokenResponse.refresh_token_expires_in ?: tokenResponse.expires_in)?.let {
+                    Clock.System.now().epochSeconds + it
+                }?.toInt()
+            )
         }
     }
 }
