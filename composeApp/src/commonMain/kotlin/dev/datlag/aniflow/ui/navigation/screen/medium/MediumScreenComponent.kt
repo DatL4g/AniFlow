@@ -266,7 +266,7 @@ class MediumScreenComponent(
     override val rating: StateFlow<Int> = combine(
         mediumSuccessState.mapNotNull {
             it?.data?.entry?.score?.toInt()
-        },
+        }.flowOn(ioDispatcher()),
         changedRating
     ) { t1, t2 ->
         if (t2 > -1) {
@@ -338,16 +338,20 @@ class MediumScreenComponent(
         }
 
         return tokenResult.isSuccess.alsoTrue {
-            val query = MediaListEntryQuery(
-                id = Optional.present(mediaId.saveFirstOrNull() ?: mediaId.value)
-            )
-            val execution = CatchResult.timeout(5.seconds) {
-                apolloClient.query(query).execute()
-            }.asNullableSuccess()
+            requestMediaListEntry()
+        }
+    }
 
-            execution?.data?.MediaList?.let { entry ->
-                changedRating.emit(entry.score?.toInt() ?: changedRating.value)
-            }
+    private suspend fun requestMediaListEntry() {
+        val query = MediaListEntryQuery(
+            id = Optional.present(mediaId.saveFirstOrNull() ?: mediaId.value)
+        )
+        val execution = CatchResult.timeout(5.seconds) {
+            apolloClient.query(query).execute()
+        }.asNullableSuccess()
+
+        execution?.data?.MediaList?.let { entry ->
+            changedRating.emit(entry.score?.toInt() ?: changedRating.value)
         }
     }
 
@@ -362,6 +366,11 @@ class MediumScreenComponent(
                     }
                 }
             } else {
+                val currentRating = rating.saveFirstOrNull() ?: rating.value
+                if (currentRating <= -1) {
+                    requestMediaListEntry()
+                }
+
                 withMainContext {
                     onLoggedIn()
                 }

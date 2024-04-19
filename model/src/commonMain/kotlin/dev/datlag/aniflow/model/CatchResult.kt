@@ -3,10 +3,7 @@ package dev.datlag.aniflow.model
 import dev.datlag.aniflow.model.CatchResult.Companion.result
 import dev.datlag.aniflow.model.CatchResult.Success
 import dev.datlag.tooling.async.suspendCatching
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -121,8 +118,10 @@ sealed interface CatchResult<T> {
             time: Duration,
             block: suspend CoroutineScope.() -> T
         ): CatchResult<T & Any> = coroutineScope {
-            val result = suspendCatching {
-                withTimeout(time, block)
+            val result: Result<T> = try {
+                Result.success(withTimeout(time, block))
+            } catch (timeout: TimeoutCancellationException) {
+                Result.failure(timeout)
             }
 
             return@coroutineScope if (result.isFailure) {
