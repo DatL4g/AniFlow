@@ -10,6 +10,7 @@ import dev.datlag.aniflow.model.mapError
 import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PopularNextSeasonStateMachine(
@@ -31,7 +32,7 @@ class PopularNextSeasonStateMachine(
                         return@onEnter state.override { SeasonState.Success(query, it) }
                     }
 
-                    val response = CatchResult.repeat(times = 2) {
+                    val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()

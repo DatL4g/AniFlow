@@ -21,12 +21,11 @@ import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.common.popular
 import dev.datlag.aniflow.common.rated
-import dev.datlag.aniflow.model.CatchResult
-import dev.datlag.aniflow.model.alsoTrue
-import dev.datlag.aniflow.model.saveFirstOrNull
+import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.TokenRefreshHandler
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.tooling.alsoTrue
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
@@ -147,21 +146,21 @@ class MediumScreenComponent(
     )
 
     override val episodes: StateFlow<Int> = combine(
-        mediumSuccessState.mapNotNull {
+        mediumSuccessState.map {
             it?.data?.episodes
         },
         nextAiringEpisode
     ) { episodes, airing ->
-        if (episodes > -1) {
-            episodes
-        } else if (airing != null) {
-            if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
-                airing.episode
+        episodes.ifValueOrNull(-1) {
+            if (airing != null) {
+                if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
+                    airing.episode
+                } else {
+                    airing.episode - 1
+                }
             } else {
-                airing.episode - 1
+                -1
             }
-        } else {
-            episodes
         }
     }.flowOn(
         context = ioDispatcher()
@@ -264,7 +263,7 @@ class MediumScreenComponent(
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(-1)
     override val rating: StateFlow<Int> = combine(
-        mediumSuccessState.mapNotNull {
+        mediumSuccessState.map {
             it?.data?.entry?.score?.toInt()
         }.flowOn(ioDispatcher()),
         changedRating
@@ -272,7 +271,7 @@ class MediumScreenComponent(
         if (t2 > -1) {
             t2
         } else {
-            t1
+            t1 ?: t2
         }
     }.flowOn(
         context = ioDispatcher()
@@ -351,7 +350,7 @@ class MediumScreenComponent(
         }.asNullableSuccess()
 
         execution?.data?.MediaList?.let { entry ->
-            changedRating.emit(entry.score?.toInt() ?: changedRating.value)
+            changedRating.update { entry.score?.toInt() ?: it }
         }
     }
 

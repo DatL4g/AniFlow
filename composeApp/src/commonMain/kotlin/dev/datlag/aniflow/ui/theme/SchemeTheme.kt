@@ -18,7 +18,6 @@ import com.materialkolor.ktx.isDisliked
 import dev.datlag.aniflow.LocalDarkMode
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.launchIO
-import dev.datlag.tooling.compose.toLegacyColors
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import io.github.aakira.napier.Napier

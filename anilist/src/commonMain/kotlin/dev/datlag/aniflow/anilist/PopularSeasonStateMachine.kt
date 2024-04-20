@@ -21,6 +21,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PopularSeasonStateMachine(
@@ -42,7 +43,7 @@ class PopularSeasonStateMachine(
                         return@onEnter state.override { SeasonState.Success(query, it) }
                     }
 
-                    val response = CatchResult.repeat(times = 2) {
+                    val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()

@@ -17,6 +17,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringTodayStateMachine(
@@ -38,7 +39,7 @@ class AiringTodayStateMachine(
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
-                    val response = CatchResult.repeat(times = 2) {
+                    val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()

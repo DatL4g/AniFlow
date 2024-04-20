@@ -10,13 +10,14 @@ import dev.datlag.aniflow.model.mapError
 import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediumStateMachine(
     private val client: ApolloClient,
     private val fallbackClient: ApolloClient,
     private val crashlytics: FirebaseFactory.Crashlytics?,
-    private val id: Int
+    private val id: Int,
 ) : FlowReduxStateMachine<MediumStateMachine.State, MediumStateMachine.Action>(
     initialState = State.Loading(id)
 ) {
@@ -31,7 +32,7 @@ class MediumStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    val response = CatchResult.repeat(times = 2) {
+                    val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()

@@ -1,15 +1,9 @@
 package dev.datlag.aniflow.model
 
-inline fun Boolean.alsoTrue(block: Boolean.() -> Unit): Boolean {
-    if (this) {
-        block(this)
-    }
-    return this
+inline fun <T : Number> T.ifValue(value: T, defaultValue: () -> T): T {
+    return if (this == value) defaultValue() else this
 }
 
-inline fun Boolean.alsoFalse(block: Boolean.() -> Unit): Boolean {
-    if (!this) {
-        block(this)
-    }
-    return this
+inline fun <T : Number> T?.ifValueOrNull(value: T, defaultValue: () -> T): T {
+    return if (this == value || this == null) defaultValue() else this
 }

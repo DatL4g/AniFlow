@@ -18,14 +18,11 @@ class TokenRefreshHandler(
     private val storeUserSettings: Settings.PlatformUserSettings
 ) {
 
-    private val mutex = Mutex()
     private var lastRefresh: Int = 0
     private var memoryAccessToken: String? = null
 
     suspend fun getAccessToken(): String? {
-        return mutex.withLock(storeUserSettings) {
-            storeUserSettings.aniList.saveFirstOrNull()?.accessToken?.ifBlank { null }
-        } ?: memoryAccessToken
+        return storeUserSettings.aniList.saveFirstOrNull()?.accessToken?.ifBlank { null } ?: memoryAccessToken
     }
 
     suspend fun refreshAndSaveToken(client: OpenIdConnectClient, oldAccessToken: String): OauthTokens {
@@ -33,52 +30,44 @@ class TokenRefreshHandler(
     }
 
     suspend fun refreshAndSaveToken(refreshCall: suspend (String) -> AccessTokenResponse, oldAccessToken: String): OauthTokens {
-        mutex.withLock {
-            val storeData = mutex.withLock(storeUserSettings) {
-                storeUserSettings.aniList.saveFirstOrNull()
-            }
-            val currentTokens = storeData?.let {
-                OauthTokens(
-                    accessToken = it.accessToken ?: return@let null,
-                    refreshToken = it.refreshToken,
-                    idToken = it.idToken
-                )
-            }
+        val storeData = storeUserSettings.aniList.saveFirstOrNull()
+        val currentTokens = storeData?.let {
+            OauthTokens(
+                accessToken = it.accessToken ?: return@let null,
+                refreshToken = it.refreshToken,
+                idToken = it.idToken
+            )
+        }
 
-            val nowMinus10Minutes = Clock.System.now().minus(10.minutes).epochSeconds
-            val requiresRefresh = lastRefresh <= nowMinus10Minutes || nowMinus10Minutes > (storeData?.expires ?: 0)
+        val nowMinus10Minutes = Clock.System.now().minus(10.minutes).epochSeconds
+        val requiresRefresh = lastRefresh <= nowMinus10Minutes || nowMinus10Minutes > (storeData?.expires ?: 0)
 
-            return if (currentTokens != null && currentTokens.accessToken != oldAccessToken && !requiresRefresh) {
-                currentTokens
-            } else {
-                val refreshToken = mutex.withLock(storeUserSettings) {
-                    storeUserSettings.aniListRefreshToken.saveFirstOrNull()
-                }
-                val newTokens = refreshCall(refreshToken ?: "")
-                updateStoredToken(newTokens)
-                lastRefresh = Clock.System.now().epochSeconds.toInt()
+        return if (currentTokens != null && currentTokens.accessToken != oldAccessToken && !requiresRefresh) {
+            currentTokens
+        } else {
+            val refreshToken = storeUserSettings.aniListRefreshToken.saveFirstOrNull()
+            val newTokens = refreshCall(refreshToken ?: "")
+            updateStoredToken(newTokens)
+            lastRefresh = Clock.System.now().epochSeconds.toInt()
 
-                OauthTokens(
-                    accessToken = newTokens.access_token,
-                    refreshToken = newTokens.refresh_token,
-                    idToken = newTokens.id_token
-                )
-            }
+            OauthTokens(
+                accessToken = newTokens.access_token,
+                refreshToken = newTokens.refresh_token,
+                idToken = newTokens.id_token
+            )
         }
     }
 
     suspend fun updateStoredToken(tokenResponse: AccessTokenResponse) {
-        mutex.withLock(storeUserSettings) {
-            memoryAccessToken = tokenResponse.access_token
+        memoryAccessToken = tokenResponse.access_token
 
-            storeUserSettings.setAniListTokens(
-                access = tokenResponse.access_token,
-                refresh = tokenResponse.refresh_token,
-                id = tokenResponse.id_token,
-                expires = (tokenResponse.refresh_token_expires_in ?: tokenResponse.expires_in)?.let {
-                    Clock.System.now().epochSeconds + it
-                }?.toInt()
-            )
-        }
+        storeUserSettings.setAniListTokens(
+            access = tokenResponse.access_token,
+            refresh = tokenResponse.refresh_token,
+            id = tokenResponse.id_token,
+            expires = (tokenResponse.refresh_token_expires_in ?: tokenResponse.expires_in)?.let {
+                Clock.System.now().epochSeconds + it
+            }?.toInt()
+        )
     }
 }

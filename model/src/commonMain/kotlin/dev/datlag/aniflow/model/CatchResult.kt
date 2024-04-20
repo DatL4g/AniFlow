@@ -86,7 +86,7 @@ sealed interface CatchResult<T> {
 
     companion object {
         suspend fun <T> result(block: suspend CoroutineScope.() -> T): CatchResult<T & Any> = coroutineScope {
-            val result = suspendCatching(block)
+            val result = suspendCatching(block = block)
             return@coroutineScope if (result.isFailure) {
                 Error(result.exceptionOrNull())
             } else {
@@ -97,31 +97,38 @@ sealed interface CatchResult<T> {
         suspend fun <T> repeat(
             times: Int,
             delayDuration: Duration = 0.seconds,
+            timeoutDuration: Duration = 0.seconds,
             block: suspend CoroutineScope.() -> T
         ): CatchResult<T & Any> = coroutineScope {
-            var result = suspendCatching(block)
+            var result = if (timeoutDuration > 0.seconds) {
+                timeout(timeoutDuration, block)
+            } else {
+                result(block)
+            }
             var request = 1
 
-            while (result.isFailure && request < times) {
+            while (result.isError && request < times) {
                 delay(delayDuration)
-                result = suspendCatching(block)
+                result = if (timeoutDuration > 0.seconds) {
+                    timeout(timeoutDuration, block)
+                } else {
+                    result(block)
+                }
                 request++
             }
-            return@coroutineScope if (result.isFailure) {
-                Error(result.exceptionOrNull())
-            } else {
-                result.getOrNull()?.let(::Success) ?: Error(result.exceptionOrNull())
-            }
+            return@coroutineScope result
         }
 
         suspend fun <T> timeout(
             time: Duration,
             block: suspend CoroutineScope.() -> T
         ): CatchResult<T & Any> = coroutineScope {
-            val result: Result<T> = try {
-                Result.success(withTimeout(time, block))
-            } catch (timeout: TimeoutCancellationException) {
-                Result.failure(timeout)
+            val result = suspendCatching(
+                catchTimeout = true
+            ) {
+                withTimeout(time) {
+                    block()
+                }
             }
 
             return@coroutineScope if (result.isFailure) {
@@ -147,13 +154,13 @@ suspend inline fun <T : Any> CatchResult<T>.resultOnError(noinline block: Corout
     }
 }
 
-suspend inline fun <reified M : Any> CatchResult<*>.mapError(block: () -> M?): CatchResult<M> {
+inline fun <reified M : Any> CatchResult<*>.mapError(block: (Throwable?) -> M?): CatchResult<M> {
     return when (this) {
         is CatchResult.Error -> {
-            block()?.let(::Success) ?: CatchResult.Error(null)
+            block(this.throwable)?.let(::Success) ?: CatchResult.Error(null)
         }
         is Success -> {
-            (this.data as? M)?.let(::Success) ?: block()?.let(::Success) ?: CatchResult.Error(null)
+            (this.data as? M)?.let(::Success) ?: block(null)?.let(::Success) ?: CatchResult.Error(null)
         }
     }
 }

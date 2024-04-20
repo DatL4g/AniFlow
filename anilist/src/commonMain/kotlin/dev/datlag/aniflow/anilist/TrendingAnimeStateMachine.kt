@@ -11,6 +11,7 @@ import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.*
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class, ApolloExperimental::class)
 class TrendingAnimeStateMachine(
@@ -32,7 +33,7 @@ class TrendingAnimeStateMachine(
                         return@onEnter state.override { State.Success(query, it) }
                     }
 
-                    val response = CatchResult.repeat(2) {
+                    val response = CatchResult.repeat(2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
                          query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
