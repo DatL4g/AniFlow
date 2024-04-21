@@ -19,7 +19,7 @@ actual class BurningSeriesResolver(
     constructor(context: Context) : this(context.contentResolver)
 
     actual fun resolveWatchedEpisodes(): Set<Episode> {
-        if (episodeClient == null || seriesClient == null) {
+        if (episodeClient == null) {
             return emptySet()
         }
 
@@ -60,11 +60,56 @@ actual class BurningSeriesResolver(
                         )
                     )
                 )
+
+                episodeCursor.moveToNext()
             }
         }
 
         episodeCursor.close()
         return episodes
+    }
+
+    actual fun resolveByName(english: String?, romaji: String?) {
+        val englishTrimmed = english?.trim()?.ifBlank { null }
+        val romajiTrimmed = romaji?.trim()?.ifBlank { null }
+
+        if (seriesClient == null || (englishTrimmed == null && romajiTrimmed == null)) {
+            return
+        }
+
+        val selection = if (englishTrimmed != null && romajiTrimmed != null) {
+            "title LIKE '%$englishTrimmed%' OR title LIKE '%$romajiTrimmed%'"
+        } else if (englishTrimmed != null) {
+            "title LIKE '%$englishTrimmed%'"
+        } else {
+            "title LIKE '%$romajiTrimmed%'"
+        }
+        val seriesCursor = seriesClient.query(
+            seriesContentUri,
+            null,
+            selection,
+            null,
+            null
+        ) ?: return
+
+        if (seriesCursor.moveToFirst()) {
+            while (!seriesCursor.isAfterLast) {
+                val titleIndex = seriesCursor.getColumnIndex("title")
+
+                if (titleIndex == -1) {
+                    seriesCursor.moveToNext()
+                    continue
+                }
+
+                val title = seriesCursor.getString(titleIndex)
+                Napier.e("Series matching name: $title")
+
+                seriesCursor.moveToNext()
+            }
+        }
+
+        seriesCursor.close()
+        return
     }
 
     actual fun close() {

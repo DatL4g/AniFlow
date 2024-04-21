@@ -17,4 +17,5 @@ internal object StateSaver {
             year = nextYear
         )
     }
+    var character: CharacterStateMachine.State = CharacterStateMachine.State.Waiting
 }

@@ -10,6 +10,7 @@ import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.firebase.initialize
+import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.DataStoreUserSettings
@@ -88,6 +89,9 @@ actual object PlatformModule {
         }
         bindSingleton<Settings.PlatformUserSettings> {
             DataStoreUserSettings(instance())
+        }
+        bindSingleton<BurningSeriesResolver> {
+            BurningSeriesResolver(context = instance())
         }
     }
 }

@@ -10,10 +10,7 @@ import com.arkivanov.essenty.backhandler.BackCallback
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.anilist.MediaListEntryQuery
-import dev.datlag.aniflow.anilist.MediumQuery
-import dev.datlag.aniflow.anilist.MediumStateMachine
-import dev.datlag.aniflow.anilist.RatingMutation
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
@@ -22,6 +19,7 @@ import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.common.popular
 import dev.datlag.aniflow.common.rated
 import dev.datlag.aniflow.model.*
+import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.TokenRefreshHandler
 import dev.datlag.aniflow.settings.Settings
@@ -302,7 +300,16 @@ class MediumScreenComponent(
     )
 
     private val userSettings by di.instance<Settings.PlatformUserSettings>()
-    private val apolloClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
+    private val characterStateMachine by di.instance<CharacterStateMachine>()
+    private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
+
+    init {
+        launchIO {
+            title.mapNotNull { it.english to it.romaji }.collect { (english, romaji) ->
+                burningSeriesResolver.resolveByName(english = english, romaji = romaji)
+            }
+        }
+    }
 
     @Composable
     override fun render() {
@@ -346,7 +353,7 @@ class MediumScreenComponent(
             id = Optional.present(mediaId.saveFirstOrNull() ?: mediaId.value)
         )
         val execution = CatchResult.timeout(5.seconds) {
-            apolloClient.query(query).execute()
+            aniListClient.query(query).execute()
         }.asNullableSuccess()
 
         execution?.data?.MediaList?.let { entry ->
@@ -383,7 +390,7 @@ class MediumScreenComponent(
             rating = Optional.present(value * 20)
         )
         launchIO {
-            apolloClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
+            aniListClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
                 changedRating.emit(it.toInt())
             }
         }

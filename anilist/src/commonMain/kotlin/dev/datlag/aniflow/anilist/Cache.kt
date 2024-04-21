@@ -2,6 +2,7 @@ package dev.datlag.aniflow.anilist
 
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
+import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.tooling.async.suspendCatching
 import kotlin.time.Duration.Companion.hours
@@ -30,6 +31,13 @@ internal object Cache {
 
     private val medium = InMemoryKache<MediumQuery, Medium.Full>(
         maxSize = 10L * 1024 * 1024
+    ) {
+        strategy = KacheStrategy.LRU
+        expireAfterWriteDuration = 2.hours
+    }
+
+    private val character = InMemoryKache<CharacterQuery, Character>(
+        maxSize = 5L * 1024 * 1024
     ) {
         strategy = KacheStrategy.LRU
         expireAfterWriteDuration = 2.hours
@@ -80,6 +88,18 @@ internal object Cache {
     suspend fun setMedium(key: MediumQuery, data: Medium.Full): Medium.Full {
         return suspendCatching {
             medium.put(key, data)
+        }.getOrNull() ?: data
+    }
+
+    suspend fun getCharacter(key: CharacterQuery) : Character? {
+        return suspendCatching {
+            character.get(key)
+        }.getOrNull()
+    }
+
+    suspend fun setCharacter(key: CharacterQuery, data: Character): Character {
+        return suspendCatching {
+            character.put(key, data)
         }.getOrNull() ?: data
     }
 }

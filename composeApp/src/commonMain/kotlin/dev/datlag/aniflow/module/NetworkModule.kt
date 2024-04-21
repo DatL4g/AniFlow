@@ -16,10 +16,7 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.ktorfitBuilder
 import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
-import dev.datlag.aniflow.anilist.AiringTodayStateMachine
-import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
-import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
-import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import io.ktor.client.*
@@ -118,6 +115,13 @@ data object NetworkModule {
         }
         bindProvider<PopularNextSeasonStateMachine> {
             PopularNextSeasonStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<CharacterStateMachine> {
+            CharacterStateMachine(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 crashlytics = nullableFirebaseInstance()?.crashlytics

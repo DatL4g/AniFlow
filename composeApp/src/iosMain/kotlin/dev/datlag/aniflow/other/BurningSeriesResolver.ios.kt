@@ -6,5 +6,7 @@ actual class BurningSeriesResolver {
         return emptySet()
     }
 
+    actual fun resolveByName(english: String?, romaji: String?) { }
+
     actual fun close() { }
 }

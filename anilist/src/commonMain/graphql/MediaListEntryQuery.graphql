@@ -1,4 +1,4 @@
-query MediaListEntry($id: Int) {
+query MediaListEntryQuery($id: Int) {
     MediaList(mediaId: $id) {
         score(format: POINT_5)
     }

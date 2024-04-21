@@ -2,6 +2,7 @@ package dev.datlag.aniflow.other
 
 expect class BurningSeriesResolver {
     fun resolveWatchedEpisodes(): Set<Episode>
+    fun resolveByName(english: String?, romaji: String?)
 
     fun close()
 }
