@@ -212,6 +212,10 @@ fun MediumScreen(component: MediumComponent) {
             if (!notReleased) {
                 EditFAB(
                     displayAdd = !alreadyAdded,
+                    bsAvailable = component.bsAvailable,
+                    onBS = {
+
+                    },
                     onRate = {
                         component.rate {
                             ratingState.show()

@@ -303,6 +303,9 @@ class MediumScreenComponent(
     private val characterStateMachine by di.instance<CharacterStateMachine>()
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
 
+    override val bsAvailable: Boolean
+        get() = burningSeriesResolver.isAvailable
+
     init {
         launchIO {
             title.mapNotNull { it.english to it.romaji }.collect { (english, romaji) ->

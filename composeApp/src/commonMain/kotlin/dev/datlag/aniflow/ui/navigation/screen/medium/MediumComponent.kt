@@ -31,6 +31,8 @@ interface MediumComponent : ContentHolderComponent {
     val alreadyAdded: StateFlow<Boolean>
     val trailer: StateFlow<Medium.Full.Trailer?>
 
+    val bsAvailable: Boolean
+
     fun back()
     override fun dismissContent() {
         back()

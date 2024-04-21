@@ -1,6 +1,10 @@
 package dev.datlag.aniflow.other
 
 actual class BurningSeriesResolver {
+
+    actual val isAvailable: Boolean
+        get() = false
+
     actual fun resolveWatchedEpisodes(): Set<Episode> {
         // ToDo("Check if something like content provider exists")
         return emptySet()

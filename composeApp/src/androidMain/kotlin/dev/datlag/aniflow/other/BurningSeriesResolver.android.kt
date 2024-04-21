@@ -3,20 +3,34 @@ package dev.datlag.aniflow.other
 import android.content.ContentProviderClient
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import dev.datlag.tooling.scopeCatching
 import io.github.aakira.napier.Napier
 
 actual class BurningSeriesResolver(
+    private val packageManager: PackageManager,
     private val episodeClient: ContentProviderClient?,
     private val seriesClient: ContentProviderClient?
 ) {
-
-    constructor(contentResolver: ContentResolver) : this(
+    constructor(packageManager: PackageManager, contentResolver: ContentResolver) : this(
+        packageManager = packageManager,
         episodeClient = contentResolver.acquireContentProviderClient(episodesContentUri),
         seriesClient = contentResolver.acquireContentProviderClient(seriesContentUri)
     )
 
-    constructor(context: Context) : this(context.contentResolver)
+    constructor(context: Context) : this(context.packageManager, context.contentResolver)
+
+    actual val isAvailable: Boolean
+        get() = scopeCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+            } else {
+                packageManager.getApplicationInfo(packageName, 0)
+            }
+            true
+        }.getOrNull() ?: false
 
     actual fun resolveWatchedEpisodes(): Set<Episode> {
         if (episodeClient == null) {
@@ -118,6 +132,7 @@ actual class BurningSeriesResolver(
     }
 
     companion object {
+        val packageName = "dev.datlag.burningseries"
         val seriesContentUri = Uri.parse("content://dev.datlag.burningseries.provider/series")
         val episodesContentUri = Uri.parse("content://dev.datlag.burningseries.provider/episodes")
     }
