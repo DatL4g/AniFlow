@@ -30,4 +30,6 @@
     <string name="blood_type">Blood Type</string>
     <string name="gender">Gender</string>
     <string name="birth_date">Birthdate</string>
+    <string name="add">Add</string>
+    <string name="edit">Edit</string>
 </resources>

@@ -26,6 +26,7 @@ import dev.icerock.moko.resources.compose.stringResource
 fun EditFAB(
     displayAdd: Boolean = false,
     bsAvailable: Boolean = false,
+    expanded: Boolean = false,
     onBS: () -> Unit,
     onRate: () -> Unit,
     onProgress: () -> Unit
@@ -52,6 +53,7 @@ fun EditFAB(
         ) {
             LabelFAB(
                 label = "Progress",
+                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onProgress()
@@ -79,6 +81,7 @@ fun EditFAB(
         ) {
             LabelFAB(
                 label = "Rating",
+                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onRate()
@@ -106,6 +109,7 @@ fun EditFAB(
         ) {
             LabelFAB(
                 label = stringResource(SharedRes.strings.bs),
+                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onBS()
@@ -120,42 +124,64 @@ fun EditFAB(
             }
         }
 
-        FloatingActionButton(
+        ExtendedFloatingActionButton(
             onClick = {
                 showOtherFABs = !showOtherFABs
-            }
-        ) {
-            val icon = if (displayAdd) {
-                Icons.Default.Add
-            } else {
-                Icons.Default.Edit
-            }
+            },
+            expanded = expanded,
+            icon = {
+                val icon = if (displayAdd) {
+                    Icons.Default.Add
+                } else {
+                    Icons.Default.Edit
+                }
 
-            Icon(
-                imageVector = icon,
-                contentDescription = null
-            )
-        }
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null
+                )
+            },
+            text = {
+                val text = if (displayAdd) {
+                    SharedRes.strings.add
+                } else {
+                    SharedRes.strings.edit
+                }
+
+                Text(text = stringResource(text))
+            }
+        )
     }
 }
 
 @Composable
-private fun LabelFAB(label: String, onClick: () -> Unit, icon: @Composable () -> Unit) {
+private fun LabelFAB(
+    label: String,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Surface(
-            onClick = onClick,
-            tonalElevation = 8.dp,
-            shadowElevation = 4.dp,
-            shape = RoundedCornerShape(4.dp)
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            Text(
-                modifier = Modifier.padding(4.dp),
-                text = label,
-                maxLines = 1
-            )
+            Surface(
+                onClick = onClick,
+                tonalElevation = 8.dp,
+                shadowElevation = 4.dp,
+                shape = RoundedCornerShape(4.dp)
+            ) {
+                Text(
+                    modifier = Modifier.padding(4.dp),
+                    text = label,
+                    maxLines = 1
+                )
+            }
         }
 
         SmallFloatingActionButton(

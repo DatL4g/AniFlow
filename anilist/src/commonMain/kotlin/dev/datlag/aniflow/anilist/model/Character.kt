@@ -5,42 +5,42 @@ import dev.datlag.aniflow.anilist.MediumQuery
 import kotlinx.serialization.Serializable
 
 @Serializable
-open class Character(
+data class Character(
     /**
      * The id of the character
      */
-    open val id: Int,
+    val id: Int,
 
     /**
      * The names of the character
      */
-    open val name: Name,
+    val name: Name,
 
     /**
      * Character images
      */
-    open val image: Image,
+    val image: Image,
 
     /**
      * The character's gender.
      * Usually Male, Female, or Non-binary but can be any string.
      */
-    open val gender: String?,
+    val gender: String?,
 
     /**
      * The characters blood type
      */
-    open val bloodType: String?,
+    val bloodType: String?,
 
     /**
      * The character's birthdate
      */
-    open val birthDate: Character.BirthDate?,
+    val birthDate: Character.BirthDate?,
 
     /**
      * A general description of the character
      */
-    open val description: String?,
+    val description: String?,
 ) {
 
     @Serializable

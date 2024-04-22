@@ -250,7 +250,9 @@ open class Medium(
             coverImage = medium.coverImage,
             nextAiringEpisode = mediumQuery.nextAiringEpisode,
             ranking = mediumQuery.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.filterNot {
+                it.id == 36309 // Narrator
+            }?.toSet() ?: emptySet(),
             entry = mediumQuery.mediaListEntry?.let(::Entry),
             trailer = mediumQuery.trailer?.let {
                 val site = it.site?.ifBlank { null }

@@ -81,6 +81,10 @@ fun MediumScreen(component: MediumComponent) {
     val ratingState = rememberUseCaseState()
     val userRating by component.rating.collectAsStateWithLifecycle()
     val dialogState by component.dialog.subscribeAsState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = StateSaver.List.mediaOverview,
+        initialFirstVisibleItemScrollOffset = StateSaver.List.mediaOverviewOffset
+    )
 
     dialogState.child?.instance?.render()
 
@@ -217,6 +221,7 @@ fun MediumScreen(component: MediumComponent) {
                 EditFAB(
                     displayAdd = !alreadyAdded,
                     bsAvailable = component.bsAvailable,
+                    expanded = listState.isScrollingUp(),
                     onBS = {
 
                     },
@@ -235,10 +240,6 @@ fun MediumScreen(component: MediumComponent) {
         CompositionLocalProvider(
             LocalPaddingValues provides LocalPadding().merge(it)
         ) {
-            val listState = rememberLazyListState(
-                initialFirstVisibleItemIndex = StateSaver.List.mediaOverview,
-                initialFirstVisibleItemScrollOffset = StateSaver.List.mediaOverviewOffset
-            )
             val description by component.description.collectAsStateWithLifecycle()
             var descriptionExpandable by remember(description) { mutableStateOf(false) }
             var descriptionExpanded by remember(description) { mutableStateOf(false) }
@@ -557,13 +558,13 @@ fun MediumScreen(component: MediumComponent) {
                     }
                 }
             }
+        }
+    }
 
-            DisposableEffect(listState) {
-                onDispose {
-                    StateSaver.List.mediaOverview = listState.firstVisibleItemIndex
-                    StateSaver.List.mediaOverviewOffset = listState.firstVisibleItemScrollOffset
-                }
-            }
+    DisposableEffect(listState) {
+        onDispose {
+            StateSaver.List.mediaOverview = listState.firstVisibleItemIndex
+            StateSaver.List.mediaOverviewOffset = listState.firstVisibleItemScrollOffset
         }
     }
 }
