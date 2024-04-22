@@ -24,4 +24,10 @@
     <string name="translate">Translate</string>
     <string name="description">Description</string>
     <string name="bs">Burning-Series</string>
+    <string name="close">Close</string>
+    <string name="characters">Characters</string>
+    <string name="retry">Retry</string>
+    <string name="blood_type">Blood Type</string>
+    <string name="gender">Gender</string>
+    <string name="birth_date">Birthdate</string>
 </resources>

@@ -8,7 +8,8 @@ fun FirebaseFactory.Companion.initialize(
     projectId: String?,
     applicationId: String,
     apiKey: String,
-    googleAuthProvider: GoogleAuthProvider?
+    googleAuthProvider: GoogleAuthProvider?,
+    localLogger: FirebaseFactory.Crashlytics.LocalLogger?
 ) : FirebaseFactory {
     return CommonFirebase(
         Firebase.initialize(
@@ -19,6 +20,7 @@ fun FirebaseFactory.Companion.initialize(
                 apiKey = apiKey
             )
         ),
-        googleAuthProvider
+        googleAuthProvider,
+        localLogger
     )
 }

@@ -6,11 +6,14 @@ import androidx.compose.runtime.DisposableEffect
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.router.slot.*
+import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackCallback
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.*
+import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
@@ -23,6 +26,8 @@ import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.TokenRefreshHandler
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.ui.navigation.DialogComponent
+import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
 import dev.datlag.tooling.alsoTrue
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
@@ -239,7 +244,7 @@ class MediumScreenComponent(
         }
     )
 
-    override val characters: StateFlow<Set<Medium.Character>> = mediumSuccessState.mapNotNull {
+    override val characters: StateFlow<Set<Character>> = mediumSuccessState.mapNotNull {
         it?.data?.characters
     }.flowOn(
         context = ioDispatcher()
@@ -305,6 +310,21 @@ class MediumScreenComponent(
 
     override val bsAvailable: Boolean
         get() = burningSeriesResolver.isAvailable
+
+    private val dialogNavigation = SlotNavigation<DialogConfig>()
+    override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
+        source = dialogNavigation,
+        serializer = DialogConfig.serializer()
+    ) { config, context ->
+        when (config) {
+            is DialogConfig.Character -> CharacterDialogComponent(
+                componentContext = context,
+                di = di,
+                initialChar = config.initial,
+                onDismiss = dialogNavigation::dismiss
+            )
+        }
+    }
 
     init {
         launchIO {
@@ -400,8 +420,10 @@ class MediumScreenComponent(
     }
 
     override fun descriptionTranslation(text: String?) {
-        launchIO {
-            translatedDescription.emit(text)
-        }
+        translatedDescription.update { text }
+    }
+
+    override fun showCharacter(character: Character) {
+        dialogNavigation.activate(DialogConfig.Character(character))
     }
 }

@@ -2,6 +2,7 @@ package dev.datlag.aniflow.common
 
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.model.Character
 import java.util.Locale
 
 actual fun Medium.Title.preferred(): String {
@@ -24,7 +25,7 @@ actual fun Medium.Title.preferred(): String {
     } ?: ""
 }
 
-actual fun Medium.Character.Name.preferred(): String {
+actual fun Character.Name.preferred(): String {
     return this.userPreferred?.ifBlank { null } ?: run {
 
         val locale = Locale.getDefault()

@@ -84,8 +84,8 @@ actual class BurningSeriesResolver(
     }
 
     actual fun resolveByName(english: String?, romaji: String?) {
-        val englishTrimmed = english?.trim()?.ifBlank { null }
-        val romajiTrimmed = romaji?.trim()?.ifBlank { null }
+        val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")
+        val romajiTrimmed = romaji?.trim()?.ifBlank { null }?.replace("'", "")
 
         if (seriesClient == null || (englishTrimmed == null && romajiTrimmed == null)) {
             return

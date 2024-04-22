@@ -50,7 +50,7 @@ class PopularSeasonStateMachine(
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
                     }.mapSuccess<SeasonState> {
                         SeasonState.Success(state.snapshot.query, it)
                     }

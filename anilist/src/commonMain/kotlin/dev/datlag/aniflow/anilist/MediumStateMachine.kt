@@ -39,7 +39,7 @@ class MediumStateMachine(
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
                     }.mapSuccess<State> {
                         it.Media?.let { data ->
                             State.Success(state.snapshot.query, Medium.Full(data))

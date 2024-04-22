@@ -47,7 +47,8 @@ actual object PlatformModule {
                 projectId = Sekret.firebaseProject(BuildKonfig.packageName),
                 applicationId = Sekret.firebaseIosApplication(BuildKonfig.packageName)!!,
                 apiKey = Sekret.firebaseIosApiKey(BuildKonfig.packageName)!!,
-                googleAuthProvider = instanceOrNull()
+                googleAuthProvider = instanceOrNull(),
+                localLogger = instanceOrNull()
             )
         }
         bindEagerSingleton<IosCodeAuthFlowFactory> {

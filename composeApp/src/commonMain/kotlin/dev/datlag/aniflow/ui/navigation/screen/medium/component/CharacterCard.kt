@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferredName
 import dev.datlag.aniflow.common.shimmerPainter
@@ -25,9 +26,9 @@ import dev.datlag.tooling.compose.ifTrue
 
 @Composable
 fun CharacterCard(
-    char: Medium.Character,
+    char: Character,
     modifier: Modifier = Modifier,
-    onClick: (Medium.Character) -> Unit
+    onClick: (Character) -> Unit
 ) {
     Card(
         modifier = modifier,

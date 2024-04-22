@@ -28,6 +28,9 @@ interface FirebaseFactory {
     }
 
     interface Crashlytics {
+        val localLogger: LocalLogger?
+            get() = null
+
         fun customKey(key: String, value: String) { }
         fun customKey(key: String, value: Boolean) { }
         fun customKey(key: String, value: Int) { }
@@ -36,6 +39,12 @@ interface FirebaseFactory {
         fun customKey(key: String, value: Double) { }
         fun log(throwable: Throwable?) { }
         fun log(message: String?) { }
+
+        interface LocalLogger {
+            fun warn(message: String?)
+            fun error(throwable: Throwable?)
+            fun error(message: String?)
+        }
     }
 
     companion object

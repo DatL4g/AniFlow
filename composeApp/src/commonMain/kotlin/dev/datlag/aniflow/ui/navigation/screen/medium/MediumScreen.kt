@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -79,6 +80,9 @@ fun MediumScreen(component: MediumComponent) {
     }
     val ratingState = rememberUseCaseState()
     val userRating by component.rating.collectAsStateWithLifecycle()
+    val dialogState by component.dialog.subscribeAsState()
+
+    dialogState.child?.instance?.render()
 
     RatingDialog(
         state = ratingState,
@@ -491,7 +495,7 @@ fun MediumScreen(component: MediumComponent) {
                     item {
                         Text(
                             modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
-                            text = "Characters",
+                            text = stringResource(SharedRes.strings.characters),
                             style = MaterialTheme.typography.headlineSmall
                         )
                     }
@@ -507,7 +511,7 @@ fun MediumScreen(component: MediumComponent) {
                                     char = char,
                                     modifier = Modifier.width(96.dp).height(200.dp)
                                 ) {
-                                    // ToDo("character dialog")
+                                    component.showCharacter(char)
                                 }
                             }
                         }

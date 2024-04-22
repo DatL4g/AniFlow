@@ -41,6 +41,7 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
         genres,
         characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
             nodes {
+                id,
                 name {
                     first,
                     middle

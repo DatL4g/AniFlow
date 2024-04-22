@@ -1,6 +1,7 @@
 package dev.datlag.aniflow.firebase
 
 import android.content.Context
+import android.util.Log
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.FirebaseOptions
 import dev.gitlive.firebase.initialize
@@ -10,7 +11,8 @@ fun FirebaseFactory.Companion.initialize(
     projectId: String?,
     applicationId: String,
     apiKey: String,
-    googleAuthProvider: GoogleAuthProvider?
+    googleAuthProvider: GoogleAuthProvider?,
+    localLogger: FirebaseFactory.Crashlytics.LocalLogger?
 ): FirebaseFactory {
     return CommonFirebase(
         Firebase.initialize(
@@ -21,6 +23,19 @@ fun FirebaseFactory.Companion.initialize(
                 apiKey = apiKey
             )
         ),
-        googleAuthProvider
+        googleAuthProvider,
+        localLogger = localLogger ?: object : FirebaseFactory.Crashlytics.LocalLogger {
+            override fun warn(message: String?) {
+                message?.let { Log.w(null, it) }
+            }
+
+            override fun error(message: String?) {
+                message?.let { Log.e(null, it) }
+            }
+
+            override fun error(throwable: Throwable?) {
+                throwable?.let { Log.e(null, null, throwable) }
+            }
+        }
     )
 }

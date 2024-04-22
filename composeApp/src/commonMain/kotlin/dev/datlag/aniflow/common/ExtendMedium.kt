@@ -2,6 +2,7 @@ package dev.datlag.aniflow.common
 
 import androidx.compose.runtime.Composable
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
@@ -120,9 +121,9 @@ fun Collection<Medium.Ranking>.popular(): Medium.Ranking? {
 
 fun Medium.Full.popular(): Medium.Ranking? = this.ranking.popular()
 
-expect fun Medium.Character.Name.preferred(): String
+expect fun Character.Name.preferred(): String
 
-fun Medium.Character.preferredName(): String = this.name.preferred()
+fun Character.preferredName(): String = this.name.preferred()
 
 private fun SearchResponse.Result.AniList.Title?.asMediumTitle(): Medium.Title {
     return Medium.Title(

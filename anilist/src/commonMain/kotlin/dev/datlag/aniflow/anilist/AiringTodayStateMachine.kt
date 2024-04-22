@@ -46,7 +46,7 @@ class AiringTodayStateMachine(
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
                     }.mapSuccess<State> {
                         val wantedContent = if (!state.snapshot.adultContent) {
                             val content = it.Page?.airingSchedulesFilterNotNull() ?: emptyList()

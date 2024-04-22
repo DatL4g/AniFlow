@@ -54,7 +54,7 @@ actual fun TranslateButton(
             .requireWifi()
             .build()
     }
-    var enabled by remember { mutableStateOf(true) }
+    var enabled by remember(text) { mutableStateOf(text.isNotBlank()) }
     var translated by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(false) }
 

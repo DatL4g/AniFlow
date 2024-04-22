@@ -8,11 +8,12 @@ import dev.gitlive.firebase.auth.GoogleAuthProvider as FirebaseGoogleProvider
 
 open class CommonFirebase(
     private val app: FirebaseApp,
-    private val googleAuthProvider: GoogleAuthProvider?
+    private val googleAuthProvider: GoogleAuthProvider?,
+    localLogger: FirebaseFactory.Crashlytics.LocalLogger?
 ) : FirebaseFactory {
 
     override val auth: FirebaseFactory.Auth = Auth(app, googleAuthProvider)
-    override val crashlytics: FirebaseFactory.Crashlytics = Crashlytics(app)
+    override val crashlytics: FirebaseFactory.Crashlytics = Crashlytics(app, localLogger)
 
     data class Auth(
         private val app: FirebaseApp,
@@ -66,7 +67,10 @@ open class CommonFirebase(
         }
     }
 
-    data class Crashlytics(private val app: FirebaseApp) : FirebaseFactory.Crashlytics {
+    data class Crashlytics(
+        private val app: FirebaseApp,
+        override val localLogger: FirebaseFactory.Crashlytics.LocalLogger?
+    ) : FirebaseFactory.Crashlytics {
         override fun customKey(key: String, value: String) {
             crashlyticsCustomKey(app, key, value)
         }
@@ -86,9 +90,11 @@ open class CommonFirebase(
             crashlyticsCustomKey(app, key, value)
         }
         override fun log(throwable: Throwable?) {
+            localLogger?.error(throwable)
             crashlyticsLog(app, throwable)
         }
         override fun log(message: String?) {
+            localLogger?.warn(message)
             crashlyticsLog(app, message)
         }
     }

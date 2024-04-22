@@ -16,6 +16,7 @@ import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.DataStoreUserSettings
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.UserSettingsSerializer
+import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
@@ -69,7 +70,20 @@ actual object PlatformModule {
                     projectId = Sekret.firebaseProject(BuildKonfig.packageName),
                     applicationId = Sekret.firebaseAndroidApplication(BuildKonfig.packageName)!!,
                     apiKey = Sekret.firebaseAndroidApiKey(BuildKonfig.packageName)!!,
-                    googleAuthProvider = instanceOrNull()
+                    googleAuthProvider = instanceOrNull(),
+                    localLogger = object : FirebaseFactory.Crashlytics.LocalLogger {
+                        override fun warn(message: String?) {
+                            message?.let { Napier.w(it) }
+                        }
+
+                        override fun error(message: String?) {
+                            message?.let { Napier.e(it) }
+                        }
+
+                        override fun error(throwable: Throwable?) {
+                            throwable?.let { Napier.e("", it) }
+                        }
+                    }
                 )
             } else {
                 FirebaseFactory.Empty

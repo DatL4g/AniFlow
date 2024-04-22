@@ -120,13 +120,6 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<CharacterStateMachine> {
-            CharacterStateMachine(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                crashlytics = nullableFirebaseInstance()?.crashlytics
-            )
-        }
         bindSingleton<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT) {
             OpenIdConnectClient {
                 endpoints {

@@ -3,6 +3,7 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import com.freeletics.flowredux.dsl.State
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
@@ -15,21 +16,17 @@ import kotlin.time.Duration.Companion.seconds
 class CharacterStateMachine(
     private val client: ApolloClient,
     private val fallbackClient: ApolloClient,
-    private val crashlytics: FirebaseFactory.Crashlytics?
+    private val crashlytics: FirebaseFactory.Crashlytics?,
+    private val id: Int
 ) : FlowReduxStateMachine<CharacterStateMachine.State, CharacterStateMachine.Action>(
-    initialState = currentState
+    initialState = State.Loading(id)
 ) {
+
+    var currentState: State = State.Loading(id)
+        private set
 
     init {
         spec {
-            inState<State.Waiting> {
-                onEnterEffect {
-                    currentState = it
-                }
-                on<Action.Load> { action, state ->
-                    state.override { State.Loading(action.id) }
-                }
-            }
             inState<State.Loading> {
                 onEnterEffect {
                     currentState = it
@@ -46,10 +43,12 @@ class CharacterStateMachine(
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
                     }.mapSuccess<State> {
                         it.Character?.let { data ->
-                            State.Success(state.snapshot.query, Character(data))
+                            Character(data)?.let { char ->
+                                State.Success(state.snapshot.query, char)
+                            }
                         }
                     }
 
@@ -57,7 +56,7 @@ class CharacterStateMachine(
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error
+                            State.Error(query)
                         }
                     }
                 }
@@ -67,27 +66,26 @@ class CharacterStateMachine(
                     Cache.setCharacter(it.query, it.character)
                     currentState = it
                 }
-                on<Action.Load> { action, state ->
-                    state.override { State.Loading(action.id) }
-                }
             }
             inState<State.Error> {
                 onEnterEffect {
                     currentState = it
                 }
-                on<Action.Load> { action, state ->
-                    state.override { State.Loading(action.id) }
+                on<Action.Retry> { _, state ->
+                    state.override {
+                        State.Loading(state.snapshot.query)
+                    }
                 }
             }
         }
     }
 
     sealed interface State {
-        data object Waiting : State
         data class Loading(internal val query: CharacterQuery) : State {
             constructor(id: Int) : this(
                 query = CharacterQuery(
-                    id = Optional.present(id)
+                    id = Optional.present(id),
+                    html = Optional.present(true)
                 )
             )
         }
@@ -95,18 +93,12 @@ class CharacterStateMachine(
             internal val query: CharacterQuery,
             val character: Character
         ) : State
-        data object Error : State
+        data class Error(
+            internal val query: CharacterQuery,
+        ) : State
     }
 
     sealed interface Action {
-        data class Load(val id: Int) : Action
-    }
-
-    companion object {
-        var currentState: State
-            get() = StateSaver.character
-            set(value) {
-                StateSaver.character = value
-            }
+        data object Retry : Action
     }
 }
