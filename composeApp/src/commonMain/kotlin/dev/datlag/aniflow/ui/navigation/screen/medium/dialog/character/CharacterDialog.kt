@@ -23,11 +23,9 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.CharacterStateMachine
-import dev.datlag.aniflow.common.htmlToAnnotatedString
-import dev.datlag.aniflow.common.isFullyExpandedOrTargeted
-import dev.datlag.aniflow.common.preferred
-import dev.datlag.aniflow.common.preferredName
+import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
+import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 
@@ -35,10 +33,15 @@ import dev.icerock.moko.resources.compose.stringResource
 @Composable
 fun CharacterDialog(component: CharacterComponent) {
     val sheetState = rememberModalBottomSheetState()
-    val insets = if (LocalEdgeToEdge.current) {
-        WindowInsets(0, 0, 0, 0)
+    val (insets, bottomPadding) = if (LocalEdgeToEdge.current) {
+        WindowInsets(
+            left = 0,
+            top = 0,
+            right = 0,
+            bottom = 0
+        ) to BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom).asPaddingValues()
     } else {
-        BottomSheetDefaults.windowInsets
+        BottomSheetDefaults.windowInsets to PaddingValues()
     }
 
     ModalBottomSheet(
@@ -88,7 +91,7 @@ fun CharacterDialog(component: CharacterComponent) {
         Text(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(vertical = 8.dp),
+                .padding(top = 8.dp),
             text = name.preferred(),
             style = MaterialTheme.typography.headlineMedium,
             maxLines = 2,
@@ -104,9 +107,17 @@ fun CharacterDialog(component: CharacterComponent) {
         ) {
             val description by component.description.collectAsStateWithLifecycle()
             val translatedDescription by component.translatedDescription.collectAsStateWithLifecycle()
+            val textHasPadding = remember(translatedDescription, description) {
+                !translatedDescription.isNullOrBlank() || !description.isNullOrBlank()
+            }
 
             FlowRow(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 8.dp)
+                    .ifFalse(textHasPadding) {
+                        padding(bottomPadding.merge(PaddingValues(bottom = 16.dp)))
+                    },
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
@@ -185,7 +196,9 @@ fun CharacterDialog(component: CharacterComponent) {
                 Text(
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
-                        .padding(bottom = 16.dp),
+                        .padding(
+                            bottomPadding.merge(PaddingValues(bottom = 16.dp))
+                        ),
                     text = it.htmlToAnnotatedString()
                 )
             } ?: run {
