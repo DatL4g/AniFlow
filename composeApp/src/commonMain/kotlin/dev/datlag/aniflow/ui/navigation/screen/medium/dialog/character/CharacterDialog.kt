@@ -36,7 +36,7 @@ import dev.icerock.moko.resources.compose.stringResource
 fun CharacterDialog(component: CharacterComponent) {
     val sheetState = rememberModalBottomSheetState()
     val insets = if (LocalEdgeToEdge.current) {
-        BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom)
+        WindowInsets(0, 0, 0, 0)
     } else {
         BottomSheetDefaults.windowInsets
     }
@@ -56,7 +56,7 @@ fun CharacterDialog(component: CharacterComponent) {
 
             AsyncImage(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(96.dp)
                     .clip(CircleShape),
                 model = image.large,
                 error = rememberAsyncImagePainter(
@@ -106,7 +106,7 @@ fun CharacterDialog(component: CharacterComponent) {
             val translatedDescription by component.translatedDescription.collectAsStateWithLifecycle()
 
             FlowRow(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
