@@ -43,7 +43,8 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             CompositionLocalProvider(
-                LocalLifecycleOwner provides lifecycleOwner
+                LocalLifecycleOwner provides lifecycleOwner,
+                LocalEdgeToEdge provides true
             ) {
                 App(
                     di = di

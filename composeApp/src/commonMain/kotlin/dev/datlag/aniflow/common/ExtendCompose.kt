@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -168,4 +171,21 @@ fun LazyListState.isScrollingUp(): Boolean {
             }
         }
     }.value
+}
+
+/**
+ * Checks if the modal is currently expanded or a swipe action is in progress to be expanded.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+fun SheetState.isFullyExpandedOrTargeted(forceFullExpand: Boolean = false): Boolean {
+    val checkState = if (this.hasExpandedState) {
+        SheetValue.Expanded
+    } else {
+        if (forceFullExpand) {
+            return false
+        }
+        SheetValue.PartiallyExpanded
+    }
+
+    return this.targetValue == checkState
 }

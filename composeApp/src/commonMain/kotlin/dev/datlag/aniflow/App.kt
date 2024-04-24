@@ -17,6 +17,7 @@ import dev.icerock.moko.resources.compose.asFont
 import org.kodein.di.DI
 
 val LocalDarkMode = compositionLocalOf<Boolean> { error("No dark mode state provided") }
+val LocalEdgeToEdge = staticCompositionLocalOf<Boolean> { false }
 val LocalDI = compositionLocalOf<DI> { error("No dependency injection provided") }
 val LocalHaze = compositionLocalOf<HazeState> { error("No Haze state provided") }
 val LocalPaddingValues = compositionLocalOf<PaddingValues?> { null }
