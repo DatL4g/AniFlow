@@ -70,7 +70,7 @@ fun MediaFormat.text(): StringResource {
     }
 }
 
-fun Medium.Full.formatText(): StringResource {
+fun Medium.formatText(): StringResource {
     return this.format.text()
 }
 
@@ -85,7 +85,7 @@ fun MediaStatus.text(): StringResource {
     }
 }
 
-fun Medium.Full.statusText(): StringResource {
+fun Medium.statusText(): StringResource {
     return this.status.text()
 }
 
@@ -103,7 +103,7 @@ fun Collection<Medium.Ranking>.rated(): Medium.Ranking? {
     ).firstOrNull()
 }
 
-fun Medium.Full.rated(): Medium.Ranking? = this.ranking.rated()
+fun Medium.rated(): Medium.Ranking? = this.ranking.rated()
 
 fun Collection<Medium.Ranking>.popular(): Medium.Ranking? {
     val filtered = this.filter { it.type == MediaRankType.POPULAR }
@@ -119,7 +119,7 @@ fun Collection<Medium.Ranking>.popular(): Medium.Ranking? {
     ).firstOrNull()
 }
 
-fun Medium.Full.popular(): Medium.Ranking? = this.ranking.popular()
+fun Medium.popular(): Medium.Ranking? = this.ranking.popular()
 
 expect fun Character.Name.preferred(): String
 
@@ -138,17 +138,13 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
     return Medium(
         id = this.id,
         idMal = this.idMal,
-        isAdult = this.isAdult,
-        genres = emptySet(),
-        bannerImage = null,
+        _isAdult = this.isAdult,
         coverImage = Medium.CoverImage(
             color = null,
             medium = null,
             large = null,
             extraLarge = null
         ),
-        countryOfOrigin = null,
-        averageScore = -1,
         title = this.title.asMediumTitle()
     )
 }

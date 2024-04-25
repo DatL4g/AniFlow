@@ -6,28 +6,41 @@ import dev.datlag.aniflow.anilist.common.lastMonth
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
-import dev.datlag.aniflow.anilist.type.MediaTrailer
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
-open class Medium(
-    open val id: Int,
-    open val idMal: Int?,
-    open val isAdult: Boolean,
-    open val genres: Set<String>,
-    open val countryOfOrigin: String?,
-    open val averageScore: Int,
-    open val title: Title,
-    open val bannerImage: String?,
-    open val coverImage: CoverImage
+data class Medium(
+    val id: Int,
+    val idMal: Int? = null,
+    val status: MediaStatus = MediaStatus.UNKNOWN__,
+    val description: String? = null,
+    val episodes: Int = -1,
+    val avgEpisodeDurationInMin: Int = -1,
+    val format: MediaFormat = MediaFormat.UNKNOWN__,
+    private val _isAdult: Boolean = false,
+    val genres: Set<String> = emptySet(),
+    val countryOfOrigin: String? = null,
+    val averageScore: Int = -1,
+    val title: Title,
+    val bannerImage: String? = null,
+    val coverImage: CoverImage,
+    val nextAiringEpisode: NextAiring? = null,
+    val ranking: Set<Ranking> = emptySet(),
+    private val _characters: Set<Character> = emptySet(),
+    val entry: Entry? = null,
+    val trailer: Trailer? = null
 ) {
     constructor(trending: TrendingQuery.Medium) : this(
         id = trending.id,
         idMal = trending.idMal,
-        isAdult = trending.isAdult ?: trending.genresFilterNotNull()?.any {
-            AdultContent.Genre.exists(it)
-        } ?: false,
+        status = trending.status ?: MediaStatus.UNKNOWN__,
+        description = trending.description?.ifBlank { null },
+        episodes = trending.episodes ?: -1,
+        avgEpisodeDurationInMin = trending.duration ?: -1,
+        format = trending.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = trending.isAdult ?: false,
         genres = trending.genresFilterNotNull()?.toSet() ?: emptySet(),
         countryOfOrigin = trending.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = trending.averageScore ?: -1,
@@ -43,15 +56,36 @@ open class Medium(
             medium = trending.coverImage?.medium?.ifBlank { null },
             large = trending.coverImage?.large?.ifBlank { null },
             extraLarge = trending.coverImage?.extraLarge?.ifBlank { null }
-        )
+        ),
+        nextAiringEpisode = trending.nextAiringEpisode?.let(::NextAiring),
+        ranking = trending.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = trending.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = trending.mediaListEntry?.let(::Entry),
+        trailer = trending.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail,
+                )
+            }
+        }
     )
 
     constructor(airing: AiringQuery.Media) : this(
         id = airing.id,
         idMal = airing.idMal,
-        isAdult = airing.isAdult ?: airing.genresFilterNotNull()?.any {
-            AdultContent.Genre.exists(it)
-        } ?: false,
+        status = airing.status ?: MediaStatus.UNKNOWN__,
+        description = airing.description?.ifBlank { null },
+        episodes = airing.episodes ?: -1,
+        avgEpisodeDurationInMin = airing.duration ?: -1,
+        format = airing.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = airing.isAdult ?: false,
         genres = airing.genresFilterNotNull()?.toSet() ?: emptySet(),
         countryOfOrigin = airing.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = airing.averageScore ?: -1,
@@ -67,15 +101,36 @@ open class Medium(
             medium = airing.coverImage?.medium?.ifBlank { null },
             large = airing.coverImage?.large?.ifBlank { null },
             extraLarge = airing.coverImage?.extraLarge?.ifBlank { null }
-        )
+        ),
+        nextAiringEpisode = airing.nextAiringEpisode?.let(::NextAiring),
+        ranking = airing.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = airing.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = airing.mediaListEntry?.let(::Entry),
+        trailer = airing.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail,
+                )
+            }
+        }
     )
 
     constructor(season: SeasonQuery.Medium) : this(
         id = season.id,
         idMal = season.idMal,
-        isAdult = season.isAdult ?: season.genresFilterNotNull()?.any {
-            AdultContent.Genre.exists(it)
-        } ?: false,
+        status = season.status ?: MediaStatus.UNKNOWN__,
+        description = season.description?.ifBlank { null },
+        episodes = season.episodes ?: -1,
+        avgEpisodeDurationInMin = season.duration ?: -1,
+        format = season.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = season.isAdult ?: false,
         genres = season.genresFilterNotNull()?.toSet() ?: emptySet(),
         countryOfOrigin = season.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = season.averageScore ?: -1,
@@ -91,15 +146,36 @@ open class Medium(
             medium = season.coverImage?.medium?.ifBlank { null },
             large = season.coverImage?.large?.ifBlank { null },
             extraLarge = season.coverImage?.extraLarge?.ifBlank { null }
-        )
+        ),
+        nextAiringEpisode = season.nextAiringEpisode?.let(::NextAiring),
+        ranking = season.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = season.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = season.mediaListEntry?.let(::Entry),
+        trailer = season.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail,
+                )
+            }
+        }
     )
 
     constructor(query: MediumQuery.Media) : this(
         id = query.id,
         idMal = query.idMal,
-        isAdult = query.isAdult ?: query.genresFilterNotNull()?.any {
-            AdultContent.Genre.exists(it)
-        } ?: false,
+        status = query.status ?: MediaStatus.UNKNOWN__,
+        description = query.description?.ifBlank { null },
+        episodes = query.episodes ?: -1,
+        avgEpisodeDurationInMin = query.duration ?: -1,
+        format = query.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = query.isAdult ?: false,
         genres = query.genresFilterNotNull()?.toSet() ?: emptySet(),
         countryOfOrigin = query.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = query.averageScore ?: -1,
@@ -115,8 +191,34 @@ open class Medium(
             medium = query.coverImage?.medium?.ifBlank { null },
             large = query.coverImage?.large?.ifBlank { null },
             extraLarge = query.coverImage?.extraLarge?.ifBlank { null }
-        )
+        ),
+        nextAiringEpisode = query.nextAiringEpisode?.let(::NextAiring),
+        ranking = query.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = query.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = query.mediaListEntry?.let(::Entry),
+        trailer = query.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail
+                )
+            }
+        }
     )
+
+    @Transient
+    val isAdult: Boolean = _isAdult || genres.any {
+        AdultContent.Genre.exists(it)
+    }
+
+    @Transient
+    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.toSet()
 
     @Serializable
     data class Title(
@@ -200,138 +302,135 @@ open class Medium(
             season = ranking.season?.lastMonth(),
             type = ranking.type
         )
+
+        constructor(ranking: TrendingQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
+        )
+
+        constructor(ranking: AiringQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
+        )
+
+        constructor(ranking: SeasonQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
+        )
     }
 
-    data class Full(
-        override val id: Int,
-        override val idMal: Int?,
-        val status: MediaStatus,
-        val description: String?,
-        val episodes: Int,
-        val avgEpisodeDurationInMin: Int?,
-        val format: MediaFormat,
-        override val isAdult: Boolean,
-        override val genres: Set<String>,
-        override val countryOfOrigin: String?,
-        override val averageScore: Int,
-        override val title: Title,
-        override val bannerImage: String?,
-        override val coverImage: CoverImage,
-        val nextAiringEpisode: MediumQuery.NextAiringEpisode?,
-        val ranking: Set<Ranking>,
-        val characters: Set<Character>,
-        val entry: Entry?,
-        val trailer: Trailer?
-    ) : Medium(
-        id = id,
-        idMal = idMal,
-        isAdult = isAdult,
-        genres = genres,
-        countryOfOrigin = countryOfOrigin,
-        averageScore = averageScore,
-        title = title,
-        bannerImage = bannerImage,
-        coverImage = coverImage
+    @Serializable
+    data class Entry(
+        val score: Double?
     ) {
-        constructor(medium: Medium, mediumQuery: MediumQuery.Media) : this(
-            id = medium.id,
-            idMal = medium.idMal,
-            status = mediumQuery.status ?: MediaStatus.UNKNOWN__,
-            description = mediumQuery.description?.ifBlank { null },
-            episodes = mediumQuery.episodes ?: -1,
-            avgEpisodeDurationInMin = mediumQuery.duration ?: -1,
-            format = mediumQuery.format ?: MediaFormat.UNKNOWN__,
-            isAdult = medium.isAdult,
-            genres = medium.genres,
-            countryOfOrigin = medium.countryOfOrigin?.ifBlank { null },
-            averageScore = medium.averageScore,
-            title = medium.title,
-            bannerImage = medium.bannerImage?.ifBlank { null },
-            coverImage = medium.coverImage,
-            nextAiringEpisode = mediumQuery.nextAiringEpisode,
-            ranking = mediumQuery.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-            characters = mediumQuery.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.filterNot {
-                it.id == 36309 // Narrator
-            }?.toSet() ?: emptySet(),
-            entry = mediumQuery.mediaListEntry?.let(::Entry),
-            trailer = mediumQuery.trailer?.let {
-                val site = it.site?.ifBlank { null }
-                val thumbnail = it.thumbnail?.ifBlank { null }
-
-                if (site == null || thumbnail == null) {
-                    null
-                } else {
-                    Trailer(
-                        id = it.id?.ifBlank { null },
-                        site = site,
-                        thumbnail = thumbnail
-                    )
-                }
-            }
+        constructor(entry: MediumQuery.MediaListEntry) : this(
+            score = entry.score
         )
 
-        constructor(mediumQuery: MediumQuery.Media) : this(
-            medium = Medium(mediumQuery),
-            mediumQuery = mediumQuery
+        constructor(entry: TrendingQuery.MediaListEntry) : this(
+            score = entry.score
         )
 
-        data class Entry(
-            val score: Double?
-        ) {
-            constructor(entry: MediumQuery.MediaListEntry) : this(
-                score = entry.score
-            )
+        constructor(entry: AiringQuery.MediaListEntry) : this(
+            score = entry.score
+        )
+
+        constructor(entry: SeasonQuery.MediaListEntry) : this(
+            score = entry.score
+        )
+    }
+
+    @Serializable
+    data class Trailer(
+        val id: String?,
+        val site: String,
+        val thumbnail: String
+    ) {
+        val website: String = run {
+            val prefix = if (site.startsWith("https://", ignoreCase = true) || site.startsWith("http://", ignoreCase = true)) {
+                ""
+            } else {
+                "https://"
+            }
+            val suffix = if (site.substringAfterLast('.', missingDelimiterValue = "").isBlank()) {
+                ".com"
+            } else {
+                ""
+            }
+            "$prefix$site$suffix"
         }
 
-        data class Trailer(
-            val id: String?,
-            val site: String,
-            val thumbnail: String
-        ) {
-            val website: String = run {
-                val prefix = if (site.startsWith("https://", ignoreCase = true) || site.startsWith("http://", ignoreCase = true)) {
-                    ""
-                } else {
-                    "https://"
-                }
-                val suffix = if (site.substringAfterLast('.', missingDelimiterValue = "").isBlank()) {
-                    ".com"
-                } else {
-                    ""
-                }
-                "$prefix$site$suffix"
-            }
+        val isYoutube: Boolean = site.contains("youtu.be", ignoreCase = true)
+                || site.contains("youtube", ignoreCase = true)
 
-            val isYoutube: Boolean = site.contains("youtu.be", ignoreCase = true)
-                    || site.contains("youtube", ignoreCase = true)
+        val isDailymotion: Boolean = site.contains("dailymotion", ignoreCase = true)
 
-            val isDailymotion: Boolean = site.contains("dailymotion", ignoreCase = true)
+        private val youtubeVideoId: String? = run {
+            val afterVi = thumbnail.substringAfter(
+                delimiter = "vi/",
+                missingDelimiterValue = thumbnail.substringAfter(
+                    delimiter = "vi_webp/",
+                    missingDelimiterValue = ""
+                )
+            ).ifBlank { null } ?: return@run null
 
-            private val youtubeVideoId: String? = run {
-                val afterVi = thumbnail.substringAfter(
-                    delimiter = "vi/",
-                    missingDelimiterValue = thumbnail.substringAfter(
-                        delimiter = "vi_webp/",
-                        missingDelimiterValue = ""
-                    )
-                ).ifBlank { null } ?: return@run null
-
-                afterVi.substringBefore('/', missingDelimiterValue = "").ifBlank { null }
-            }
-
-            private val youtubeVideo = (id ?: youtubeVideoId)?.let {
-                "https://youtube.com/watch?v=$it"
-            }
-
-            private val dailymotionVideo = id?.let {
-                "https://dailymotion.com/video/$it"
-            }
-
-            val videoUrl = when {
-                isYoutube -> youtubeVideo
-                isDailymotion -> dailymotionVideo
-                else -> null
-            }
+            afterVi.substringBefore('/', missingDelimiterValue = "").ifBlank { null }
         }
+
+        private val youtubeVideo = (id ?: youtubeVideoId)?.let {
+            "https://youtube.com/watch?v=$it"
+        }
+
+        private val dailymotionVideo = id?.let {
+            "https://dailymotion.com/video/$it"
+        }
+
+        val videoUrl = when {
+            isYoutube -> youtubeVideo
+            isDailymotion -> dailymotionVideo
+            else -> null
+        }
+    }
+
+    @Serializable
+    data class NextAiring(
+        /**
+         * The airing episode number
+         */
+        val episodes: Int,
+
+        /**
+         * The time the episode airs at
+         */
+        val airingAt: Int
+    ) {
+        constructor(nextAiringEpisode: TrendingQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
+
+        constructor(nextAiringEpisode: MediumQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
+
+        constructor(nextAiringEpisode: AiringQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
+
+        constructor(nextAiringEpisode: SeasonQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
     }
 }

@@ -5,6 +5,8 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback.predictiveBackAnimation
+import com.arkivanov.decompose.extensions.compose.stack.animation.slide
+import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
@@ -57,6 +59,9 @@ class RootComponent(
                 stack = stack,
                 animation = predictiveBackAnimation(
                     backHandler = this.backHandler,
+                    fallbackAnimation = stackAnimation(
+                        animator = slide()
+                    ),
                     onBack = {
                         navigation.pop()
                     }

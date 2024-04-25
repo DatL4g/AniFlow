@@ -6,15 +6,32 @@ query SeasonQuery(
     $season: MediaSeason,
     $preventGenres: [String],
     $type: MediaType,
-    $adultContent: Boolean
+    $adultContent: Boolean,
+    $statusVersion: Int,
+    $html: Boolean,
 ) {
     Page(page: $page, perPage: $perPage) {
         media(sort: $sort, seasonYear: $year, season: $season, genre_not_in: $preventGenres, type: $type, isAdult: $adultContent) {
             id,
             idMal,
-            isAdult,
-            genres,
+            status(version: $statusVersion),
+            description(asHtml: $html),
+            episodes,
+            duration,
+            chapters,
             countryOfOrigin,
+            popularity,
+            isFavourite,
+            isFavouriteBlocked,
+            isAdult,
+            format,
+            bannerImage,
+            coverImage {
+                extraLarge,
+                large,
+                medium,
+                color
+            },
             averageScore,
             title {
                 english,
@@ -22,12 +39,42 @@ query SeasonQuery(
                 romaji,
                 userPreferred
             },
-            bannerImage,
-            coverImage {
-                color,
-                large,
-                medium,
-                extraLarge
+            nextAiringEpisode {
+                episode,
+                airingAt
+            },
+            rankings {
+                rank,
+                allTime,
+                year,
+                season,
+                type
+            },
+            genres,
+            characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
+                nodes {
+                    id,
+                    name {
+                        first,
+                        middle
+                        last,
+                        full,
+                        native,
+                        userPreferred
+                    },
+                    image {
+                        large,
+                        medium
+                    }
+                }
+            },
+            mediaListEntry {
+                score(format: POINT_5)
+            },
+            trailer {
+                id,
+                site,
+                thumbnail
             }
         }
     }

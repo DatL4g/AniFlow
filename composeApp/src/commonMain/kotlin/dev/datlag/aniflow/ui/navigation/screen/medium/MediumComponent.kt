@@ -33,7 +33,7 @@ interface MediumComponent : ContentHolderComponent {
     val characters: StateFlow<Set<Character>>
     val rating: StateFlow<Int>
     val alreadyAdded: StateFlow<Boolean>
-    val trailer: StateFlow<Medium.Full.Trailer?>
+    val trailer: StateFlow<Medium.Trailer?>
 
     val bsAvailable: Boolean
 

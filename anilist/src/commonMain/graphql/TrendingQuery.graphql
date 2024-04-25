@@ -2,6 +2,8 @@ query TrendingQuery(
     $page: Int,
     $perPage: Int,
     $type: MediaType,
+    $statusVersion: Int,
+    $html: Boolean,
     $sort: [MediaSort],
     $adultContent: Boolean,
     $preventGenres: [String]
@@ -15,9 +17,24 @@ query TrendingQuery(
         ) {
             id,
             idMal,
-            isAdult,
-            genres,
+            status(version: $statusVersion),
+            description(asHtml: $html),
+            episodes,
+            duration,
+            chapters,
             countryOfOrigin,
+            popularity,
+            isFavourite,
+            isFavouriteBlocked,
+            isAdult,
+            format,
+            bannerImage,
+            coverImage {
+                extraLarge,
+                large,
+                medium,
+                color
+            },
             averageScore,
             title {
                 english,
@@ -25,12 +42,42 @@ query TrendingQuery(
                 romaji,
                 userPreferred
             },
-            bannerImage,
-            coverImage {
-                color,
-                large,
-                extraLarge,
-                medium
+            nextAiringEpisode {
+                episode,
+                airingAt
+            },
+            rankings {
+                rank,
+                allTime,
+                year,
+                season,
+                type
+            },
+            genres,
+            characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
+                nodes {
+                    id,
+                    name {
+                        first,
+                        middle
+                        last,
+                        full,
+                        native,
+                        userPreferred
+                    },
+                    image {
+                        large,
+                        medium
+                    }
+                }
+            },
+            mediaListEntry {
+                score(format: POINT_5)
+            },
+            trailer {
+                id,
+                site,
+                thumbnail
             }
         }
     }

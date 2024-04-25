@@ -29,7 +29,7 @@ internal object Cache {
         expireAfterWriteDuration = 2.hours
     }
 
-    private val medium = InMemoryKache<MediumQuery, Medium.Full>(
+    private val medium = InMemoryKache<MediumQuery, Medium>(
         maxSize = 10L * 1024 * 1024
     ) {
         strategy = KacheStrategy.LRU
@@ -79,13 +79,13 @@ internal object Cache {
         }.getOrNull() ?: data
     }
 
-    suspend fun getMedium(key: MediumQuery): Medium.Full? {
+    suspend fun getMedium(key: MediumQuery): Medium? {
         return suspendCatching {
             medium.get(key)
         }.getOrNull()
     }
 
-    suspend fun setMedium(key: MediumQuery, data: Medium.Full): Medium.Full {
+    suspend fun setMedium(key: MediumQuery, data: Medium): Medium {
         return suspendCatching {
             medium.put(key, data)
         }.getOrNull() ?: data

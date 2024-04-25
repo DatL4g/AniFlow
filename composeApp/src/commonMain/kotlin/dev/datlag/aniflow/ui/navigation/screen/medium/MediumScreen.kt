@@ -244,6 +244,7 @@ fun MediumScreen(component: MediumComponent) {
             var descriptionExpandable by remember(description) { mutableStateOf(false) }
             var descriptionExpanded by remember(description) { mutableStateOf(false) }
             val characters by component.characters.collectAsStateWithLifecycle()
+            val trailer by component.trailer.collectAsStateWithLifecycle()
 
             LazyColumn(
                 state = listState,
@@ -518,40 +519,49 @@ fun MediumScreen(component: MediumComponent) {
                         }
                     }
                 }
-                item {
-                    val trailer by component.trailer.collectAsStateWithLifecycle()
-                    val uriHandler = LocalUriHandler.current
 
-                    trailer?.let { t ->
-                        Card(
-                            modifier = Modifier.fillParentMaxWidth().height(200.dp).padding(16.dp),
-                            onClick = {
-                                uriHandler.openUri(t.videoUrl ?: t.website)
-                            }
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
+                trailer?.let { t ->
+                    item {
+                        Text(
+                            modifier = Modifier.padding(top = 16.dp).padding(horizontal = 16.dp),
+                            text = stringResource(SharedRes.strings.trailer),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                    item {
+                        val uriHandler = LocalUriHandler.current
+
+                        trailer?.let { t ->
+                            Card(
+                                modifier = Modifier.fillParentMaxWidth().height(200.dp).padding(16.dp),
+                                onClick = {
+                                    uriHandler.openUri(t.videoUrl ?: t.website)
+                                }
                             ) {
-                                AsyncImage(
+                                Box(
                                     modifier = Modifier.fillMaxSize(),
-                                    model = t.thumbnail,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop
-                                )
-                                if (t.isYoutube) {
-                                    Image(
-                                        modifier = Modifier.size(48.dp),
-                                        painter = painterResource(SharedRes.images.youtube),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        modifier = Modifier.fillMaxSize(),
+                                        model = t.thumbnail,
                                         contentDescription = null,
-                                        colorFilter = ColorFilter.tint(LocalContentColor.current)
+                                        contentScale = ContentScale.Crop
                                     )
-                                } else {
-                                    Icon(
-                                        modifier = Modifier.size(48.dp),
-                                        imageVector = Icons.Filled.PlayCircleFilled,
-                                        contentDescription = null
-                                    )
+                                    if (t.isYoutube) {
+                                        Image(
+                                            modifier = Modifier.size(48.dp),
+                                            painter = painterResource(SharedRes.images.youtube),
+                                            contentDescription = null,
+                                            colorFilter = ColorFilter.tint(LocalContentColor.current)
+                                        )
+                                    } else {
+                                        Icon(
+                                            modifier = Modifier.size(48.dp),
+                                            imageVector = Icons.Filled.PlayCircleFilled,
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
                             }
                         }

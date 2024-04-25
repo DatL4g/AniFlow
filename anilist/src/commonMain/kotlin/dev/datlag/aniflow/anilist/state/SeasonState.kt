@@ -43,7 +43,9 @@ sealed interface SeasonState {
                     Optional.absent()
                 } else {
                     Optional.present(season)
-                }
+                },
+                statusVersion = Optional.present(2),
+                html = Optional.present(true)
             )
         )
 

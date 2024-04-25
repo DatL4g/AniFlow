@@ -42,7 +42,7 @@ class MediumStateMachine(
                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
                     }.mapSuccess<State> {
                         it.Media?.let { data ->
-                            State.Success(state.snapshot.query, Medium.Full(data))
+                            State.Success(state.snapshot.query, Medium(data))
                         }
                     }
 
@@ -88,14 +88,14 @@ class MediumStateMachine(
                 MediumQuery(
                     id = Optional.present(id),
                     statusVersion = Optional.present(2),
-                    html = Optional.present(false)
+                    html = Optional.present(true)
                 )
             )
         }
 
         data class Success(
             internal val query: MediumQuery,
-            val data: Medium.Full
+            val data: Medium
         ) : State
 
         data class Error(

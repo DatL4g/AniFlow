@@ -119,7 +119,9 @@ class AiringTodayStateMachine(
                     sort = Optional.present(listOf(AiringSort.TIME)),
                     airingAtGreater = Optional.present(
                         Clock.System.now().minus(1.hours).epochSeconds.toInt()
-                    )
+                    ),
+                    statusVersion = Optional.present(2),
+                    html = Optional.present(true)
                 ),
                 adultContent = adultContent
             )

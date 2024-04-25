@@ -99,7 +99,9 @@ class TrendingAnimeStateMachine(
                         Optional.present(AdultContent.Genre.allTags)
                     } else {
                         Optional.absent()
-                    }
+                    },
+                    statusVersion = Optional.present(2),
+                    html = Optional.present(true)
                 )
             )
         }

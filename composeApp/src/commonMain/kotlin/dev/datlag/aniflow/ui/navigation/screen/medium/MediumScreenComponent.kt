@@ -113,7 +113,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        initialValue = initialMedium.description
     )
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -135,17 +135,17 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = MediaFormat.UNKNOWN__
+        initialValue = initialMedium.format
     )
 
-    private val nextAiringEpisode: StateFlow<MediumQuery.NextAiringEpisode?> = mediumSuccessState.mapNotNull {
+    private val nextAiringEpisode: StateFlow<Medium.NextAiring?> = mediumSuccessState.mapNotNull {
         it?.data?.nextAiringEpisode
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        initialValue = initialMedium.nextAiringEpisode
     )
 
     override val episodes: StateFlow<Int> = combine(
@@ -157,9 +157,9 @@ class MediumScreenComponent(
         episodes.ifValueOrNull(-1) {
             if (airing != null) {
                 if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
-                    airing.episode
+                    airing.episodes
                 } else {
-                    airing.episode - 1
+                    airing.episodes - 1
                 }
             } else {
                 -1
@@ -174,9 +174,9 @@ class MediumScreenComponent(
             val airing = nextAiringEpisode.value ?: return@run -1
 
             if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
-                airing.episode
+                airing.episodes
             } else {
-                airing.episode - 1
+                airing.episodes - 1
             }
         }
     )
@@ -188,7 +188,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = -1
+        initialValue = initialMedium.avgEpisodeDurationInMin
     )
 
     override val status: StateFlow<MediaStatus> = mediumSuccessState.mapNotNull {
@@ -198,7 +198,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = MediaStatus.UNKNOWN__
+        initialValue = initialMedium.status
     )
 
     override val rated: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
@@ -208,7 +208,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        initialValue = initialMedium.rated()
     )
 
     override val popular: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
@@ -218,7 +218,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        initialValue = initialMedium.popular()
     )
 
     override val score: StateFlow<Int?> = mediumSuccessState.mapNotNull {
@@ -264,7 +264,7 @@ class MediumScreenComponent(
         initialValue = initialMedium.id
     )
 
-    private val changedRating: MutableStateFlow<Int> = MutableStateFlow(-1)
+    private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
     override val rating: StateFlow<Int> = combine(
         mediumSuccessState.map {
             it?.data?.entry?.score?.toInt()
@@ -284,14 +284,14 @@ class MediumScreenComponent(
         initialValue = changedRating.value
     )
 
-    override val trailer: StateFlow<Medium.Full.Trailer?> = mediumSuccessState.mapNotNull {
+    override val trailer: StateFlow<Medium.Trailer?> = mediumSuccessState.mapNotNull {
         it?.data?.trailer
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        initialValue = initialMedium.trailer
     )
 
     override val alreadyAdded: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
@@ -301,7 +301,7 @@ class MediumScreenComponent(
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = false
+        initialValue = initialMedium.entry != null
     )
 
     private val userSettings by di.instance<Settings.PlatformUserSettings>()
