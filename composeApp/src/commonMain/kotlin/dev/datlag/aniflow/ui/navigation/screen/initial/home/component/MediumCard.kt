@@ -31,20 +31,14 @@ import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 @Composable
 fun MediumCard(
     medium: Medium,
-    isHighlighted: Boolean,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
-    val scale by animateFloatAsState(
-        targetValue = if (isHighlighted) 1F else 0.95F,
-        animationSpec = tween()
-    )
-
     SchemeTheme(
         key = medium.id
     ) {
         Card(
-            modifier = modifier.scale(scale),
+            modifier = modifier,
             onClick = {
                 onClick(medium)
             }

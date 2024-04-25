@@ -79,29 +79,16 @@ private fun SuccessContent(
             StateSaver.List.Home.popularNextOverviewOffset
         },
     )
-    var highlightedItem by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(listState) {
-        snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            layoutInfo.visibleItemsInfo
-                .firstOrNull { it.offset >= layoutInfo.viewportStartOffset }
-                ?.index ?: 0
-        }.distinctUntilChanged().collect {
-            highlightedItem = it
-        }
-    }
 
     LazyRow(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        itemsIndexed(data, key = { _, it -> it.id }) {index, medium ->
+        itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
-                isHighlighted = index == highlightedItem,
                 modifier = Modifier.width(200.dp).height(280.dp),
                 onClick = onClick
             )
