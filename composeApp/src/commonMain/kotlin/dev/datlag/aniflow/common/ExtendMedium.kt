@@ -139,12 +139,6 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
         id = this.id,
         idMal = this.idMal,
         _isAdult = this.isAdult,
-        coverImage = Medium.CoverImage(
-            color = null,
-            medium = null,
-            large = null,
-            extraLarge = null
-        ),
         title = this.title.asMediumTitle()
     )
 }

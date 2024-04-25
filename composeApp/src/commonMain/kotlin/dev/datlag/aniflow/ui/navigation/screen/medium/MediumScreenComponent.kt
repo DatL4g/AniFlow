@@ -304,6 +304,32 @@ class MediumScreenComponent(
         initialValue = initialMedium.entry != null
     )
 
+    private val changedFavorite = MutableStateFlow<Boolean?>(null)
+    override val isFavorite: StateFlow<Boolean> = combine(
+        mediumSuccessState.mapNotNull {
+            it?.data?.isFavorite
+        }.flowOn(ioDispatcher()),
+        changedFavorite
+    ) { default, changed ->
+        changed ?: default
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.isFavorite
+    )
+
+    override val isFavoriteBlocked: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
+        it?.data?.isFavoriteBlocked
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.isFavoriteBlocked
+    )
+
     private val userSettings by di.instance<Settings.PlatformUserSettings>()
     private val characterStateMachine by di.instance<CharacterStateMachine>()
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
@@ -425,5 +451,14 @@ class MediumScreenComponent(
 
     override fun showCharacter(character: Character) {
         dialogNavigation.activate(DialogConfig.Character(character))
+    }
+
+    override fun toggleFavorite() {
+        launchIO {
+            changedFavorite.update {
+                !(it ?: isFavorite.saveFirstOrNull() ?: isFavorite.value)
+            }
+            // Call toggle on api
+        }
     }
 }

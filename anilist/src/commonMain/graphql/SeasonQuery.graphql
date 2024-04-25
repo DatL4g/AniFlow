@@ -14,6 +14,7 @@ query SeasonQuery(
         media(sort: $sort, seasonYear: $year, season: $season, genre_not_in: $preventGenres, type: $type, isAdult: $adultContent) {
             id,
             idMal,
+            type,
             status(version: $statusVersion),
             description(asHtml: $html),
             episodes,

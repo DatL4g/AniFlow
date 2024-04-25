@@ -17,6 +17,7 @@ query TrendingQuery(
         ) {
             id,
             idMal,
+            type,
             status(version: $statusVersion),
             description(asHtml: $html),
             episodes,

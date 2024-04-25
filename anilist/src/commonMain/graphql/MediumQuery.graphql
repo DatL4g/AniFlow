@@ -2,6 +2,7 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
     Media(id: $id) {
         id,
         idMal,
+        type,
         status(version: $statusVersion),
         description(asHtml: $html),
         episodes,

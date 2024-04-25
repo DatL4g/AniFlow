@@ -34,6 +34,8 @@ interface MediumComponent : ContentHolderComponent {
     val rating: StateFlow<Int>
     val alreadyAdded: StateFlow<Boolean>
     val trailer: StateFlow<Medium.Trailer?>
+    val isFavorite: StateFlow<Boolean>
+    val isFavoriteBlocked: StateFlow<Boolean>
 
     val bsAvailable: Boolean
 
@@ -47,4 +49,5 @@ interface MediumComponent : ContentHolderComponent {
     fun rate(value: Int)
     fun descriptionTranslation(text: String?)
     fun showCharacter(character: Character)
+    fun toggleFavorite()
 }

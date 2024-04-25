@@ -114,7 +114,10 @@ fun MediumScreen(component: MediumComponent) {
                 bannerImageFlow = component.bannerImage,
                 coverImage = coverImage,
                 titleFlow = component.title,
-                onBack = { component.back() }
+                isFavoriteFlow = component.isFavorite,
+                isFavoriteBlockedFlow = component.isFavoriteBlocked,
+                onBack = { component.back() },
+                onToggleFavorite = { component.toggleFavorite() }
             )
         },
         floatingActionButton = {

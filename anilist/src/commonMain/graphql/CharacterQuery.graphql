@@ -20,6 +20,8 @@ query CharacterQuery($id: Int, $html: Boolean) {
             month
             day
         },
-        bloodType
+        bloodType,
+        isFavourite,
+        isFavouriteBlocked,
     }
 }

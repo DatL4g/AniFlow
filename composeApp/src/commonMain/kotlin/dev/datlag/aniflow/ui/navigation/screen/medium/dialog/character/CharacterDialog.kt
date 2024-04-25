@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +28,7 @@ import dev.datlag.aniflow.anilist.CharacterStateMachine
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
 import dev.datlag.tooling.compose.ifFalse
+import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 
@@ -56,20 +59,7 @@ fun CharacterDialog(component: CharacterComponent) {
             contentAlignment = Alignment.Center
         ) {
             val image by component.image.collectAsStateWithLifecycle()
-
-            AsyncImage(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape),
-                model = image.large,
-                error = rememberAsyncImagePainter(
-                    model = image.medium,
-                    contentScale = ContentScale.Crop,
-                ),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center,
-                contentDescription = component.initialChar.preferredName()
-            )
+            val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle()
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -85,6 +75,41 @@ fun CharacterDialog(component: CharacterComponent) {
                         contentDescription = stringResource(SharedRes.strings.close)
                     )
                 }
+            }
+
+            AsyncImage(
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(CircleShape),
+                model = image.large,
+                error = rememberAsyncImagePainter(
+                    model = image.medium,
+                    contentScale = ContentScale.Crop,
+                    placeholder = shimmerPainter()
+                ),
+                placeholder = shimmerPainter(),
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.Center,
+                contentDescription = component.initialChar.preferredName()
+            )
+
+            IconButton(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                onClick = {
+                    component.toggleFavorite()
+                },
+                enabled = !isFavoriteBlocked
+            ) {
+                val isFavorite by component.isFavorite.collectAsStateWithLifecycle()
+
+                Icon(
+                    imageVector = if (isFavorite) {
+                        Icons.Default.Favorite
+                    } else {
+                        Icons.Default.FavoriteBorder
+                    },
+                    contentDescription = null,
+                )
             }
         }
 

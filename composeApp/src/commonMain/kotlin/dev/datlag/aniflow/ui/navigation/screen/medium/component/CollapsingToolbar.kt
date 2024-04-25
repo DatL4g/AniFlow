@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -41,7 +43,10 @@ fun CollapsingToolbar(
     bannerImageFlow: StateFlow<String?>,
     coverImage: Medium.CoverImage,
     titleFlow: StateFlow<Medium.Title>,
-    onBack: () -> Unit
+    isFavoriteFlow: StateFlow<Boolean>,
+    isFavoriteBlockedFlow: StateFlow<Boolean>,
+    onBack: () -> Unit,
+    onToggleFavorite: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -129,6 +134,30 @@ fun CollapsingToolbar(
                             }
                         )
                     }
+                }
+            },
+            actions = {
+                val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
+
+                IconButton(
+                    modifier = if (isCollapsed) {
+                        Modifier
+                    } else {
+                        Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
+                    },
+                    onClick = onToggleFavorite,
+                    enabled = !isFavoriteBlocked
+                ) {
+                    val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
+
+                    Icon(
+                        imageVector = if (isFavorite) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+                        contentDescription = null
+                    )
                 }
             },
             scrollBehavior = scrollBehavior,

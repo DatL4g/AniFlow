@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.CharacterStateMachine
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.model.saveFirstOrNull
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
@@ -110,6 +111,32 @@ class CharacterDialogComponent(
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
+    private val changedFavorite = MutableStateFlow<Boolean?>(null)
+    override val isFavorite: StateFlow<Boolean> = combine(
+        characterSuccessState.mapNotNull {
+            it?.character?.isFavorite
+        }.flowOn(ioDispatcher()),
+        changedFavorite
+    ) { default, changed ->
+        changed ?: default
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialChar.isFavorite
+    )
+
+    override val isFavoriteBlocked: StateFlow<Boolean> = characterSuccessState.mapNotNull {
+        it?.character?.isFavoriteBlocked
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialChar.isFavoriteBlocked
+    )
+
     @Composable
     override fun render() {
         onRender {
@@ -128,6 +155,15 @@ class CharacterDialogComponent(
     override fun retry() {
         launchIO {
             characterStateMachine.dispatch(CharacterStateMachine.Action.Retry)
+        }
+    }
+
+    override fun toggleFavorite() {
+        launchIO {
+            changedFavorite.update {
+                !(it ?: isFavorite.saveFirstOrNull() ?: isFavorite.value)
+            }
+            // Call toggle on api
         }
     }
 }

@@ -17,7 +17,10 @@ interface CharacterComponent : DialogComponent {
     val birthDate: StateFlow<Character.BirthDate?>
     val description: StateFlow<String?>
     val translatedDescription: StateFlow<String?>
+    val isFavorite: StateFlow<Boolean>
+    val isFavoriteBlocked: StateFlow<Boolean>
 
     fun descriptionTranslation(text: String?)
     fun retry()
+    fun toggleFavorite()
 }

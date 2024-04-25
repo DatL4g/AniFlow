@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.common.lastMonth
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -14,6 +15,7 @@ import kotlinx.serialization.Transient
 data class Medium(
     val id: Int,
     val idMal: Int? = null,
+    val type: MediaType = MediaType.UNKNOWN__,
     val status: MediaStatus = MediaStatus.UNKNOWN__,
     val description: String? = null,
     val episodes: Int = -1,
@@ -23,18 +25,31 @@ data class Medium(
     val genres: Set<String> = emptySet(),
     val countryOfOrigin: String? = null,
     val averageScore: Int = -1,
-    val title: Title,
+    val title: Title = Title(
+        english = null,
+        native = null,
+        romaji = null,
+        userPreferred = null
+    ),
     val bannerImage: String? = null,
-    val coverImage: CoverImage,
+    val coverImage: CoverImage = CoverImage(
+        medium = null,
+        large = null,
+        extraLarge = null,
+        color = null
+    ),
     val nextAiringEpisode: NextAiring? = null,
     val ranking: Set<Ranking> = emptySet(),
     private val _characters: Set<Character> = emptySet(),
     val entry: Entry? = null,
-    val trailer: Trailer? = null
+    val trailer: Trailer? = null,
+    val isFavorite: Boolean = false,
+    private val _isFavoriteBlocked: Boolean = true
 ) {
     constructor(trending: TrendingQuery.Medium) : this(
         id = trending.id,
         idMal = trending.idMal,
+        type = trending.type ?: MediaType.UNKNOWN__,
         status = trending.status ?: MediaStatus.UNKNOWN__,
         description = trending.description?.ifBlank { null },
         episodes = trending.episodes ?: -1,
@@ -74,12 +89,15 @@ data class Medium(
                     thumbnail = thumbnail,
                 )
             }
-        }
+        },
+        isFavorite = trending.isFavourite,
+        _isFavoriteBlocked = trending.isFavouriteBlocked
     )
 
     constructor(airing: AiringQuery.Media) : this(
         id = airing.id,
         idMal = airing.idMal,
+        type = airing.type ?: MediaType.UNKNOWN__,
         status = airing.status ?: MediaStatus.UNKNOWN__,
         description = airing.description?.ifBlank { null },
         episodes = airing.episodes ?: -1,
@@ -119,12 +137,15 @@ data class Medium(
                     thumbnail = thumbnail,
                 )
             }
-        }
+        },
+        isFavorite = airing.isFavourite,
+        _isFavoriteBlocked = airing.isFavouriteBlocked
     )
 
     constructor(season: SeasonQuery.Medium) : this(
         id = season.id,
         idMal = season.idMal,
+        type = season.type ?: MediaType.UNKNOWN__,
         status = season.status ?: MediaStatus.UNKNOWN__,
         description = season.description?.ifBlank { null },
         episodes = season.episodes ?: -1,
@@ -164,12 +185,15 @@ data class Medium(
                     thumbnail = thumbnail,
                 )
             }
-        }
+        },
+        isFavorite = season.isFavourite,
+        _isFavoriteBlocked = season.isFavouriteBlocked
     )
 
     constructor(query: MediumQuery.Media) : this(
         id = query.id,
         idMal = query.idMal,
+        type = query.type ?: MediaType.UNKNOWN__,
         status = query.status ?: MediaStatus.UNKNOWN__,
         description = query.description?.ifBlank { null },
         episodes = query.episodes ?: -1,
@@ -209,7 +233,9 @@ data class Medium(
                     thumbnail = thumbnail
                 )
             }
-        }
+        },
+        isFavorite = query.isFavourite,
+        _isFavoriteBlocked = query.isFavouriteBlocked
     )
 
     @Transient
@@ -219,6 +245,9 @@ data class Medium(
 
     @Transient
     val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.toSet()
+
+    @Transient
+    val isFavoriteBlocked: Boolean = _isFavoriteBlocked || type == MediaType.UNKNOWN__
 
     @Serializable
     data class Title(

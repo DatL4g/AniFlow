@@ -34,12 +34,22 @@ data class Character(
     /**
      * The character's birthdate
      */
-    val birthDate: Character.BirthDate?,
+    val birthDate: BirthDate?,
 
     /**
      * A general description of the character
      */
     val description: String?,
+
+    /**
+     * If the character is marked as favourite by the currently authenticated user
+     */
+    val isFavorite: Boolean,
+
+    /**
+     * If the character is blocked from being added to favourites
+     */
+    val isFavoriteBlocked: Boolean
 ) {
 
     @Serializable
@@ -223,7 +233,9 @@ data class Character(
                 gender = null,
                 bloodType = null,
                 birthDate = null,
-                description = null
+                description = null,
+                isFavorite = false,
+                isFavoriteBlocked = true
             )
         }
 
@@ -238,7 +250,9 @@ data class Character(
                 gender = null,
                 bloodType = null,
                 birthDate = null,
-                description = null
+                description = null,
+                isFavorite = false,
+                isFavoriteBlocked = true,
             )
         }
 
@@ -253,7 +267,9 @@ data class Character(
                 gender = character.gender?.ifBlank { null },
                 bloodType = character.bloodType?.ifBlank { null },
                 birthDate = character.dateOfBirth?.let { BirthDate(it) },
-                description = character.description?.ifBlank { null }
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked
             )
         }
 
@@ -268,7 +284,9 @@ data class Character(
                 gender = null,
                 bloodType = null,
                 birthDate = null,
-                description = null
+                description = null,
+                isFavorite = false,
+                isFavoriteBlocked = true
             )
         }
 
@@ -283,7 +301,9 @@ data class Character(
                 gender = null,
                 bloodType = null,
                 birthDate = null,
-                description = null
+                description = null,
+                isFavorite = false,
+                isFavoriteBlocked = true
             )
         }
     }
