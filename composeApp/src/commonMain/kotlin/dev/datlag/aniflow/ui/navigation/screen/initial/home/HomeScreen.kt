@@ -68,7 +68,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         is TraceStateMachine.State.Success -> {
             val results = remember(traceState) { current.response.result.sortedByDescending { it.similarity } }
 
-            SideEffect {
+            LaunchedEffect(current) {
                 results.maxByOrNull { it.similarity }?.aniList?.asMedium()?.let(component::details)
             }
             /*OptionDialog(

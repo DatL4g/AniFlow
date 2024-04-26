@@ -34,6 +34,8 @@ import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.math.max
+import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -55,6 +57,11 @@ fun CollapsingToolbar(
         val isCollapsed by remember(state) {
             derivedStateOf { state.collapsedFraction >= 0.99F }
         }
+        val imageAlpha by remember(state) {
+            derivedStateOf {
+                max(min(1F - state.collapsedFraction, 1F), 0F)
+            }
+        }
 
         AsyncImage(
             modifier = Modifier
@@ -71,7 +78,7 @@ fun CollapsingToolbar(
                     contentScale = ContentScale.Crop
                 )
             ),
-            alpha = 1F - state.collapsedFraction
+            alpha = imageAlpha
         )
         LargeTopAppBar(
             navigationIcon = {

@@ -41,7 +41,7 @@ fun TrailerSection(
                 style = MaterialTheme.typography.headlineSmall
             )
             Card(
-                modifier = Modifier.fillMaxWidth().height(200.dp).padding(16.dp),
+                modifier = Modifier.fillMaxWidth().height(200.dp).padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
                 onClick = {
                     uriHandler.openUri(trailer?.videoUrl ?: trailer!!.website)
                 }

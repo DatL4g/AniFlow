@@ -218,6 +218,54 @@ data class Character(
                     year = birth.year
                 )
             }
+
+            operator fun invoke(birth: TrendingQuery.DateOfBirth): BirthDate? {
+                if (birth.day == null && birth.month == null && birth.year == null) {
+                    return null
+                }
+
+                return BirthDate(
+                    day = birth.day,
+                    month = birth.month,
+                    year = birth.year
+                )
+            }
+
+            operator fun invoke(birth: MediumQuery.DateOfBirth): BirthDate? {
+                if (birth.day == null && birth.month == null && birth.year == null) {
+                    return null
+                }
+
+                return BirthDate(
+                    day = birth.day,
+                    month = birth.month,
+                    year = birth.year
+                )
+            }
+
+            operator fun invoke(birth: AiringQuery.DateOfBirth): BirthDate? {
+                if (birth.day == null && birth.month == null && birth.year == null) {
+                    return null
+                }
+
+                return BirthDate(
+                    day = birth.day,
+                    month = birth.month,
+                    year = birth.year
+                )
+            }
+
+            operator fun invoke(birth: SeasonQuery.DateOfBirth): BirthDate? {
+                if (birth.day == null && birth.month == null && birth.year == null) {
+                    return null
+                }
+
+                return BirthDate(
+                    day = birth.day,
+                    month = birth.month,
+                    year = birth.year
+                )
+            }
         }
     }
 
@@ -230,12 +278,12 @@ data class Character(
                 id = character.id,
                 name = name,
                 image = image,
-                gender = null,
-                bloodType = null,
-                birthDate = null,
-                description = null,
-                isFavorite = false,
-                isFavoriteBlocked = true
+                gender = character.gender?.ifBlank { null },
+                bloodType = character.bloodType?.ifBlank { null },
+                birthDate = character.dateOfBirth?.let { BirthDate(it) },
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked
             )
         }
 
@@ -247,12 +295,12 @@ data class Character(
                 id = character.id,
                 name = name,
                 image = image,
-                gender = null,
-                bloodType = null,
-                birthDate = null,
-                description = null,
-                isFavorite = false,
-                isFavoriteBlocked = true,
+                gender = character.gender?.ifBlank { null },
+                bloodType = character.bloodType?.ifBlank { null },
+                birthDate = character.dateOfBirth?.let { BirthDate(it) },
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked,
             )
         }
 
@@ -281,12 +329,12 @@ data class Character(
                 id = character.id,
                 name = name,
                 image = image,
-                gender = null,
-                bloodType = null,
-                birthDate = null,
-                description = null,
-                isFavorite = false,
-                isFavoriteBlocked = true
+                gender = character.gender?.ifBlank { null },
+                bloodType = character.bloodType?.ifBlank { null },
+                birthDate = character.dateOfBirth?.let { BirthDate(it) },
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked
             )
         }
 
@@ -298,12 +346,12 @@ data class Character(
                 id = character.id,
                 name = name,
                 image = image,
-                gender = null,
-                bloodType = null,
-                birthDate = null,
-                description = null,
-                isFavorite = false,
-                isFavoriteBlocked = true
+                gender = character.gender?.ifBlank { null },
+                bloodType = character.bloodType?.ifBlank { null },
+                birthDate = character.dateOfBirth?.let { BirthDate(it) },
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked
             )
         }
     }

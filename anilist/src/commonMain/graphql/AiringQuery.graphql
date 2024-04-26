@@ -56,17 +56,27 @@ query AiringQuery(
                     nodes {
                         id,
                         name {
-                            first,
+                            first
                             middle
-                            last,
-                            full,
-                            native,
+                            last
+                            full
+                            native
                             userPreferred
                         },
                         image {
-                            large,
+                            large
                             medium
-                        }
+                        },
+                        description(asHtml:$html)
+                        gender,
+                        dateOfBirth {
+                            year
+                            month
+                            day
+                        },
+                        bloodType,
+                        isFavourite,
+                        isFavouriteBlocked,
                     }
                 },
                 mediaListEntry {
