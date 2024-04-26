@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.model.toInt
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -244,7 +245,9 @@ data class Medium(
     }
 
     @Transient
-    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.toSet()
+    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.sortedByDescending {
+        it.isFavorite.toInt()
+    }.toSet()
 
     @Transient
     val isFavoriteBlocked: Boolean = _isFavoriteBlocked || type == MediaType.UNKNOWN__

@@ -1,14 +1,8 @@
 package dev.datlag.aniflow.other
 
-import dev.datlag.aniflow.model.saveFirstOrNull
-import dev.datlag.aniflow.settings.DataStoreUserSettings
+import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 import org.publicvalue.multiplatform.oidc.tokenstore.OauthTokens
 import org.publicvalue.multiplatform.oidc.types.remote.AccessTokenResponse
@@ -22,7 +16,7 @@ class TokenRefreshHandler(
     private var memoryAccessToken: String? = null
 
     suspend fun getAccessToken(): String? {
-        return storeUserSettings.aniList.saveFirstOrNull()?.accessToken?.ifBlank { null } ?: memoryAccessToken
+        return storeUserSettings.aniList.safeFirstOrNull()?.accessToken?.ifBlank { null } ?: memoryAccessToken
     }
 
     suspend fun refreshAndSaveToken(client: OpenIdConnectClient, oldAccessToken: String): OauthTokens {
@@ -30,7 +24,7 @@ class TokenRefreshHandler(
     }
 
     suspend fun refreshAndSaveToken(refreshCall: suspend (String) -> AccessTokenResponse, oldAccessToken: String): OauthTokens {
-        val storeData = storeUserSettings.aniList.saveFirstOrNull()
+        val storeData = storeUserSettings.aniList.safeFirstOrNull()
         val currentTokens = storeData?.let {
             OauthTokens(
                 accessToken = it.accessToken ?: return@let null,
@@ -45,7 +39,7 @@ class TokenRefreshHandler(
         return if (currentTokens != null && currentTokens.accessToken != oldAccessToken && !requiresRefresh) {
             currentTokens
         } else {
-            val refreshToken = storeUserSettings.aniListRefreshToken.saveFirstOrNull()
+            val refreshToken = storeUserSettings.aniListRefreshToken.safeFirstOrNull()
             val newTokens = refreshCall(refreshToken ?: "")
             updateStoredToken(newTokens)
             lastRefresh = Clock.System.now().epochSeconds.toInt()

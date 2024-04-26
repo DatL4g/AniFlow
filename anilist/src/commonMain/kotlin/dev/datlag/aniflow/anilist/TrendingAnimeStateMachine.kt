@@ -3,13 +3,11 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.annotations.ApolloExperimental
 import com.apollographql.apollo3.api.Optional
-import com.apollographql.apollo3.api.map
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.*
-import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.time.Duration.Companion.seconds
 
@@ -36,11 +34,11 @@ class TrendingAnimeStateMachine(
                     val response = CatchResult.repeat(2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
-                         query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                         query.execute().data ?: query.toFlow().safeFirstOrNull()?.dataOrThrow()
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
                         
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.data
                     }.mapSuccess<State> {
                         State.Success(state.snapshot.query, it)
                     }

@@ -3,19 +3,14 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
-import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.model.mapError
-import dev.datlag.aniflow.model.saveFirstOrNull
-import dev.datlag.tooling.async.suspendCatching
+import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.tooling.safeSubList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 
@@ -42,11 +37,11 @@ class AiringTodayStateMachine(
                     val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.dataOrThrow()
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.data
                     }.mapSuccess<State> {
                         val wantedContent = if (!state.snapshot.adultContent) {
                             val content = it.Page?.airingSchedulesFilterNotNull() ?: emptyList()

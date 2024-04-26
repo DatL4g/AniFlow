@@ -13,7 +13,6 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialScreenComponent
-import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreen
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import org.kodein.di.DI
 

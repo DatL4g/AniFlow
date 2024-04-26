@@ -1,0 +1,23 @@
+mutation FavoriteToggleMutation(
+    $animeId: Int,
+    $mangaId: Int,
+    $characterId: Int
+) {
+    ToggleFavourite(animeId: $animeId, mangaId: $mangaId, characterId: $characterId) {
+        anime {
+            nodes {
+                id
+            }
+        },
+        manga {
+            nodes {
+                id
+            }
+        },
+        characters {
+            nodes {
+                id
+            }
+        }
+    }
+}

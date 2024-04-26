@@ -2,12 +2,14 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character
 
 import androidx.compose.runtime.Composable
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
 import dev.datlag.aniflow.anilist.CharacterStateMachine
+import dev.datlag.aniflow.anilist.FavoriteToggleMutation
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRender
-import dev.datlag.aniflow.model.saveFirstOrNull
+import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
@@ -47,6 +49,16 @@ class CharacterDialogComponent(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = null
+    )
+
+    private val id = characterSuccessState.mapNotNull {
+        it?.character?.id
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialChar.id
     )
 
     override val image: StateFlow<Character.Image> = characterSuccessState.mapNotNull {
@@ -111,14 +123,8 @@ class CharacterDialogComponent(
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    private val changedFavorite = MutableStateFlow<Boolean?>(null)
-    override val isFavorite: StateFlow<Boolean> = combine(
-        characterSuccessState.mapNotNull {
-            it?.character?.isFavorite
-        }.flowOn(ioDispatcher()),
-        changedFavorite
-    ) { default, changed ->
-        changed ?: default
+    override val isFavorite: StateFlow<Boolean> = characterSuccessState.mapNotNull {
+        it?.character?.isFavorite
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
@@ -160,10 +166,12 @@ class CharacterDialogComponent(
 
     override fun toggleFavorite() {
         launchIO {
-            changedFavorite.update {
-                !(it ?: isFavorite.saveFirstOrNull() ?: isFavorite.value)
-            }
-            // Call toggle on api
+            val charId = id.safeFirstOrNull() ?: id.value
+            val mutation = FavoriteToggleMutation(
+                characterId = Optional.present(charId)
+            )
+
+            aniListClient.mutation(mutation).execute()
         }
     }
 }

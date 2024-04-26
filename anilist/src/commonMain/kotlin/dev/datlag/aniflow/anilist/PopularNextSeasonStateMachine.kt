@@ -7,8 +7,7 @@ import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.model.mapError
-import dev.datlag.aniflow.model.saveFirstOrNull
-import dev.datlag.tooling.async.suspendCatching
+import dev.datlag.aniflow.model.safeFirstOrNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.time.Duration.Companion.seconds
 
@@ -35,11 +34,11 @@ class PopularNextSeasonStateMachine(
                     val response = CatchResult.repeat(times = 2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.dataOrThrow()
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.data
                     }.mapSuccess<SeasonState> {
                         SeasonState.Success(state.snapshot.query, it)
                     }

@@ -11,10 +11,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -145,6 +142,8 @@ fun CollapsingToolbar(
             },
             actions = {
                 val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
+                val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
+                var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
                 IconButton(
                     modifier = if (isCollapsed) {
@@ -152,13 +151,14 @@ fun CollapsingToolbar(
                     } else {
                         Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
                     },
-                    onClick = onToggleFavorite,
+                    onClick = {
+                        favoriteChanged = !(favoriteChanged ?: isFavorite)
+                        onToggleFavorite()
+                    },
                     enabled = !isFavoriteBlocked
                 ) {
-                    val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
-
                     Icon(
-                        imageVector = if (isFavorite) {
+                        imageVector = if (favoriteChanged ?: isFavorite) {
                             Icons.Default.Favorite
                         } else {
                             Icons.Default.FavoriteBorder

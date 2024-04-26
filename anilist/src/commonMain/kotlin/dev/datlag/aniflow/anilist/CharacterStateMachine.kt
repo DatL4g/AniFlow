@@ -3,12 +3,11 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
-import com.freeletics.flowredux.dsl.State
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.model.mapError
-import dev.datlag.aniflow.model.saveFirstOrNull
+import dev.datlag.aniflow.model.safeFirstOrNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.time.Duration.Companion.seconds
 
@@ -32,18 +31,14 @@ class CharacterStateMachine(
                     currentState = it
                 }
                 onEnter { state ->
-                    Cache.getCharacter(state.snapshot.query)?.let {
-                        return@onEnter state.override { State.Success(state.snapshot.query, it) }
-                    }
-
                     val response = CatchResult.repeat(2, timeoutDuration = 30.seconds) {
                         val query = client.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.dataOrThrow()
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.dataOrThrow()
                     }.mapError {
                         val query = fallbackClient.query(state.snapshot.query)
 
-                        query.execute().data ?: query.toFlow().saveFirstOrNull()?.data
+                        query.execute().data ?: query.toFlow().safeFirstOrNull()?.data
                     }.mapSuccess<State> {
                         it.Character?.let { data ->
                             Character(data)?.let { char ->
@@ -52,11 +47,17 @@ class CharacterStateMachine(
                         }
                     }
 
+                    val cached = Cache.getCharacter(state.snapshot.query)
+
                     state.override {
                         response.asSuccess {
                             crashlytics?.log(it)
 
-                            State.Error(query)
+                            if (cached != null) {
+                                State.Success(query, cached)
+                            } else {
+                                State.Error(query)
+                            }
                         }
                     }
                 }

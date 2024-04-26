@@ -45,7 +45,7 @@ internal object Cache {
 
     suspend fun getTrending(key: TrendingQuery): TrendingQuery.Data? {
         return suspendCatching {
-            trendingAnime.get(key)
+            trendingAnime.getIfAvailable(key)
         }.getOrNull()
     }
 
@@ -57,7 +57,7 @@ internal object Cache {
 
     suspend fun getAiring(key: AiringQuery): AiringQuery.Data? {
         return suspendCatching {
-            airing.get(key)
+            airing.getIfAvailable(key)
         }.getOrNull()
     }
 
@@ -69,7 +69,7 @@ internal object Cache {
 
     suspend fun getSeason(key: SeasonQuery): SeasonQuery.Data? {
         return suspendCatching {
-            season.get(key)
+            season.getIfAvailable(key)
         }.getOrNull()
     }
 
@@ -81,7 +81,7 @@ internal object Cache {
 
     suspend fun getMedium(key: MediumQuery): Medium? {
         return suspendCatching {
-            medium.get(key)
+            medium.getIfAvailable(key)
         }.getOrNull()
     }
 
@@ -93,7 +93,7 @@ internal object Cache {
 
     suspend fun getCharacter(key: CharacterQuery) : Character? {
         return suspendCatching {
-            character.get(key)
+            character.getIfAvailable(key)
         }.getOrNull()
     }
 

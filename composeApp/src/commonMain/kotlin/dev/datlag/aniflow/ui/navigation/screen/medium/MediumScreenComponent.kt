@@ -2,14 +2,11 @@ package dev.datlag.aniflow.ui.navigation.screen.medium
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.backhandler.BackCallback
-import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.*
@@ -17,6 +14,7 @@ import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRenderApplyCommonScheme
 import dev.datlag.aniflow.common.popular
@@ -34,7 +32,6 @@ import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -68,12 +65,24 @@ class MediumScreenComponent(
         started = SharingStarted.WhileSubscribed(),
         initialValue = mediumStateMachine.currentState
     )
-    private val mediumSuccessState = mediumState.mapNotNull { it.safeCast<MediumStateMachine.State.Success>() }.flowOn(
+    private val mediumSuccessState = mediumState.mapNotNull {
+        it.safeCast<MediumStateMachine.State.Success>()
+    }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = null
+    )
+
+    private val type: StateFlow<MediaType> = mediumSuccessState.mapNotNull {
+        it?.data?.type
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.type
     )
 
     override val bannerImage: StateFlow<String?> = mediumSuccessState.mapNotNull {
@@ -304,14 +313,8 @@ class MediumScreenComponent(
         initialValue = initialMedium.entry != null
     )
 
-    private val changedFavorite = MutableStateFlow<Boolean?>(null)
-    override val isFavorite: StateFlow<Boolean> = combine(
-        mediumSuccessState.mapNotNull {
-            it?.data?.isFavorite
-        }.flowOn(ioDispatcher()),
-        changedFavorite
-    ) { default, changed ->
-        changed ?: default
+    override val isFavorite: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
+        it?.data?.isFavorite
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
@@ -331,7 +334,6 @@ class MediumScreenComponent(
     )
 
     private val userSettings by di.instance<Settings.PlatformUserSettings>()
-    private val characterStateMachine by di.instance<CharacterStateMachine>()
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
 
     override val bsAvailable: Boolean
@@ -399,7 +401,7 @@ class MediumScreenComponent(
 
     private suspend fun requestMediaListEntry() {
         val query = MediaListEntryQuery(
-            id = Optional.present(mediaId.saveFirstOrNull() ?: mediaId.value)
+            id = Optional.present(mediaId.safeFirstOrNull() ?: mediaId.value)
         )
         val execution = CatchResult.timeout(5.seconds) {
             aniListClient.query(query).execute()
@@ -412,7 +414,7 @@ class MediumScreenComponent(
 
     override fun rate(onLoggedIn: () -> Unit) {
         launchIO {
-            val isLoggedIn = userSettings.isAniListLoggedIn.saveFirstOrNull() ?: false
+            val isLoggedIn = userSettings.isAniListLoggedIn.safeFirstOrNull() ?: false
 
             if (!isLoggedIn) {
                 if (login()) {
@@ -421,7 +423,7 @@ class MediumScreenComponent(
                     }
                 }
             } else {
-                val currentRating = rating.saveFirstOrNull() ?: rating.value
+                val currentRating = rating.safeFirstOrNull() ?: rating.value
                 if (currentRating <= -1) {
                     requestMediaListEntry()
                 }
@@ -455,10 +457,26 @@ class MediumScreenComponent(
 
     override fun toggleFavorite() {
         launchIO {
-            changedFavorite.update {
-                !(it ?: isFavorite.saveFirstOrNull() ?: isFavorite.value)
+            val mediaType = type.safeFirstOrNull() ?: type.value
+            if (mediaType == MediaType.UNKNOWN__) {
+                return@launchIO
             }
-            // Call toggle on api
+
+            val id = mediaId.safeFirstOrNull() ?: mediaId.value
+            val mutation = FavoriteToggleMutation(
+                animeId = if (mediaType == MediaType.ANIME) {
+                    Optional.present(id)
+                } else {
+                    Optional.absent()
+                },
+                mangaId = if (mediaType == MediaType.MANGA) {
+                    Optional.present(id)
+                } else {
+                    Optional.absent()
+                }
+            )
+
+            aniListClient.mutation(mutation).execute()
         }
     }
 }
