@@ -147,15 +147,16 @@ fun CollapsingToolbar(
             },
             actions = {
                 val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
-                val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
-                val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
-                var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
                 AnimatedVisibility(
                     visible = mediumState.isSuccess,
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
+                    val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
+                    val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
+                    var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+
                     IconButton(
                         modifier = if (isCollapsed) {
                             Modifier

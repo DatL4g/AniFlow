@@ -179,6 +179,9 @@ fun LazyListState.isScrollingUp(): Boolean {
 @OptIn(ExperimentalMaterial3Api::class)
 fun SheetState.isFullyExpandedOrTargeted(forceFullExpand: Boolean = false): Boolean {
     val checkState = if (this.hasExpandedState) {
+        if (!this.hasPartiallyExpandedState) {
+            return false
+        }
         SheetValue.Expanded
     } else {
         if (forceFullExpand) {

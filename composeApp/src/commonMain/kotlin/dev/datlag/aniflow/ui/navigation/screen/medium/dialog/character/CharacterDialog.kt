@@ -60,9 +60,6 @@ fun CharacterDialog(component: CharacterComponent) {
         ) {
             val image by component.image.collectAsStateWithLifecycle()
             val state by component.state.collectAsStateWithLifecycle()
-            val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle()
-            val isFavorite by component.isFavorite.collectAsStateWithLifecycle()
-            var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -102,6 +99,10 @@ fun CharacterDialog(component: CharacterComponent) {
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
+                val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle()
+                val isFavorite by component.isFavorite.collectAsStateWithLifecycle()
+                var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+
                 IconButton(
                     onClick = {
                         favoriteChanged = !(favoriteChanged ?: isFavorite)
