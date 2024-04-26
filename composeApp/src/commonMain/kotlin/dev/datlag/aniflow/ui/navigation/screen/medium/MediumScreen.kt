@@ -111,6 +111,7 @@ fun MediumScreen(component: MediumComponent) {
             CollapsingToolbar(
                 state = appBarState,
                 scrollBehavior = scrollState,
+                mediumStateFlow = component.mediumState,
                 bannerImageFlow = component.bannerImage,
                 coverImage = coverImage,
                 titleFlow = component.title,

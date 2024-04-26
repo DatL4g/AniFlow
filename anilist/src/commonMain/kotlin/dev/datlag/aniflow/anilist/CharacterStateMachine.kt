@@ -82,6 +82,12 @@ class CharacterStateMachine(
     }
 
     sealed interface State {
+        val isLoading: Boolean
+            get() = this is Loading
+
+        val isSuccess: Boolean
+            get() = this is Success
+
         data class Loading(internal val query: CharacterQuery) : State {
             constructor(id: Int) : this(
                 query = CharacterQuery(

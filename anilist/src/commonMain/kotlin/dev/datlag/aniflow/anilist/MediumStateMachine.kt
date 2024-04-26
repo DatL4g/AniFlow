@@ -80,6 +80,13 @@ class MediumStateMachine(
     }
 
     sealed interface State {
+
+        val isLoading: Boolean
+            get() = this is Loading
+
+        val isSuccess: Boolean
+            get() = this is Success
+
         data class Loading(
             internal val query: MediumQuery
         ) : State {

@@ -1,5 +1,8 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +29,7 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
@@ -39,6 +43,7 @@ import kotlin.math.min
 fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
+    mediumStateFlow: StateFlow<MediumStateMachine.State>,
     bannerImageFlow: StateFlow<String?>,
     coverImage: Medium.CoverImage,
     titleFlow: StateFlow<Medium.Title>,
@@ -141,30 +146,37 @@ fun CollapsingToolbar(
                 }
             },
             actions = {
+                val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
                 val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
                 val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
                 var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
-                IconButton(
-                    modifier = if (isCollapsed) {
-                        Modifier
-                    } else {
-                        Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
-                    },
-                    onClick = {
-                        favoriteChanged = !(favoriteChanged ?: isFavorite)
-                        onToggleFavorite()
-                    },
-                    enabled = !isFavoriteBlocked
+                AnimatedVisibility(
+                    visible = mediumState.isSuccess,
+                    enter = fadeIn(),
+                    exit = fadeOut()
                 ) {
-                    Icon(
-                        imageVector = if (favoriteChanged ?: isFavorite) {
-                            Icons.Default.Favorite
+                    IconButton(
+                        modifier = if (isCollapsed) {
+                            Modifier
                         } else {
-                            Icons.Default.FavoriteBorder
+                            Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
                         },
-                        contentDescription = null
-                    )
+                        onClick = {
+                            favoriteChanged = !(favoriteChanged ?: isFavorite)
+                            onToggleFavorite()
+                        },
+                        enabled = !isFavoriteBlocked
+                    ) {
+                        Icon(
+                            imageVector = if (favoriteChanged ?: isFavorite) {
+                                Icons.Default.Favorite
+                            } else {
+                                Icons.Default.FavoriteBorder
+                            },
+                            contentDescription = null
+                        )
+                    }
                 }
             },
             scrollBehavior = scrollBehavior,

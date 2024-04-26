@@ -58,7 +58,7 @@ class MediumScreenComponent(
         crashlytics = di.nullableFirebaseInstance()?.crashlytics,
         id = initialMedium.id
     )
-    private val mediumState = mediumStateMachine.state.flowOn(
+    override val mediumState = mediumStateMachine.state.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),

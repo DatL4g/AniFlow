@@ -59,6 +59,7 @@ fun CharacterDialog(component: CharacterComponent) {
             contentAlignment = Alignment.Center
         ) {
             val image by component.image.collectAsStateWithLifecycle()
+            val state by component.state.collectAsStateWithLifecycle()
             val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle()
             val isFavorite by component.isFavorite.collectAsStateWithLifecycle()
             var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
@@ -95,22 +96,28 @@ fun CharacterDialog(component: CharacterComponent) {
                 contentDescription = component.initialChar.preferredName()
             )
 
-            IconButton(
+            this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterEnd),
-                onClick = {
-                    favoriteChanged = !(favoriteChanged ?: isFavorite)
-                    component.toggleFavorite()
-                },
-                enabled = !isFavoriteBlocked
+                visible = state.isSuccess,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Icon(
-                    imageVector = if (favoriteChanged ?: isFavorite) {
-                        Icons.Default.Favorite
-                    } else {
-                        Icons.Default.FavoriteBorder
+                IconButton(
+                    onClick = {
+                        favoriteChanged = !(favoriteChanged ?: isFavorite)
+                        component.toggleFavorite()
                     },
-                    contentDescription = null,
-                )
+                    enabled = !isFavoriteBlocked
+                ) {
+                    Icon(
+                        imageVector = if (favoriteChanged ?: isFavorite) {
+                            Icons.Default.Favorite
+                        } else {
+                            Icons.Default.FavoriteBorder
+                        },
+                        contentDescription = null,
+                    )
+                }
             }
         }
 
