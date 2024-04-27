@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.settings
 
+import dev.datlag.aniflow.settings.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 
 data object Settings {
@@ -18,5 +19,11 @@ data object Settings {
             id: String?,
             expires: Int?
         )
+    }
+
+    interface PlatformAppSettings {
+        val adultContent: Flow<Boolean>
+
+        suspend fun setAdultContent(value: Boolean)
     }
 }

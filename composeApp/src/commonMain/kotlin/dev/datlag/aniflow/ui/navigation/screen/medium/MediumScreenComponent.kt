@@ -51,6 +51,7 @@ class MediumScreenComponent(
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
     private val tokenRefreshHandler by di.instance<TokenRefreshHandler>()
+    private val appSettings by di.instance<Settings.PlatformAppSettings>()
 
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,
@@ -58,6 +59,7 @@ class MediumScreenComponent(
         crashlytics = di.nullableFirebaseInstance()?.crashlytics,
         id = initialMedium.id
     )
+
     override val mediumState = mediumStateMachine.state.flowOn(
         context = ioDispatcher()
     ).stateIn(
@@ -65,6 +67,7 @@ class MediumScreenComponent(
         started = SharingStarted.WhileSubscribed(),
         initialValue = mediumStateMachine.currentState
     )
+
     private val mediumSuccessState = mediumState.mapNotNull {
         it.safeCast<MediumStateMachine.State.Success>()
     }.flowOn(
@@ -74,6 +77,18 @@ class MediumScreenComponent(
         started = SharingStarted.WhileSubscribed(),
         initialValue = null
     )
+
+    override val isAdult: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
+        it?.data?.isAdult
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.isAdult
+    )
+
+    override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
     private val type: StateFlow<MediaType> = mediumSuccessState.mapNotNull {
         it?.data?.type

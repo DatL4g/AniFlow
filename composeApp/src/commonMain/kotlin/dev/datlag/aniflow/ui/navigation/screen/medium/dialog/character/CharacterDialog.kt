@@ -79,6 +79,7 @@ fun CharacterDialog(component: CharacterComponent) {
 
             AsyncImage(
                 modifier = Modifier
+                    .padding(12.dp)
                     .size(96.dp)
                     .clip(CircleShape),
                 model = image.large,
@@ -92,6 +93,16 @@ fun CharacterDialog(component: CharacterComponent) {
                 alignment = Alignment.Center,
                 contentDescription = component.initialChar.preferredName()
             )
+
+            this@ModalBottomSheet.AnimatedVisibility(
+                visible = state.isLoading,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(108.dp)
+                )
+            }
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterEnd),
@@ -123,9 +134,7 @@ fun CharacterDialog(component: CharacterComponent) {
         }
 
         Text(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 8.dp),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             text = name.preferred(),
             style = MaterialTheme.typography.headlineMedium,
             maxLines = 2,
@@ -235,13 +244,6 @@ fun CharacterDialog(component: CharacterComponent) {
                         ),
                     text = it.htmlToAnnotatedString()
                 )
-            } ?: run {
-                val state by component.state.collectAsStateWithLifecycle()
-
-                if (state is CharacterStateMachine.State.Loading) {
-                    CircularProgressIndicator()
-                }
-                // ToDo("Display something went wrong")
             }
         }
     }

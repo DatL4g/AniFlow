@@ -10,12 +10,16 @@ import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.DialogComponent
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
 
     val mediumState: StateFlow<MediumStateMachine.State>
+    val isAdult: StateFlow<Boolean>
+    val isAdultAllowed: Flow<Boolean>
+
     val bannerImage: StateFlow<String?>
     val coverImage: StateFlow<Medium.CoverImage>
     val title: StateFlow<Medium.Title>

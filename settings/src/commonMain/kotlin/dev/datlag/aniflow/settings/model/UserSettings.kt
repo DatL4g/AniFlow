@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.settings
+package dev.datlag.aniflow.settings.model
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable

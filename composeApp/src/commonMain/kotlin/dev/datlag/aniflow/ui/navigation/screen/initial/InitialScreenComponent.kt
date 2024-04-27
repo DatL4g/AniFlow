@@ -2,6 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.initial
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
@@ -14,6 +15,7 @@ import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.HomeScreenComponent
+import dev.datlag.aniflow.ui.navigation.screen.initial.settings.SettingsScreenComponent
 import org.kodein.di.DI
 
 class InitialScreenComponent(
@@ -26,6 +28,10 @@ class InitialScreenComponent(
         InitialComponent.PagerItem(
             label = SharedRes.strings.home,
             icon = Icons.Default.Home
+        ),
+        InitialComponent.PagerItem(
+            label = SharedRes.strings.settings,
+            icon = Icons.Default.Settings
         )
     )
 
@@ -39,7 +45,8 @@ class InitialScreenComponent(
         initialPages = {
             Pages(
                 items = listOf(
-                    View.Home
+                    View.Home,
+                    View.Settings
                 ),
                 selectedIndex = 0
             )
@@ -66,6 +73,10 @@ class InitialScreenComponent(
                 componentContext = componentContext,
                 di = di,
                 onMediumDetails = onMediumDetails
+            )
+            is View.Settings -> SettingsScreenComponent(
+                componentContext = componentContext,
+                di = di
             )
         }
     }

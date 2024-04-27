@@ -13,9 +13,7 @@ import dev.datlag.aniflow.firebase.initialize
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
-import dev.datlag.aniflow.settings.DataStoreUserSettings
-import dev.datlag.aniflow.settings.Settings
-import dev.datlag.aniflow.settings.UserSettingsSerializer
+import dev.datlag.aniflow.settings.*
 import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -101,8 +99,23 @@ actual object PlatformModule {
                 )
             )
         }
+        bindSingleton {
+            val app: Context = instance()
+            DataStoreFactory.create(
+                storage = OkioStorage(
+                    fileSystem = FileSystem.SYSTEM,
+                    serializer = AppSettingsSerializer,
+                    producePath = {
+                        app.filesDir.toOkioPath().resolve("datastore").resolve("app.settings")
+                    }
+                )
+            )
+        }
         bindSingleton<Settings.PlatformUserSettings> {
             DataStoreUserSettings(instance())
+        }
+        bindSingleton<Settings.PlatformAppSettings> {
+            DataStoreAppSettings(instance())
         }
         bindSingleton<BurningSeriesResolver> {
             BurningSeriesResolver(context = instance())

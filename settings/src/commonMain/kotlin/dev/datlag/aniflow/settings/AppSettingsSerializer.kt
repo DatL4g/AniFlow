@@ -1,7 +1,7 @@
 package dev.datlag.aniflow.settings
 
 import androidx.datastore.core.okio.OkioSerializer
-import dev.datlag.aniflow.settings.model.UserSettings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.suspendCatching
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
@@ -10,8 +10,8 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import okio.BufferedSink
 import okio.BufferedSource
 
-data object UserSettingsSerializer : OkioSerializer<UserSettings> {
-    override val defaultValue: UserSettings = UserSettings()
+data object AppSettingsSerializer : OkioSerializer<AppSettings> {
+    override val defaultValue: AppSettings = AppSettings()
 
     @OptIn(ExperimentalSerializationApi::class)
     private val protobuf = ProtoBuf {
@@ -19,14 +19,14 @@ data object UserSettingsSerializer : OkioSerializer<UserSettings> {
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun readFrom(source: BufferedSource): UserSettings {
+    override suspend fun readFrom(source: BufferedSource): AppSettings {
         return suspendCatching {
-            protobuf.decodeFromByteArray<UserSettings>(source.readByteArray())
+            protobuf.decodeFromByteArray<AppSettings>(source.readByteArray())
         }.getOrNull() ?: defaultValue
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun writeTo(t: UserSettings, sink: BufferedSink) {
+    override suspend fun writeTo(t: AppSettings, sink: BufferedSink) {
         val newSink = suspendCatching {
             sink.write(protobuf.encodeToByteArray(t))
         }.getOrNull() ?: sink

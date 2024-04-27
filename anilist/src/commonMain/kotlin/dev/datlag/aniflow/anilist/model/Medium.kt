@@ -245,9 +245,7 @@ data class Medium(
     }
 
     @Transient
-    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.sortedByDescending {
-        it.isFavorite.toInt()
-    }.toSet()
+    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.toSet()
 
     @Transient
     val isFavoriteBlocked: Boolean = _isFavoriteBlocked || type == MediaType.UNKNOWN__

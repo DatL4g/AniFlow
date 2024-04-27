@@ -1,6 +1,7 @@
 package dev.datlag.aniflow.settings
 
 import androidx.datastore.core.DataStore
+import dev.datlag.aniflow.settings.model.UserSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock

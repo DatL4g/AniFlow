@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -57,6 +58,7 @@ private fun Loading() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
@@ -76,7 +78,10 @@ private fun SuccessContent(
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
-                modifier = Modifier.width(200.dp).height(280.dp),
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(280.dp)
+                    .animateItemPlacement(),
                 onClick = onClick
             )
         }

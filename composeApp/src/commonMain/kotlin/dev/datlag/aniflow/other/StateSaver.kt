@@ -10,6 +10,9 @@ data object StateSaver {
         var mediaOverview: Int = 0
         var mediaOverviewOffset: Int = 0
 
+        var settingsOverview: Int = 0
+        var settingsOverviewOffset: Int = 0
+
         data object Home {
             var airingOverview: Int = 0
             var airingOverviewOffset: Int = 0
