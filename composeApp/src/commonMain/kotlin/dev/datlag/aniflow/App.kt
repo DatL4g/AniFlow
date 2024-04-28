@@ -1,20 +1,31 @@
 package dev.datlag.aniflow
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import com.materialkolor.*
 import dev.chrisbanes.haze.HazeState
+import dev.datlag.aniflow.common.toComposeColor
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.Colors
 import dev.datlag.aniflow.ui.theme.CommonSchemeTheme
 import dev.datlag.tooling.compose.toTypography
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.asFont
 import org.kodein.di.DI
+import org.kodein.di.instance
 
 val LocalDarkMode = compositionLocalOf<Boolean> { error("No dark mode state provided") }
 val LocalEdgeToEdge = staticCompositionLocalOf<Boolean> { false }
@@ -38,13 +49,73 @@ internal fun App(
             colorScheme = if (systemDarkTheme) Colors.getDarkScheme() else Colors.getLightScheme(),
             typography = ManropeFontFamily().toTypography()
         ) {
-            CommonSchemeTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                ) {
-                    content()
+            val appSettings by di.instance<Settings.PlatformAppSettings>()
+            val savedColor by remember(appSettings) {
+                appSettings.color
+            }.collectAsStateWithLifecycle(null)
+            val seedColor = remember(savedColor) { savedColor?.toComposeColor() }
+            val dynamicColorScheme = if (seedColor != null) {
+                rememberDynamicColorScheme(
+                    seedColor = seedColor,
+                    isDark = LocalDarkMode.current,
+                    style = PaletteStyle.TonalSpot,
+                    contrastLevel = Contrast.Default.value,
+                    isExtendedFidelity = false
+                )
+            } else {
+                MaterialTheme.colorScheme
+            }
+            val animationSpec: AnimationSpec<Color> = spring(stiffness = Spring.StiffnessLow)
+            val colorScheme = dynamicColorScheme.copy(
+                primary = dynamicColorScheme.primary.animate(animationSpec),
+                primaryContainer = dynamicColorScheme.primaryContainer.animate(animationSpec),
+                secondary = dynamicColorScheme.secondary.animate(animationSpec),
+                secondaryContainer = dynamicColorScheme.secondaryContainer.animate(animationSpec),
+                tertiary = dynamicColorScheme.tertiary.animate(animationSpec),
+                tertiaryContainer = dynamicColorScheme.tertiaryContainer.animate(animationSpec),
+                background = dynamicColorScheme.background.animate(animationSpec),
+                surface = dynamicColorScheme.surface.animate(animationSpec),
+                surfaceTint = dynamicColorScheme.surfaceTint.animate(animationSpec),
+                surfaceBright = dynamicColorScheme.surfaceBright.animate(animationSpec),
+                surfaceDim = dynamicColorScheme.surfaceDim.animate(animationSpec),
+                surfaceContainer = dynamicColorScheme.surfaceContainer.animate(animationSpec),
+                surfaceContainerHigh = dynamicColorScheme.surfaceContainerHigh.animate(animationSpec),
+                surfaceContainerHighest = dynamicColorScheme.surfaceContainerHighest.animate(animationSpec),
+                surfaceContainerLow = dynamicColorScheme.surfaceContainerLow.animate(animationSpec),
+                surfaceContainerLowest = dynamicColorScheme.surfaceContainerLowest.animate(animationSpec),
+                surfaceVariant = dynamicColorScheme.surfaceVariant.animate(animationSpec),
+                error = dynamicColorScheme.error.animate(animationSpec),
+                errorContainer = dynamicColorScheme.errorContainer.animate(animationSpec),
+                onPrimary = dynamicColorScheme.onPrimary.animate(animationSpec),
+                onPrimaryContainer = dynamicColorScheme.onPrimaryContainer.animate(animationSpec),
+                onSecondary = dynamicColorScheme.onSecondary.animate(animationSpec),
+                onSecondaryContainer = dynamicColorScheme.onSecondaryContainer.animate(animationSpec),
+                onTertiary = dynamicColorScheme.onTertiary.animate(animationSpec),
+                onTertiaryContainer = dynamicColorScheme.onTertiaryContainer.animate(animationSpec),
+                onBackground = dynamicColorScheme.onBackground.animate(animationSpec),
+                onSurface = dynamicColorScheme.onSurface.animate(animationSpec),
+                onSurfaceVariant = dynamicColorScheme.onSurfaceVariant.animate(animationSpec),
+                onError = dynamicColorScheme.onError.animate(animationSpec),
+                onErrorContainer = dynamicColorScheme.onErrorContainer.animate(animationSpec),
+                inversePrimary = dynamicColorScheme.inversePrimary.animate(animationSpec),
+                inverseSurface = dynamicColorScheme.inverseSurface.animate(animationSpec),
+                inverseOnSurface = dynamicColorScheme.inverseOnSurface.animate(animationSpec),
+                outline = dynamicColorScheme.outline.animate(animationSpec),
+                outlineVariant = dynamicColorScheme.outlineVariant.animate(animationSpec),
+                scrim = dynamicColorScheme.scrim.animate(animationSpec),
+            )
+
+            MaterialTheme(
+                colorScheme = colorScheme
+            ) {
+                CommonSchemeTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    ) {
+                        content()
+                    }
                 }
             }
         }
@@ -81,3 +152,8 @@ fun ManropeFontFamily(): FontFamily {
 
 @Composable
 expect fun SystemAppearance(isDark: Boolean = LocalDarkMode.current)
+
+@Composable
+private fun Color.animate(animationSpec: AnimationSpec<Color>): Color {
+    return animateColorAsState(this, animationSpec).value
+}

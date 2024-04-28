@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.*
@@ -33,6 +34,12 @@ class SettingsScreenComponent(
     override fun changeAdultContent(value: Boolean) {
         launchIO {
             userHelper.updateAdultSetting(value)
+        }
+    }
+
+    override fun changeProfileColor(value: AppSettings.Color?) {
+        launchIO {
+            userHelper.updateProfileColorSetting(value)
         }
     }
 }

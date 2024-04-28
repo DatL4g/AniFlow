@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.ViewerQuery
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.withMainContext
 import kotlinx.coroutines.flow.*
@@ -49,7 +50,10 @@ class UserHelper(
     val user = latestUser.transform { user ->
         emit(
             user?.also {
-                appSettings.setAdultContent(it.displayAdultContent)
+                appSettings.setData(
+                    adultContent = it.displayAdultContent,
+                    color = AppSettings.Color.fromString(it.profileColor)
+                )
             }
         )
     }
@@ -83,6 +87,20 @@ class UserHelper(
                 )
             ).execute().data?.UpdateUser?.let(::User)
         )
+    }
+
+    suspend fun updateProfileColorSetting(value: AppSettings.Color?) {
+        appSettings.setColor(value)
+
+        if (value != null) {
+            changedUser.emit(
+                client.mutation(
+                    ViewerMutation(
+                        color = Optional.present(value.label)
+                    )
+                ).execute().data?.UpdateUser?.let(::User)
+            )
+        }
     }
 
     private suspend fun updateStoredToken(tokenResponse: AccessTokenResponse) {

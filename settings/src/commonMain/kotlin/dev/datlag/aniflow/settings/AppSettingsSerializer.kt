@@ -11,7 +11,9 @@ import okio.BufferedSink
 import okio.BufferedSource
 
 data object AppSettingsSerializer : OkioSerializer<AppSettings> {
-    override val defaultValue: AppSettings = AppSettings()
+    override val defaultValue: AppSettings = AppSettings(
+        color = null
+    )
 
     @OptIn(ExperimentalSerializationApi::class)
     private val protobuf = ProtoBuf {

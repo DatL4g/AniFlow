@@ -10,14 +10,16 @@ data class User(
     val name: String,
     val avatar: Avatar = Avatar(),
     val banner: String? = null,
-    val displayAdultContent: Boolean = false
+    val displayAdultContent: Boolean = false,
+    val profileColor: String? = null
 ) {
     constructor(query: ViewerQuery.Viewer) : this(
         id = query.id,
         name = query.name,
         avatar = query.avatar.let(::Avatar),
         banner = query.bannerImage?.ifBlank { null },
-        displayAdultContent = query.options?.displayAdultContent ?: false
+        displayAdultContent = query.options?.displayAdultContent ?: false,
+        profileColor = query.options?.profileColor?.ifBlank { null }
     )
 
     constructor(mutation: ViewerMutation.UpdateUser) : this(
@@ -25,7 +27,8 @@ data class User(
         name = mutation.name,
         avatar = mutation.avatar.let(::Avatar),
         banner = mutation.bannerImage?.ifBlank { null },
-        displayAdultContent = mutation.options?.displayAdultContent ?: false
+        displayAdultContent = mutation.options?.displayAdultContent ?: false,
+        profileColor = mutation.options?.profileColor?.ifBlank { null }
     )
 
     @Serializable
