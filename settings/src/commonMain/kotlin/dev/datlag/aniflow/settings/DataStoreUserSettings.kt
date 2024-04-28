@@ -2,17 +2,28 @@ package dev.datlag.aniflow.settings
 
 import androidx.datastore.core.DataStore
 import dev.datlag.aniflow.settings.model.UserSettings
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.minutes
 
 class DataStoreUserSettings(
     private val dataStore: DataStore<UserSettings>
 ) : Settings.PlatformUserSettings {
     override val aniList: Flow<UserSettings.AniList> = dataStore.data.map { it.aniList }
-    override val aniListRefreshToken: Flow<String?> = aniList.map { it.refreshToken }
-    override val isAniListLoggedIn: Flow<Boolean> = aniList.map {
-        it.accessToken != null && Clock.System.now().epochSeconds < (it.expires ?: 0)
+    private val clockNow = flow {
+        do {
+            emit(Clock.System.now())
+            delay(1.minutes)
+        } while (currentCoroutineContext().isActive)
+    }
+    override val isAniListLoggedIn: Flow<Boolean> = combine(
+        aniList,
+        clockNow
+    ) { data, now ->
+        data.accessToken != null && now.epochSeconds < (data.expires ?: 0)
     }
 
     override suspend fun setAniListAccessToken(token: String) {
@@ -25,38 +36,14 @@ class DataStoreUserSettings(
         }
     }
 
-    override suspend fun setAniListRefreshToken(token: String) {
-        dataStore.updateData {
-            it.copy(
-                aniList = it.aniList.copy(
-                    refreshToken = token
-                )
-            )
-        }
-    }
-
-    override suspend fun setAniListIdToken(token: String) {
-        dataStore.updateData {
-            it.copy(
-                aniList = it.aniList.copy(
-                    idToken = token
-                )
-            )
-        }
-    }
-
     override suspend fun setAniListTokens(
         access: String,
-        refresh: String?,
-        id: String?,
         expires: Int?
     ) {
         dataStore.updateData {
             it.copy(
                 aniList = it.aniList.copy(
                     accessToken = access,
-                    refreshToken = refresh,
-                    idToken = id,
                     expires = expires
                 )
             )

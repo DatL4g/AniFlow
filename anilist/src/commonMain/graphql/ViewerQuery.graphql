@@ -1,0 +1,14 @@
+query ViewerQuery {
+    Viewer {
+        id,
+        name,
+        avatar {
+            medium,
+            large
+        },
+        bannerImage,
+        options {
+            displayAdultContent
+        }
+    }
+}

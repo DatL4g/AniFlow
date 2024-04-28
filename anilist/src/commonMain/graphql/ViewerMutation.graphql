@@ -1,0 +1,14 @@
+mutation ViewerMutation($adult: Boolean) {
+    UpdateUser(displayAdultContent: $adult) {
+        id,
+        name,
+        avatar {
+            medium,
+            large
+        },
+        bannerImage,
+        options {
+            displayAdultContent
+        }
+    }
+}

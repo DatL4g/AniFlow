@@ -22,7 +22,7 @@ import dev.datlag.aniflow.common.rated
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
-import dev.datlag.aniflow.other.TokenRefreshHandler
+import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
@@ -50,8 +50,8 @@ class MediumScreenComponent(
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
-    private val tokenRefreshHandler by di.instance<TokenRefreshHandler>()
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
+    private val userHelper by di.instance<UserHelper>()
 
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,
@@ -348,7 +348,6 @@ class MediumScreenComponent(
         initialValue = initialMedium.isFavoriteBlocked
     )
 
-    private val userSettings by di.instance<Settings.PlatformUserSettings>()
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
 
     override val bsAvailable: Boolean
@@ -394,26 +393,6 @@ class MediumScreenComponent(
         onBack()
     }
 
-    private suspend fun login(): Boolean {
-        val factory by di.instance<CodeAuthFlowFactory>()
-        val client by di.instance<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT)
-        val flow = withMainContext {
-            factory.createAuthFlow(client)
-        }
-
-        val tokenResult = suspendCatching {
-            flow.getAccessToken()
-        }
-
-        tokenResult.getOrNull()?.let {
-            tokenRefreshHandler.updateStoredToken(it)
-        }
-
-        return tokenResult.isSuccess.alsoTrue {
-            requestMediaListEntry()
-        }
-    }
-
     private suspend fun requestMediaListEntry() {
         val query = MediaListEntryQuery(
             id = Optional.present(mediaId.safeFirstOrNull() ?: mediaId.value)
@@ -429,15 +408,7 @@ class MediumScreenComponent(
 
     override fun rate(onLoggedIn: () -> Unit) {
         launchIO {
-            val isLoggedIn = userSettings.isAniListLoggedIn.safeFirstOrNull() ?: false
-
-            if (!isLoggedIn) {
-                if (login()) {
-                    withMainContext {
-                        onLoggedIn()
-                    }
-                }
-            } else {
+            if (userHelper.login()) {
                 val currentRating = rating.safeFirstOrNull() ?: rating.value
                 if (currentRating <= -1) {
                     requestMediaListEntry()

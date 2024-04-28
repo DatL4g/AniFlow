@@ -2,7 +2,9 @@ package dev.datlag.aniflow.ui.navigation.screen.initial.settings
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
+import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
@@ -16,6 +18,9 @@ class SettingsScreenComponent(
 ) : SettingsComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
+    private val userHelper by di.instance<UserHelper>()
+
+    override val user: Flow<User?> = userHelper.user.flowOn(ioDispatcher())
     override val adultContent: Flow<Boolean> = appSettings.adultContent.flowOn(ioDispatcher())
 
     @Composable
@@ -27,7 +32,7 @@ class SettingsScreenComponent(
 
     override fun changeAdultContent(value: Boolean) {
         launchIO {
-            appSettings.setAdultContent(value)
+            userHelper.updateAdultSetting(value)
         }
     }
 }

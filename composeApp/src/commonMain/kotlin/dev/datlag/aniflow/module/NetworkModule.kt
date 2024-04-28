@@ -25,11 +25,14 @@ import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
-import dev.datlag.aniflow.other.TokenRefreshHandler
+import dev.datlag.aniflow.model.safeFirstOrNull
+import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.Trace
 import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.tooling.async.suspendCatching
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.map
 import org.kodein.di.bindProvider
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 
@@ -62,8 +65,7 @@ data object NetworkModule {
                 .build()
         }
         bindSingleton<ApolloClient>(Constants.AniList.APOLLO_CLIENT) {
-            val oidc = instance<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT)
-            val tokenHandler = instance<TokenRefreshHandler>()
+            val userSettings = instance<Settings.PlatformUserSettings>()
 
             ApolloClient.Builder()
                 .dispatcher(ioDispatcher())
@@ -71,13 +73,9 @@ data object NetworkModule {
                 .addHttpInterceptor(object : HttpInterceptor {
                     override suspend fun intercept(request: HttpRequest, chain: HttpInterceptorChain): HttpResponse {
                         val req = request.newBuilder().apply {
-                            val refreshedToken = tokenHandler.getAccessToken()?.let {
-                                suspendCatching {
-                                    tokenHandler.refreshAndSaveToken(oidc, it).accessToken
-                                }.getOrNull() ?: it
-                            }
+                            val token = userSettings.aniList.map { it.accessToken }.safeFirstOrNull()
 
-                            refreshedToken?.let {
+                            token?.let {
                                 addHeader("Authorization", "Bearer $it")
                             }
                         }.build()
@@ -133,8 +131,14 @@ data object NetworkModule {
                 redirectUri = Constants.AniList.Auth.REDIRECT_URL
             }
         }
-        bindSingleton<TokenRefreshHandler> {
-            TokenRefreshHandler(instance())
+        bindSingleton<UserHelper> {
+            UserHelper(
+                userSettings = instance(),
+                appSettings = instance(),
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                authFlowFactory = instance(),
+                oidc = instance(Constants.AniList.Auth.CLIENT)
+            )
         }
         bindSingleton<Ktorfit.Builder> {
             ktorfitBuilder {
