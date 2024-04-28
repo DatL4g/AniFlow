@@ -24,18 +24,34 @@ class UserHelper(
 ) {
 
     val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.distinctUntilChanged()
-    val user: Flow<User?> = isLoggedIn.transform { loggedIn ->
+
+    private val changedUser: MutableStateFlow<User?> = MutableStateFlow(null)
+    private val userQuery = client.query(ViewerQuery()).toFlow()
+    private val defaultUser = isLoggedIn.transform { loggedIn ->
         if (loggedIn) {
             emitAll(
-                client.query(ViewerQuery()).toFlow().map {
-                    it.data?.Viewer?.let(::User)?.also { user ->
-                        appSettings.setAdultContent(user.displayAdultContent)
-                    }
+                userQuery.map {
+                    it.data?.Viewer?.let(::User)
                 }
             )
         } else {
             emit(null)
         }
+    }
+    private val latestUser = defaultUser.transform { default ->
+        emit(default)
+        emitAll(changedUser.filterNotNull().map { changed ->
+            changedUser.update { null }
+            changed
+        })
+    }
+
+    val user = latestUser.transform { user ->
+        emit(
+            user?.also {
+                appSettings.setAdultContent(it.displayAdultContent)
+            }
+        )
     }
 
     suspend fun login(): Boolean {
@@ -60,11 +76,13 @@ class UserHelper(
 
     suspend fun updateAdultSetting(value: Boolean) {
         appSettings.setAdultContent(value)
-        client.mutation(
-            ViewerMutation(
-                adult = Optional.present(value)
-            )
-        ).execute()
+        changedUser.emit(
+            client.mutation(
+                ViewerMutation(
+                    adult = Optional.present(value)
+                )
+            ).execute().data?.UpdateUser?.let(::User)
+        )
     }
 
     private suspend fun updateStoredToken(tokenResponse: AccessTokenResponse) {

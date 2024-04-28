@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.anilist.model
 
+import dev.datlag.aniflow.anilist.ViewerMutation
 import dev.datlag.aniflow.anilist.ViewerQuery
 import kotlinx.serialization.Serializable
 
@@ -19,6 +20,14 @@ data class User(
         displayAdultContent = query.options?.displayAdultContent ?: false
     )
 
+    constructor(mutation: ViewerMutation.UpdateUser) : this(
+        id = mutation.id,
+        name = mutation.name,
+        avatar = mutation.avatar.let(::Avatar),
+        banner = mutation.bannerImage?.ifBlank { null },
+        displayAdultContent = mutation.options?.displayAdultContent ?: false
+    )
+
     @Serializable
     data class Avatar(
         val medium: String? = null,
@@ -27,6 +36,11 @@ data class User(
         constructor(query: ViewerQuery.Avatar?) : this(
             medium = query?.medium?.ifBlank { null },
             large = query?.large?.ifBlank { null }
+        )
+
+        constructor(mutation: ViewerMutation.Avatar?) : this(
+            medium = mutation?.medium?.ifBlank { null },
+            large = mutation?.large?.ifBlank { null }
         )
     }
 }
