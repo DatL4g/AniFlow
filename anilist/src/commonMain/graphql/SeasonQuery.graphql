@@ -86,7 +86,8 @@ query SeasonQuery(
                 id,
                 site,
                 thumbnail
-            }
+            },
+            siteUrl
         }
     }
 }

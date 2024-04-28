@@ -1,18 +1,17 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -33,6 +33,9 @@ import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.ui.custom.shareHandler
+import dev.datlag.tooling.compose.ifFalse
+import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
@@ -49,6 +52,8 @@ fun CollapsingToolbar(
     titleFlow: StateFlow<Medium.Title>,
     isFavoriteFlow: StateFlow<Boolean>,
     isFavoriteBlockedFlow: StateFlow<Boolean>,
+    siteUrlFlow: StateFlow<String>,
+    showShare: Boolean,
     onBack: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
@@ -146,37 +151,60 @@ fun CollapsingToolbar(
                 }
             },
             actions = {
-                val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
-
-                AnimatedVisibility(
-                    visible = mediumState.isSuccess,
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                Row(
+                    modifier = Modifier
+                        .animateContentSize()
+                        .ifFalse(isCollapsed) {
+                            background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
+                        },
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
-                    val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
-                    var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
+                    val siteUrl by siteUrlFlow.collectAsStateWithLifecycle()
+                    val shareHandler = shareHandler()
 
-                    IconButton(
-                        modifier = if (isCollapsed) {
-                            Modifier
-                        } else {
-                            Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
-                        },
-                        onClick = {
-                            favoriteChanged = !(favoriteChanged ?: isFavorite)
-                            onToggleFavorite()
-                        },
-                        enabled = !isFavoriteBlocked
+                    AnimatedVisibility(
+                        visible = mediumState.isSuccess,
+                        enter = fadeIn(),
+                        exit = fadeOut()
                     ) {
-                        Icon(
-                            imageVector = if (favoriteChanged ?: isFavorite) {
-                                Icons.Default.Favorite
-                            } else {
-                                Icons.Default.FavoriteBorder
+                        val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
+                        val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
+                        var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+
+                        IconButton(
+                            onClick = {
+                                favoriteChanged = !(favoriteChanged ?: isFavorite)
+                                onToggleFavorite()
                             },
-                            contentDescription = null
-                        )
+                            enabled = !isFavoriteBlocked
+                        ) {
+                            Icon(
+                                imageVector = if (favoriteChanged ?: isFavorite) {
+                                    Icons.Default.Favorite
+                                } else {
+                                    Icons.Default.FavoriteBorder
+                                },
+                                contentDescription = null
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = showShare,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        IconButton(
+                            onClick = {
+                                shareHandler.share(siteUrl)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             },

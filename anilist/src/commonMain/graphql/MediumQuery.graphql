@@ -74,6 +74,7 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
             id,
             site,
             thumbnail
-        }
+        },
+        siteUrl
     }
 }

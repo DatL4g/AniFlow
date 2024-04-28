@@ -89,7 +89,8 @@ query TrendingQuery(
                 id,
                 site,
                 thumbnail
-            }
+            },
+            siteUrl
         }
     }
 }

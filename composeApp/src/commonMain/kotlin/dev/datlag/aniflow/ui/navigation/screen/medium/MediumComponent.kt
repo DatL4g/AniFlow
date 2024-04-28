@@ -42,6 +42,7 @@ interface MediumComponent : ContentHolderComponent {
     val trailer: StateFlow<Medium.Trailer?>
     val isFavorite: StateFlow<Boolean>
     val isFavoriteBlocked: StateFlow<Boolean>
+    val siteUrl: StateFlow<String>
 
     val bsAvailable: Boolean
 

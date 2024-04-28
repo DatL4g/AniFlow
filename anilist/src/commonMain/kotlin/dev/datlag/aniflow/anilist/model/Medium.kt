@@ -45,7 +45,8 @@ data class Medium(
     val entry: Entry? = null,
     val trailer: Trailer? = null,
     val isFavorite: Boolean = false,
-    private val _isFavoriteBlocked: Boolean = true
+    private val _isFavoriteBlocked: Boolean = true,
+    val siteUrl: String = "$SITE_URL$id"
 ) {
     constructor(trending: TrendingQuery.Medium) : this(
         id = trending.id,
@@ -92,7 +93,8 @@ data class Medium(
             }
         },
         isFavorite = trending.isFavourite,
-        _isFavoriteBlocked = trending.isFavouriteBlocked
+        _isFavoriteBlocked = trending.isFavouriteBlocked,
+        siteUrl = trending.siteUrl?.ifBlank { null } ?: "$SITE_URL${trending.id}"
     )
 
     constructor(airing: AiringQuery.Media) : this(
@@ -140,7 +142,8 @@ data class Medium(
             }
         },
         isFavorite = airing.isFavourite,
-        _isFavoriteBlocked = airing.isFavouriteBlocked
+        _isFavoriteBlocked = airing.isFavouriteBlocked,
+        siteUrl = airing.siteUrl?.ifBlank { null } ?: "$SITE_URL${airing.id}"
     )
 
     constructor(season: SeasonQuery.Medium) : this(
@@ -188,7 +191,8 @@ data class Medium(
             }
         },
         isFavorite = season.isFavourite,
-        _isFavoriteBlocked = season.isFavouriteBlocked
+        _isFavoriteBlocked = season.isFavouriteBlocked,
+        siteUrl = season.siteUrl?.ifBlank { null } ?: "$SITE_URL${season.id}"
     )
 
     constructor(query: MediumQuery.Media) : this(
@@ -236,7 +240,8 @@ data class Medium(
             }
         },
         isFavorite = query.isFavourite,
-        _isFavoriteBlocked = query.isFavouriteBlocked
+        _isFavoriteBlocked = query.isFavouriteBlocked,
+        siteUrl = query.siteUrl?.ifBlank { null } ?: "$SITE_URL${query.id}"
     )
 
     @Transient
@@ -462,5 +467,9 @@ data class Medium(
             episodes = nextAiringEpisode.episode,
             airingAt = nextAiringEpisode.airingAt
         )
+    }
+
+    companion object {
+        private const val SITE_URL = "https://anilist.co/"
     }
 }

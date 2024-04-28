@@ -94,6 +94,8 @@ fun MediumScreen(component: MediumComponent) {
                     titleFlow = component.title,
                     isFavoriteFlow = component.isFavorite,
                     isFavoriteBlockedFlow = component.isFavoriteBlocked,
+                    siteUrlFlow = component.siteUrl,
+                    showShare = listState.isScrollingUp(),
                     onBack = { component.back() },
                     onToggleFavorite = { component.toggleFavorite() }
                 )

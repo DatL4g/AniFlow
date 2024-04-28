@@ -348,6 +348,16 @@ class MediumScreenComponent(
         initialValue = initialMedium.isFavoriteBlocked
     )
 
+    override val siteUrl: StateFlow<String> = mediumSuccessState.mapNotNull {
+        it?.data?.siteUrl
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = initialMedium.siteUrl
+    )
+
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
 
     override val bsAvailable: Boolean

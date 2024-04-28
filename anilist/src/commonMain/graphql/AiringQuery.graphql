@@ -86,7 +86,8 @@ query AiringQuery(
                     id,
                     site,
                     thumbnail
-                }
+                },
+                siteUrl
             }
         }
     }
