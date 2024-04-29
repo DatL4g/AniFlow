@@ -15,6 +15,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.common.htmlToAnnotatedString
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.common.toComposeColor
 import dev.datlag.aniflow.common.toComposeString
@@ -85,6 +87,12 @@ fun SettingsScreen(component: SettingsComponent) {
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
+                    u.description?.let {
+                        Text(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = it.htmlToAnnotatedString()
+                        )
+                    }
                 }
             } ?: Text(
                 modifier = Modifier.padding(bottom = 8.dp),
@@ -127,7 +135,7 @@ fun SettingsScreen(component: SettingsComponent) {
         item {
             val selectedColor by component.selectedColor.collectAsStateWithLifecycle(null)
             val useCase = rememberUseCaseState()
-            val colors = AppSettings.Color.all.toList()
+            val colors = remember { AppSettings.Color.all.toList() }
 
             OptionDialog(
                 state = useCase,
@@ -138,6 +146,7 @@ fun SettingsScreen(component: SettingsComponent) {
                                 imageVector = Icons.Filled.Circle,
                                 tint = it.toComposeColor()
                             ),
+                            selected = it == selectedColor,
                             titleText = stringResource(it.toComposeString())
                         )
                     },

@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 data class User(
     val id: Int,
     val name: String,
+    val description: String? = null,
     val avatar: Avatar = Avatar(),
     val banner: String? = null,
     val displayAdultContent: Boolean = false,
@@ -16,6 +17,7 @@ data class User(
     constructor(query: ViewerQuery.Viewer) : this(
         id = query.id,
         name = query.name,
+        description = query.about?.ifBlank { null },
         avatar = query.avatar.let(::Avatar),
         banner = query.bannerImage?.ifBlank { null },
         displayAdultContent = query.options?.displayAdultContent ?: false,
@@ -25,6 +27,7 @@ data class User(
     constructor(mutation: ViewerMutation.UpdateUser) : this(
         id = mutation.id,
         name = mutation.name,
+        description = mutation.about?.ifBlank { null },
         avatar = mutation.avatar.let(::Avatar),
         banner = mutation.bannerImage?.ifBlank { null },
         displayAdultContent = mutation.options?.displayAdultContent ?: false,

@@ -1,7 +1,8 @@
-mutation ViewerMutation($adult: Boolean, $color: String) {
+mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean) {
     UpdateUser(displayAdultContent: $adult, profileColor: $color) {
         id,
         name,
+        about(asHtml: $html),
         avatar {
             medium,
             large

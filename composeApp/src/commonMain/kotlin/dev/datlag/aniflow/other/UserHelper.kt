@@ -27,7 +27,11 @@ class UserHelper(
     val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.distinctUntilChanged()
 
     private val changedUser: MutableStateFlow<User?> = MutableStateFlow(null)
-    private val userQuery = client.query(ViewerQuery()).toFlow()
+    private val userQuery = client.query(
+        ViewerQuery(
+            html = Optional.present(true)
+        )
+    ).toFlow()
     private val defaultUser = isLoggedIn.transform { loggedIn ->
         if (loggedIn) {
             emitAll(
@@ -83,7 +87,8 @@ class UserHelper(
         changedUser.emit(
             client.mutation(
                 ViewerMutation(
-                    adult = Optional.present(value)
+                    adult = Optional.present(value),
+                    html = Optional.present(true)
                 )
             ).execute().data?.UpdateUser?.let(::User)
         )
@@ -96,7 +101,8 @@ class UserHelper(
             changedUser.emit(
                 client.mutation(
                     ViewerMutation(
-                        color = Optional.present(value.label)
+                        color = Optional.present(value.label),
+                        html = Optional.present(true)
                     )
                 ).execute().data?.UpdateUser?.let(::User)
             )

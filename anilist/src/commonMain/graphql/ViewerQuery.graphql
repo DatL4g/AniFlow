@@ -1,7 +1,8 @@
-query ViewerQuery {
+query ViewerQuery($html: Boolean) {
     Viewer {
         id,
         name,
+        about(asHtml: $html),
         avatar {
             medium,
             large
