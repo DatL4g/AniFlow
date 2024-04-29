@@ -41,7 +41,7 @@ import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MediumScreen(component: MediumComponent) {
-    val coverImage by component.coverImage.collectAsStateWithLifecycle()
+    val coverImage by component.coverImage.collectAsStateWithLifecycle(component.initialMedium.coverImage)
     val dialogState by component.dialog.subscribeAsState()
 
     dialogState.child?.instance?.render()
@@ -64,6 +64,7 @@ fun MediumScreen(component: MediumComponent) {
                 CollapsingToolbar(
                     state = appBarState,
                     scrollBehavior = scrollState,
+                    initialMedium = component.initialMedium,
                     mediumStateFlow = component.mediumState,
                     bannerImageFlow = component.bannerImage,
                     coverImage = coverImage,
@@ -72,16 +73,19 @@ fun MediumScreen(component: MediumComponent) {
                     isFavoriteBlockedFlow = component.isFavoriteBlocked,
                     siteUrlFlow = component.siteUrl,
                     showShare = listState.isScrollingUp(),
+                    initialState = { component.initialState },
                     onBack = { component.back() },
                     onToggleFavorite = { component.toggleFavorite() }
                 )
             },
             floatingActionButton = {
-                val userRating by component.rating.collectAsStateWithLifecycle()
+                val userRating by component.rating.collectAsStateWithLifecycle(-1)
                 val ratingState = rememberUseCaseState()
 
-                val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle()
-                val notReleased by component.status.mapCollect {
+                val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle(
+                    component.initialMedium.entry != null
+                )
+                val notReleased by component.status.mapCollect(component.initialMedium.status) {
                     it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
                 }
 
@@ -138,6 +142,7 @@ fun MediumScreen(component: MediumComponent) {
                     item {
                         CoverSection(
                             coverImage = coverImage,
+                            initialMedium = component.initialMedium,
                             formatFlow = component.format,
                             episodesFlow = component.episodes,
                             durationFlow = component.duration,
@@ -147,6 +152,7 @@ fun MediumScreen(component: MediumComponent) {
                     }
                     item {
                         RatingSection(
+                            initialMedium = component.initialMedium,
                             ratedFlow = component.rated,
                             popularFlow = component.popular,
                             scoreFlow = component.score,
@@ -155,12 +161,14 @@ fun MediumScreen(component: MediumComponent) {
                     }
                     item {
                         GenreSection(
+                            initialMedium = component.initialMedium,
                             genreFlow = component.genres,
                             modifier = Modifier.fillParentMaxWidth()
                         )
                     }
                     item {
                         DescriptionSection(
+                            initialMedium = component.initialMedium,
                             descriptionFlow = component.description,
                             translatedDescriptionFlow = component.translatedDescription,
                             modifier = Modifier.fillParentMaxWidth()
@@ -170,6 +178,7 @@ fun MediumScreen(component: MediumComponent) {
                     }
                     item {
                         CharacterSection(
+                            initialMedium = component.initialMedium,
                             characterFlow = component.characters,
                             modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
                         ) { char ->
@@ -178,6 +187,7 @@ fun MediumScreen(component: MediumComponent) {
                     }
                     item {
                         TrailerSection(
+                            initialMedium = component.initialMedium,
                             trailerFlow = component.trailer,
                             modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
                         )
@@ -187,6 +197,7 @@ fun MediumScreen(component: MediumComponent) {
         }
 
         AdultSection(
+            initialMedium = component.initialMedium,
             isAdultContentFlow = component.isAdult,
             isAdultContentAllowedFlow = component.isAdultAllowed,
             onBack = component::back

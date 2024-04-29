@@ -37,6 +37,7 @@ import dev.datlag.aniflow.ui.custom.shareHandler
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
 import kotlin.math.min
@@ -46,21 +47,23 @@ import kotlin.math.min
 fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
-    mediumStateFlow: StateFlow<MediumStateMachine.State>,
-    bannerImageFlow: StateFlow<String?>,
+    initialMedium: Medium,
+    mediumStateFlow: Flow<MediumStateMachine.State>,
+    bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
-    titleFlow: StateFlow<Medium.Title>,
-    isFavoriteFlow: StateFlow<Boolean>,
-    isFavoriteBlockedFlow: StateFlow<Boolean>,
-    siteUrlFlow: StateFlow<String>,
+    titleFlow: Flow<Medium.Title>,
+    isFavoriteFlow: Flow<Boolean>,
+    isFavoriteBlockedFlow: Flow<Boolean>,
+    siteUrlFlow: Flow<String>,
     showShare: Boolean,
+    initialState: () -> MediumStateMachine.State,
     onBack: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val bannerImage by bannerImageFlow.collectAsStateWithLifecycle()
+        val bannerImage by bannerImageFlow.collectAsStateWithLifecycle(initialMedium.bannerImage)
         val isCollapsed by remember(state) {
             derivedStateOf { state.collapsedFraction >= 0.99F }
         }
@@ -106,7 +109,7 @@ fun CollapsingToolbar(
                 }
             },
             title = {
-                val title by titleFlow.collectAsStateWithLifecycle()
+                val title by titleFlow.collectAsStateWithLifecycle(initialMedium.title)
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -160,8 +163,8 @@ fun CollapsingToolbar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
-                    val siteUrl by siteUrlFlow.collectAsStateWithLifecycle()
+                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle(initialState())
+                    val siteUrl by siteUrlFlow.collectAsStateWithLifecycle(initialMedium.siteUrl)
                     val shareHandler = shareHandler()
 
                     AnimatedVisibility(
@@ -169,8 +172,8 @@ fun CollapsingToolbar(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle()
-                        val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle()
+                        val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle(initialMedium.isFavoriteBlocked)
+                        val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle(initialMedium.isFavorite)
                         var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
                         IconButton(

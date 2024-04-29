@@ -25,15 +25,17 @@ import dev.datlag.aniflow.common.text
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun CoverSection(
     coverImage: Medium.CoverImage,
-    formatFlow: StateFlow<MediaFormat>,
-    episodesFlow: StateFlow<Int>,
-    durationFlow: StateFlow<Int>,
-    statusFlow: StateFlow<MediaStatus>,
+    initialMedium: Medium,
+    formatFlow: Flow<MediaFormat>,
+    episodesFlow: Flow<Int>,
+    durationFlow: Flow<Int>,
+    statusFlow: Flow<MediaStatus>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -82,10 +84,10 @@ fun CoverSection(
             modifier = Modifier.weight(1F).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
         ) {
-            val format by formatFlow.collectAsStateWithLifecycle()
-            val episodes by episodesFlow.collectAsStateWithLifecycle()
-            val duration by durationFlow.collectAsStateWithLifecycle()
-            val status by statusFlow.collectAsStateWithLifecycle()
+            val format by formatFlow.collectAsStateWithLifecycle(initialMedium.format)
+            val episodes by episodesFlow.collectAsStateWithLifecycle(initialMedium.episodes)
+            val duration by durationFlow.collectAsStateWithLifecycle(initialMedium.avgEpisodeDurationInMin)
+            val status by statusFlow.collectAsStateWithLifecycle(initialMedium.status)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

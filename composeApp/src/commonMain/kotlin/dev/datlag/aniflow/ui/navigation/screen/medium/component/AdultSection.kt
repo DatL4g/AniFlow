@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,11 +25,12 @@ import dev.icerock.moko.resources.compose.stringResource
 
 @Composable
 fun AdultSection(
-    isAdultContentFlow: StateFlow<Boolean>,
+    initialMedium: Medium,
+    isAdultContentFlow: Flow<Boolean>,
     isAdultContentAllowedFlow: Flow<Boolean>,
     onBack: () -> Unit
 ) {
-    val isAdult by isAdultContentFlow.collectAsStateWithLifecycle()
+    val isAdult by isAdultContentFlow.collectAsStateWithLifecycle(initialMedium.isAdult)
     val isAdultAllowed by isAdultContentAllowedFlow.collectAsStateWithLifecycle(false)
     val hideContent = remember(isAdult, isAdultAllowed) { isAdult && !isAdultAllowed }
 

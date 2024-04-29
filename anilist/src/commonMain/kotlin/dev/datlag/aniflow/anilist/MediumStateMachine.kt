@@ -62,8 +62,8 @@ class MediumStateMachine(
             }
             inState<State.Success> {
                 onEnterEffect {
-                    Cache.setMedium(it.query, it.data)
                     currentState = it
+                    Cache.setMedium(it.query, it.data)
                 }
             }
             inState<State.Error> {

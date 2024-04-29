@@ -12,17 +12,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Character
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun CharacterSection(
-    characterFlow: StateFlow<Collection<Character>>,
+    initialMedium: Medium,
+    characterFlow: Flow<Collection<Character>>,
     modifier: Modifier = Modifier,
     onClick: (Character) -> Unit
 ) {
-    val characters by characterFlow.collectAsStateWithLifecycle()
+    val characters by characterFlow.collectAsStateWithLifecycle(initialMedium.characters)
 
     if (characters.isNotEmpty()) {
         Column(

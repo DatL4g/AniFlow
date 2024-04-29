@@ -62,119 +62,84 @@ class MediumScreenComponent(
 
     override val mediumState = mediumStateMachine.state.flowOn(
         context = ioDispatcher()
-    ).stateIn(
+    ).shareIn(
         scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = mediumStateMachine.currentState
+        started = SharingStarted.WhileSubscribed()
     )
+
+    override val initialState: MediumStateMachine.State
+        get() = mediumStateMachine.currentState
 
     private val mediumSuccessState = mediumState.mapNotNull {
         it.safeCast<MediumStateMachine.State.Success>()
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
+    ).shareIn(
         scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = null
+        started = SharingStarted.WhileSubscribed()
     )
 
-    override val isAdult: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
-        it?.data?.isAdult
+    override val isAdult: Flow<Boolean> = mediumSuccessState.mapNotNull {
+        it.data.isAdult
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.isAdult
     )
 
     override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
-    private val type: StateFlow<MediaType> = mediumSuccessState.mapNotNull {
-        it?.data?.type
+    private val type: Flow<MediaType> = mediumSuccessState.mapNotNull {
+        it.data.type
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.type
     )
 
-    override val bannerImage: StateFlow<String?> = mediumSuccessState.mapNotNull {
-        it?.data?.bannerImage
+    override val bannerImage: Flow<String?> = mediumSuccessState.mapNotNull {
+        it.data.bannerImage
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.bannerImage
     )
 
-    override val coverImage: StateFlow<Medium.CoverImage> = mediumSuccessState.mapNotNull {
-        it?.data?.coverImage
+    override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.mapNotNull {
+        it.data.coverImage
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.coverImage
     )
 
-    override val title: StateFlow<Medium.Title> = mediumSuccessState.mapNotNull {
-        it?.data?.title
+    override val title: Flow<Medium.Title> = mediumSuccessState.mapNotNull {
+        it.data.title
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.title
     )
 
-    override val description: StateFlow<String?> = mediumSuccessState.map {
-        it?.data?.description?.ifBlank { null }
+    override val description: Flow<String?> = mediumSuccessState.map {
+        it.data.description?.ifBlank { null }
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.description
     )
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    override val genres: StateFlow<Set<String>> = mediumSuccessState.mapNotNull {
-        it?.data?.genres?.ifEmpty { null }
+    override val genres: Flow<Set<String>> = mediumSuccessState.mapNotNull {
+        it.data.genres.ifEmpty { null }
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.genres
     )
 
-    override val format: StateFlow<MediaFormat> = mediumSuccessState.mapNotNull {
-        it?.data?.format
+    override val format: Flow<MediaFormat> = mediumSuccessState.mapNotNull {
+        it.data.format
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.format
     )
 
-    private val nextAiringEpisode: StateFlow<Medium.NextAiring?> = mediumSuccessState.mapNotNull {
-        it?.data?.nextAiringEpisode
+    private val nextAiringEpisode: Flow<Medium.NextAiring?> = mediumSuccessState.mapNotNull {
+        it.data.nextAiringEpisode
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.nextAiringEpisode
     )
 
-    override val episodes: StateFlow<Int> = combine(
+    override val episodes: Flow<Int> = combine(
         mediumSuccessState.map {
-            it?.data?.episodes
+            it.data.episodes
         },
         nextAiringEpisode
     ) { episodes, airing ->
@@ -191,107 +156,54 @@ class MediumScreenComponent(
         }
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = run {
-            val airing = nextAiringEpisode.value ?: return@run -1
-
-            if (Instant.fromEpochSeconds(airing.airingAt.toLong()) <= Clock.System.now()) {
-                airing.episodes
-            } else {
-                airing.episodes - 1
-            }
-        }
     )
 
-    override val duration: StateFlow<Int> = mediumSuccessState.mapNotNull {
-        it?.data?.avgEpisodeDurationInMin
+    override val duration: Flow<Int> = mediumSuccessState.mapNotNull {
+        it.data.avgEpisodeDurationInMin
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.avgEpisodeDurationInMin
     )
 
-    override val status: StateFlow<MediaStatus> = mediumSuccessState.mapNotNull {
-        it?.data?.status
+    override val status: Flow<MediaStatus> = mediumSuccessState.mapNotNull {
+        it.data.status
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.status
     )
 
-    override val rated: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
-        it?.data?.rated()
+    override val rated: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
+        it.data.rated()
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.rated()
     )
 
-    override val popular: StateFlow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
-        it?.data?.popular()
+    override val popular: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
+        it.data.popular()
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.popular()
     )
 
-    override val score: StateFlow<Int?> = mediumSuccessState.mapNotNull {
-        val received = it?.data?.averageScore
-        if (received == null || received == -1) {
-            null
-        } else {
-            received
-        }
+    override val score: Flow<Int?> = mediumSuccessState.mapNotNull {
+        it.data.averageScore.ifValue(-1) { return@mapNotNull null }
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = run {
-            val initial = initialMedium.averageScore
-
-            if (initial == -1) {
-                null
-            } else {
-                initial
-            }
-        }
     )
 
-    override val characters: StateFlow<Set<Character>> = mediumSuccessState.mapNotNull {
-        it?.data?.characters
+    override val characters: Flow<Set<Character>> = mediumSuccessState.mapNotNull {
+        it.data.characters
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = emptySet()
     )
 
-    private val mediaId: StateFlow<Int> = mediumSuccessState.mapNotNull {
-        it?.data?.id
+    private val mediaId: Flow<Int> = mediumSuccessState.mapNotNull {
+        it.data.id
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.id
     )
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
-    override val rating: StateFlow<Int> = combine(
+    override val rating: Flow<Int> = combine(
         mediumSuccessState.map {
-            it?.data?.entry?.score?.toInt()
+            it.data.entry?.score?.toInt()
         }.flowOn(ioDispatcher()),
         changedRating
     ) { t1, t2 ->
@@ -302,60 +214,36 @@ class MediumScreenComponent(
         }
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = changedRating.value
     )
 
-    override val trailer: StateFlow<Medium.Trailer?> = mediumSuccessState.mapNotNull {
-        it?.data?.trailer
+    override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.mapNotNull {
+        it.data.trailer
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.trailer
     )
 
-    override val alreadyAdded: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
-        it?.data?.entry != null
+    override val alreadyAdded: Flow<Boolean> = mediumSuccessState.mapNotNull {
+        it.data.entry != null
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.entry != null
     )
 
-    override val isFavorite: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
-        it?.data?.isFavorite
+    override val isFavorite: Flow<Boolean> = mediumSuccessState.mapNotNull {
+        it.data.isFavorite
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.isFavorite
     )
 
-    override val isFavoriteBlocked: StateFlow<Boolean> = mediumSuccessState.mapNotNull {
-        it?.data?.isFavoriteBlocked
+    override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.mapNotNull {
+        it.data.isFavoriteBlocked
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.isFavoriteBlocked
     )
 
-    override val siteUrl: StateFlow<String> = mediumSuccessState.mapNotNull {
-        it?.data?.siteUrl
+    override val siteUrl: Flow<String> = mediumSuccessState.mapNotNull {
+        it.data.siteUrl
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialMedium.siteUrl
     )
 
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
@@ -405,7 +293,7 @@ class MediumScreenComponent(
 
     private suspend fun requestMediaListEntry() {
         val query = MediaListEntryQuery(
-            id = Optional.present(mediaId.safeFirstOrNull() ?: mediaId.value)
+            id = Optional.present(initialMedium.id)
         )
         val execution = CatchResult.timeout(5.seconds) {
             aniListClient.query(query).execute()
@@ -419,7 +307,7 @@ class MediumScreenComponent(
     override fun rate(onLoggedIn: () -> Unit) {
         launchIO {
             if (userHelper.login()) {
-                val currentRating = rating.safeFirstOrNull() ?: rating.value
+                val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
                 if (currentRating <= -1) {
                     requestMediaListEntry()
                 }
@@ -433,7 +321,7 @@ class MediumScreenComponent(
 
     override fun rate(value: Int) {
         val mutation = RatingMutation(
-            mediaId = Optional.present(mediaId.value),
+            mediaId = Optional.present(initialMedium.id),
             rating = Optional.present(value * 20)
         )
         launchIO {
@@ -453,12 +341,12 @@ class MediumScreenComponent(
 
     override fun toggleFavorite() {
         launchIO {
-            val mediaType = type.safeFirstOrNull() ?: type.value
+            val mediaType = type.safeFirstOrNull() ?: initialMedium.type
             if (mediaType == MediaType.UNKNOWN__) {
                 return@launchIO
             }
 
-            val id = mediaId.safeFirstOrNull() ?: mediaId.value
+            val id = initialMedium.id
             val mutation = FavoriteToggleMutation(
                 animeId = if (mediaType == MediaType.ANIME) {
                     Optional.present(id)

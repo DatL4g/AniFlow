@@ -19,14 +19,16 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun TrailerSection(
-    trailerFlow: StateFlow<Medium.Trailer?>,
+    initialMedium: Medium,
+    trailerFlow: Flow<Medium.Trailer?>,
     modifier: Modifier = Modifier
 ) {
-    val trailer by trailerFlow.collectAsStateWithLifecycle()
+    val trailer by trailerFlow.collectAsStateWithLifecycle(initialMedium.trailer)
 
     if (trailer != null) {
         Column(

@@ -11,15 +11,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.common.popular
+import dev.datlag.aniflow.common.rated
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun RatingSection(
-    ratedFlow: StateFlow<Medium.Ranking?>,
-    popularFlow: StateFlow<Medium.Ranking?>,
-    scoreFlow: StateFlow<Int?>,
+    initialMedium: Medium,
+    ratedFlow: Flow<Medium.Ranking?>,
+    popularFlow: Flow<Medium.Ranking?>,
+    scoreFlow: Flow<Int?>,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -27,9 +31,9 @@ fun RatingSection(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        val rated by ratedFlow.collectAsStateWithLifecycle()
-        val popular by popularFlow.collectAsStateWithLifecycle()
-        val score by scoreFlow.collectAsStateWithLifecycle()
+        val rated by ratedFlow.collectAsStateWithLifecycle(initialMedium.rated())
+        val popular by popularFlow.collectAsStateWithLifecycle(initialMedium.popular())
+        val score by scoreFlow.collectAsStateWithLifecycle(initialMedium.averageScore)
 
         rated?.let {
             Column(

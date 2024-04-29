@@ -8,6 +8,7 @@ import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.decompose.lifecycle.LocalLifecycleOwner
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
@@ -56,5 +57,14 @@ fun <T, R> StateFlow<T>.mapCollect(transform: (value: T) -> R): State<R> {
         this.map(transform)
     }.collectAsStateWithLifecycle(
         initialValue = transform(this.value)
+    )
+}
+
+@Composable
+fun <T, R> Flow<T>.mapCollect(defaultValue: T, transform: (value: T) -> R): State<R> {
+    return remember(this) {
+        this.map(transform)
+    }.collectAsStateWithLifecycle(
+        initialValue = transform(defaultValue)
     )
 }

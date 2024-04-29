@@ -16,21 +16,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.htmlToAnnotatedString
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
 
 @Composable
 fun DescriptionSection(
-    descriptionFlow: StateFlow<String?>,
+    initialMedium: Medium,
+    descriptionFlow: Flow<String?>,
     translatedDescriptionFlow: StateFlow<String?>,
     modifier: Modifier = Modifier,
     onTranslation: (String?) -> Unit
 ) {
-    val description by descriptionFlow.collectAsStateWithLifecycle()
+    val description by descriptionFlow.collectAsStateWithLifecycle(initialMedium.description)
 
     if (!description.isNullOrBlank()) {
         Column(

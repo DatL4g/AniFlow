@@ -15,34 +15,35 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
+    val initialState: MediumStateMachine.State
 
-    val mediumState: StateFlow<MediumStateMachine.State>
-    val isAdult: StateFlow<Boolean>
+    val mediumState: Flow<MediumStateMachine.State>
+    val isAdult: Flow<Boolean>
     val isAdultAllowed: Flow<Boolean>
 
-    val bannerImage: StateFlow<String?>
-    val coverImage: StateFlow<Medium.CoverImage>
-    val title: StateFlow<Medium.Title>
-    val description: StateFlow<String?>
+    val bannerImage: Flow<String?>
+    val coverImage: Flow<Medium.CoverImage>
+    val title: Flow<Medium.Title>
+    val description: Flow<String?>
     val translatedDescription: StateFlow<String?>
-    val genres: StateFlow<Set<String>>
+    val genres: Flow<Set<String>>
 
-    val format: StateFlow<MediaFormat>
-    val episodes: StateFlow<Int>
-    val duration: StateFlow<Int>
-    val status: StateFlow<MediaStatus>
+    val format: Flow<MediaFormat>
+    val episodes: Flow<Int>
+    val duration: Flow<Int>
+    val status: Flow<MediaStatus>
 
-    val rated: StateFlow<Medium.Ranking?>
-    val popular: StateFlow<Medium.Ranking?>
-    val score: StateFlow<Int?>
+    val rated: Flow<Medium.Ranking?>
+    val popular: Flow<Medium.Ranking?>
+    val score: Flow<Int?>
 
-    val characters: StateFlow<Set<Character>>
-    val rating: StateFlow<Int>
-    val alreadyAdded: StateFlow<Boolean>
-    val trailer: StateFlow<Medium.Trailer?>
-    val isFavorite: StateFlow<Boolean>
-    val isFavoriteBlocked: StateFlow<Boolean>
-    val siteUrl: StateFlow<String>
+    val characters: Flow<Set<Character>>
+    val rating: Flow<Int>
+    val alreadyAdded: Flow<Boolean>
+    val trailer: Flow<Medium.Trailer?>
+    val isFavorite: Flow<Boolean>
+    val isFavoriteBlocked: Flow<Boolean>
+    val siteUrl: Flow<String>
 
     val bsAvailable: Boolean
 
