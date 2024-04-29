@@ -1,27 +1,45 @@
 package dev.datlag.aniflow.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.trace.model.SearchResponse
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.StringResource
+import org.kodein.di.instance
 
-fun Medium.preferred(): String {
-    return this.title.preferred().ifBlank { this.id.toString() }
+@Composable
+fun Medium.preferred(setting: AppSettings.TitleLanguage? = null): String {
+    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
+    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
+
+    return this.title.preferred(setting ?: title).ifBlank { this.id.toString() }
 }
 
-fun Medium.notPreferred(): String? {
-    return this.title.notPreferred()?.ifBlank { null }
+@Composable
+fun Medium.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
+    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
+    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
+
+    return this.title.notPreferred(setting ?: title)?.ifBlank { null }
 }
 
-expect fun Medium.Title.preferred(): String
+expect fun Medium.Title.preferred(setting: AppSettings.TitleLanguage? = null): String
 
-fun Medium.Title.notPreferred(): String? {
-    val preferred = this.preferred().trim()
+@Composable
+fun Medium.Title.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
+    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
+    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
+
+    val preferred = this.preferred(setting ?: title).trim()
     val notPreferred =  when {
         this.native?.trim().equals(preferred, ignoreCase = true) -> {
             when {

@@ -1,5 +1,5 @@
-mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean) {
-    UpdateUser(displayAdultContent: $adult, profileColor: $color) {
+mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean, $title: UserTitleLanguage) {
+    UpdateUser(displayAdultContent: $adult, profileColor: $color, titleLanguage: $title) {
         id,
         name,
         about(asHtml: $html),
@@ -10,7 +10,8 @@ mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean) {
         bannerImage,
         options {
             displayAdultContent,
-            profileColor
+            profileColor,
+            titleLanguage
         }
     }
 }

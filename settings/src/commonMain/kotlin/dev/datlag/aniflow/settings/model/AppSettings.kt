@@ -15,6 +15,7 @@ import kotlinx.serialization.protobuf.ProtoNumber
 data class AppSettings(
     @ProtoNumber(1) val adultContent: Boolean = false,
     @ProtoNumber(2) val color: Color?,
+    @ProtoNumber(3) val titleLanguage: TitleLanguage?,
 ) {
 
     @Serializable(with = Color.ColorSerializer::class)
@@ -113,6 +114,60 @@ data class AppSettings(
                 if (value != null) {
                     encoder.encodeNotNullMark()
                     encoder.encodeString(value.label)
+                } else {
+                    encoder.encodeNull()
+                }
+            }
+        }
+    }
+
+    @Serializable(with = TitleLanguage.TitleSerializer::class)
+    sealed interface TitleLanguage {
+        val id: Int
+
+        @Serializable
+        data object Romaji : TitleLanguage {
+            override val id: Int = 1
+        }
+
+        @Serializable
+        data object English : TitleLanguage {
+            override val id: Int = 2
+        }
+
+        @Serializable
+        data object Native : TitleLanguage {
+            override val id: Int = 3
+        }
+
+        companion object TitleSerializer : KSerializer<TitleLanguage?> {
+            val all: Set<TitleLanguage> = setOf(
+                Romaji,
+                English,
+                Native
+            )
+
+            internal fun fromId(value: Int): TitleLanguage? = when (value) {
+                1 -> Romaji
+                2 -> English
+                3 -> Native
+                else -> null
+            }
+
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Title", PrimitiveKind.INT)
+
+            override fun deserialize(decoder: Decoder): TitleLanguage? {
+                return if (decoder.decodeNotNullMark()) {
+                    fromId(decoder.decodeInt())
+                } else {
+                    decoder.decodeNull()
+                }
+            }
+
+            override fun serialize(encoder: Encoder, value: TitleLanguage?) {
+                if (value != null) {
+                    encoder.encodeNotNullMark()
+                    encoder.encodeInt(value.id)
                 } else {
                     encoder.encodeNull()
                 }

@@ -5,10 +5,8 @@ import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.state.SeasonState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.updateAndGet
+import dev.datlag.tooling.compose.ioDispatcher
+import kotlinx.coroutines.flow.*
 
 data object StateSaver {
     var sekretLibraryLoaded: Boolean = false
@@ -69,7 +67,9 @@ data object StateSaver {
             _popularNextState
         ) { t1, t2, t3, t4 ->
             t1.isLoadingOrWaiting && t2.isLoadingOrWaiting && t3.isLoadingOrWaiting && t4.isLoadingOrWaiting
-        }
+        }.flowOn(
+            context = ioDispatcher()
+        )
 
         fun updateAiring(state: AiringTodayStateMachine.State) = _airingState.updateAndGet {
             state

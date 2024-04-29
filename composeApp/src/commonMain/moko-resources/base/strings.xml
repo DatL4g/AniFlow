@@ -48,4 +48,7 @@
     <string name="similarity_title">Similarity</string>
     <string name="similarity_text_max_avg">Maximum: %s\nAverage: %s</string>
     <string name="similarity_text_single">Average: %s</string>
+    <string name="title_romaji">Romaji</string>
+    <string name="title_english">English</string>
+    <string name="title_native">Native</string>
 </resources>

@@ -5,6 +5,8 @@ import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.ViewerMutation
 import dev.datlag.aniflow.anilist.ViewerQuery
 import dev.datlag.aniflow.anilist.model.User
+import dev.datlag.aniflow.common.toMutation
+import dev.datlag.aniflow.common.toSettings
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
@@ -56,7 +58,8 @@ class UserHelper(
             user?.also {
                 appSettings.setData(
                     adultContent = it.displayAdultContent,
-                    color = AppSettings.Color.fromString(it.profileColor)
+                    color = AppSettings.Color.fromString(it.profileColor),
+                    titleLanguage = it.titleLanguage.toSettings()
                 )
             }
         )
@@ -102,6 +105,21 @@ class UserHelper(
                 client.mutation(
                     ViewerMutation(
                         color = Optional.present(value.label),
+                        html = Optional.present(true)
+                    )
+                ).execute().data?.UpdateUser?.let(::User)
+            )
+        }
+    }
+
+    suspend fun updateTitleLanguage(value: AppSettings.TitleLanguage?) {
+        appSettings.setTitleLanguage(value)
+
+        if (value != null) {
+            changedUser.emit(
+                client.mutation(
+                    ViewerMutation(
+                        title = Optional.presentIfNotNull(value.toMutation()),
                         html = Optional.present(true)
                     )
                 ).execute().data?.UpdateUser?.let(::User)

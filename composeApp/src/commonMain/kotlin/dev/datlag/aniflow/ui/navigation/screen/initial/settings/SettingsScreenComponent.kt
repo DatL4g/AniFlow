@@ -24,6 +24,7 @@ class SettingsScreenComponent(
     override val user: Flow<User?> = userHelper.user.flowOn(ioDispatcher())
     override val adultContent: Flow<Boolean> = appSettings.adultContent.flowOn(ioDispatcher())
     override val selectedColor: Flow<AppSettings.Color?> = appSettings.color.flowOn(ioDispatcher())
+    override val selectedTitleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage.flowOn(ioDispatcher())
 
     @Composable
     override fun render() {
@@ -41,6 +42,12 @@ class SettingsScreenComponent(
     override fun changeProfileColor(value: AppSettings.Color?) {
         launchIO {
             userHelper.updateProfileColorSetting(value)
+        }
+    }
+
+    override fun changeTitleLanguage(value: AppSettings.TitleLanguage?) {
+        launchIO {
+            userHelper.updateTitleLanguage(value)
         }
     }
 }

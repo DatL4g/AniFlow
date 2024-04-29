@@ -12,7 +12,8 @@ import okio.BufferedSource
 
 data object AppSettingsSerializer : OkioSerializer<AppSettings> {
     override val defaultValue: AppSettings = AppSettings(
-        color = null
+        color = null,
+        titleLanguage = null
     )
 
     @OptIn(ExperimentalSerializationApi::class)

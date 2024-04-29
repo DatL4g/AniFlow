@@ -5,6 +5,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -14,10 +15,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import org.kodein.di.instance
+import org.kodein.di.instanceOrNull
 
 @Composable
 fun AiringCard(

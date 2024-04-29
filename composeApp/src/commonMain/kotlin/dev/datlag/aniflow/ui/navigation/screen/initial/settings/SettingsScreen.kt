@@ -7,7 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.More
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -102,37 +104,6 @@ fun SettingsScreen(component: SettingsComponent) {
             )
         }
         item {
-            val adultContent by component.adultContent.collectAsStateWithLifecycle(false)
-
-            Row(
-                modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.NoAdultContent,
-                    contentDescription = null,
-                )
-                Text(
-                    text = stringResource(SharedRes.strings.adult_content_setting)
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                Switch(
-                    checked = adultContent,
-                    onCheckedChange = component::changeAdultContent,
-                    thumbContent = {
-                        if (adultContent) {
-                            Icon(
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                )
-            }
-        }
-        item {
             val selectedColor by component.selectedColor.collectAsStateWithLifecycle(null)
             val useCase = rememberUseCaseState()
             val colors = remember { AppSettings.Color.all.toList() }
@@ -182,6 +153,83 @@ fun SettingsScreen(component: SettingsComponent) {
                         tint = selectedColor?.toComposeColor() ?: LocalContentColor.current
                     )
                 }
+            }
+        }
+        item {
+            val selectedTitle by component.selectedTitleLanguage.collectAsStateWithLifecycle(null)
+            val useCase = rememberUseCaseState()
+            val languages = remember { AppSettings.TitleLanguage.all.toList() }
+
+            OptionDialog(
+                state = useCase,
+                selection = OptionSelection.Single(
+                    options = languages.map {
+                        Option(
+                            selected = it == selectedTitle,
+                            titleText = stringResource(it.toComposeString())
+                        )
+                    },
+                    onSelectOption = { option, _ ->
+                        component.changeTitleLanguage(languages[option])
+                    }
+                ),
+                config = OptionConfig(
+                    mode = DisplayMode.LIST,
+                )
+            )
+
+            Row(
+                modifier = Modifier.fillParentMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Title,
+                    contentDescription = null
+                )
+                Text(
+                    text = "Title Language"
+                )
+                Spacer(modifier = Modifier.weight(1F))
+                IconButton(
+                    onClick = { useCase.show() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+        item {
+            val adultContent by component.adultContent.collectAsStateWithLifecycle(false)
+
+            Row(
+                modifier = Modifier.fillParentMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.NoAdultContent,
+                    contentDescription = null,
+                )
+                Text(
+                    text = stringResource(SharedRes.strings.adult_content_setting)
+                )
+                Spacer(modifier = Modifier.weight(1F))
+                Switch(
+                    checked = adultContent,
+                    onCheckedChange = component::changeAdultContent,
+                    thumbContent = {
+                        if (adultContent) {
+                            Icon(
+                                modifier = Modifier.size(SwitchDefaults.IconSize),
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
             }
         }
     }

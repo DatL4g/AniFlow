@@ -10,6 +10,7 @@ class DataStoreAppSettings(
 ) : Settings.PlatformAppSettings {
     override val adultContent: Flow<Boolean> = dateStore.data.map { it.adultContent }
     override val color: Flow<AppSettings.Color?> = dateStore.data.map { it.color }
+    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = dateStore.data.map { it.titleLanguage }
 
     override suspend fun setAdultContent(value: Boolean) {
         dateStore.updateData {
@@ -27,11 +28,24 @@ class DataStoreAppSettings(
         }
     }
 
-    override suspend fun setData(adultContent: Boolean, color: AppSettings.Color?) {
+    override suspend fun setTitleLanguage(value: AppSettings.TitleLanguage?) {
+        dateStore.updateData {
+            it.copy(
+                titleLanguage = value
+            )
+        }
+    }
+
+    override suspend fun setData(
+        adultContent: Boolean,
+        color: AppSettings.Color?,
+        titleLanguage: AppSettings.TitleLanguage?,
+    ) {
         dateStore.updateData {
             it.copy(
                 adultContent = adultContent,
-                color = color
+                color = color,
+                titleLanguage = titleLanguage,
             )
         }
     }

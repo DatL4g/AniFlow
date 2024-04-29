@@ -10,7 +10,8 @@ query ViewerQuery($html: Boolean) {
         bannerImage,
         options {
             displayAdultContent,
-            profileColor
+            profileColor,
+            titleLanguage
         }
     }
 }

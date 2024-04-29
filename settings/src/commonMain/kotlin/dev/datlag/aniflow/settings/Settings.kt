@@ -20,15 +20,18 @@ data object Settings {
     interface PlatformAppSettings {
         val adultContent: Flow<Boolean>
         val color: Flow<AppSettings.Color?>
+        val titleLanguage: Flow<AppSettings.TitleLanguage?>
 
         suspend fun setAdultContent(value: Boolean)
         suspend fun setColor(value: AppSettings.Color?)
         suspend fun setColor(value: String?) = setColor(value?.let {
             AppSettings.Color.fromString(it)
         })
+        suspend fun setTitleLanguage(value: AppSettings.TitleLanguage?)
         suspend fun setData(
             adultContent: Boolean,
-            color: AppSettings.Color?
+            color: AppSettings.Color?,
+            titleLanguage: AppSettings.TitleLanguage?,
         )
     }
 }
