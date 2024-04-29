@@ -45,4 +45,7 @@
     <string name="color_green">Green</string>
     <string name="color_gray">Gray</string>
     <string name="color_custom">Custom</string>
+    <string name="similarity_title">Similarity</string>
+    <string name="similarity_text_max_avg">Maximum: %s\nAverage: %s</string>
+    <string name="similarity_text_single">Average: %s</string>
 </resources>

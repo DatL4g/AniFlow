@@ -19,9 +19,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionDetails
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.asMedium
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.plus
@@ -29,12 +36,13 @@ import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.rememberImagePickerState
 import dev.datlag.aniflow.trace.TraceStateMachine
+import dev.datlag.aniflow.trace.model.SearchResponse
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.AiringOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.PopularSeasonOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.TrendingOverview
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import io.github.aakira.napier.Napier
+import dev.icerock.moko.resources.compose.stringResource
 
 @Composable
 fun HomeScreen(component: HomeComponent) {
@@ -66,27 +74,41 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
 
     when (val current = traceState) {
         is TraceStateMachine.State.Success -> {
-            val results = remember(traceState) { current.response.result.sortedByDescending { it.similarity } }
-
-            LaunchedEffect(current) {
-                results.maxByOrNull { it.similarity }?.aniList?.asMedium()?.let(component::details)
-            }
-            /*OptionDialog(
-                state = rememberUseCaseState(visible = true),
-                config = OptionConfig(mode = DisplayMode.LIST),
-                selection = OptionSelection.Single(
-                    options = results.mapIndexedNotNull { index, result ->
-                        result.aniList.title?.preferred()?.let { title ->
-                            Option(
-                                titleText = title,
-                                selected = index == 0
-                            )
-                        }
+            val results = remember(traceState) {
+                current.response.combinedResults.sortedWith(
+                    compareByDescending<SearchResponse.CombinedResult> {
+                        it.maxSimilarity
+                    }.thenByDescending {
+                        it.avgSimilarity
                     }
-                ) { index, _ ->
-                    results.getOrNull(index)?.aniList?.asMedium()?.let(component::details)
-                }
-            )*/
+                )
+            }
+            val useCase = rememberUseCaseState(visible = results.isNotEmpty())
+
+            OptionDialog(
+                state = useCase,
+                selection = OptionSelection.Single(
+                    options = results.map {
+                        Option(
+                            titleText = it.aniList.asMedium().title.preferred(),
+                            details = OptionDetails(
+                                title = stringResource(SharedRes.strings.similarity_title),
+                                body = if (it.isSingle) {
+                                    stringResource(SharedRes.strings.similarity_text_single, it.avgPercentage)
+                                } else {
+                                    stringResource(SharedRes.strings.similarity_text_max_avg, it.maxPercentage, it.avgPercentage)
+                                }
+                            )
+                        )
+                    },
+                    onSelectOption = { index, _ ->
+                        component.details(results[index].aniList.asMedium())
+                    }
+                ),
+                config = OptionConfig(
+                    mode = DisplayMode.LIST
+                )
+            )
         }
         else -> { }
     }
