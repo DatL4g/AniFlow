@@ -24,7 +24,6 @@ import com.maxkeppeler.sheets.rating.RatingDialog
 import com.maxkeppeler.sheets.rating.models.RatingBody
 import com.maxkeppeler.sheets.rating.models.RatingConfig
 import com.maxkeppeler.sheets.rating.models.RatingSelection
-import com.maxkeppeler.sheets.rating.models.RatingViewStyle
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -43,32 +42,9 @@ import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 @Composable
 fun MediumScreen(component: MediumComponent) {
     val coverImage by component.coverImage.collectAsStateWithLifecycle()
-    val ratingState = rememberUseCaseState()
-    val userRating by component.rating.collectAsStateWithLifecycle()
     val dialogState by component.dialog.subscribeAsState()
 
     dialogState.child?.instance?.render()
-
-    RatingDialog(
-        state = ratingState,
-        selection = RatingSelection(
-            onSelectRating = { rating, _ ->
-                component.rate(rating)
-            }
-        ),
-        header = Header.Default(
-            title = "Rate this Anime",
-            icon = IconSource(Icons.Filled.Star)
-        ),
-        body = RatingBody.Default(
-            bodyText = ""
-        ),
-        config = RatingConfig(
-            ratingOptionsCount = 5,
-            ratingOptionsSelected = userRating.takeIf { it > 0 },
-            ratingZeroValid = true
-        )
-    )
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -101,10 +77,34 @@ fun MediumScreen(component: MediumComponent) {
                 )
             },
             floatingActionButton = {
+                val userRating by component.rating.collectAsStateWithLifecycle()
+                val ratingState = rememberUseCaseState()
+
                 val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle()
                 val notReleased by component.status.mapCollect {
                     it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
                 }
+
+                RatingDialog(
+                    state = ratingState,
+                    selection = RatingSelection(
+                        onSelectRating = { rating, _ ->
+                            component.rate(rating)
+                        }
+                    ),
+                    header = Header.Default(
+                        title = "Rate this Anime",
+                        icon = IconSource(Icons.Filled.Star)
+                    ),
+                    body = RatingBody.Default(
+                        bodyText = ""
+                    ),
+                    config = RatingConfig(
+                        ratingOptionsCount = 5,
+                        ratingOptionsSelected = userRating.takeIf { it > 0 },
+                        ratingZeroValid = true
+                    )
+                )
 
                 if (!notReleased) {
                     EditFAB(

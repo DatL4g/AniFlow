@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.NoAdultContent
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -28,19 +25,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import com.maxkeppeker.sheets.core.models.base.IconSource
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.common.toComposeColor
+import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(component: SettingsComponent) {
     val padding = PaddingValues(16.dp)
@@ -120,29 +125,52 @@ fun SettingsScreen(component: SettingsComponent) {
             }
         }
         item {
-            Text(
-                modifier = Modifier.padding(vertical = 16.dp),
-                text = "Profile Color",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold
+            val selectedColor by component.selectedColor.collectAsStateWithLifecycle(null)
+            val useCase = rememberUseCaseState()
+            val colors = AppSettings.Color.all.toList()
+
+            OptionDialog(
+                state = useCase,
+                selection = OptionSelection.Single(
+                    options = colors.map {
+                        Option(
+                            icon = IconSource(
+                                imageVector = Icons.Filled.Circle,
+                                tint = it.toComposeColor()
+                            ),
+                            titleText = stringResource(it.toComposeString())
+                        )
+                    },
+                    onSelectOption = { option, _ ->
+                        component.changeProfileColor(colors[option])
+                    }
+                ),
+                config = OptionConfig(
+                    mode = DisplayMode.GRID_VERTICAL,
+                    gridColumns = 4
+                )
             )
-        }
-        item {
-            FlowRow(
+
+            Row(
                 modifier = Modifier.fillParentMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                maxItemsInEachRow = when (calculateWindowSizeClass().widthSizeClass) {
-                    WindowWidthSizeClass.Compact -> 4
-                    else -> Int.MAX_VALUE
-                }
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AppSettings.Color.all.forEach {
-                    ColorItem(
-                        color = it,
-                        onClick = { chosen ->
-                            component.changeProfileColor(chosen)
-                        }
+                Icon(
+                    imageVector = Icons.Default.Palette,
+                    contentDescription = null,
+                )
+                Text(
+                    text = "Profile Color"
+                )
+                Spacer(modifier = Modifier.weight(1F))
+                IconButton(
+                    onClick = { useCase.show() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = null,
+                        tint = selectedColor?.toComposeColor() ?: LocalContentColor.current
                     )
                 }
             }

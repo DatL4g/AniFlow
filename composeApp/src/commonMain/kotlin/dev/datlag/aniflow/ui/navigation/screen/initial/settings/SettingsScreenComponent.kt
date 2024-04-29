@@ -23,6 +23,7 @@ class SettingsScreenComponent(
 
     override val user: Flow<User?> = userHelper.user.flowOn(ioDispatcher())
     override val adultContent: Flow<Boolean> = appSettings.adultContent.flowOn(ioDispatcher())
+    override val selectedColor: Flow<AppSettings.Color?> = appSettings.color.flowOn(ioDispatcher())
 
     @Composable
     override fun render() {

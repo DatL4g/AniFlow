@@ -37,4 +37,12 @@
     <string name="adult_content_setting">NSFW / Adult Content</string>
     <string name="adult_content_prevent">NSFW / Adult Content is not enabled.</string>
     <string name="back">Back</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_purple">Purple</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_red">Red</string>
+    <string name="color_green">Green</string>
+    <string name="color_gray">Gray</string>
+    <string name="color_custom">Custom</string>
 </resources>
