@@ -3,9 +3,11 @@ package dev.datlag.aniflow.ui.navigation.screen.initial.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.CameraEnhance
@@ -14,7 +16,9 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -46,7 +50,24 @@ import dev.icerock.moko.resources.compose.stringResource
 
 @Composable
 fun HomeScreen(component: HomeComponent) {
-    MainView(component, Modifier.fillMaxWidth())
+    val isAllLoading by StateSaver.Home.isAllLoading.collectAsStateWithLifecycle(StateSaver.Home.currentAllLoading)
+
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        MainView(component, Modifier.fillMaxWidth())
+
+        if (isAllLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

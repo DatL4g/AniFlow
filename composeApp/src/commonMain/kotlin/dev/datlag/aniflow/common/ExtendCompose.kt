@@ -145,11 +145,6 @@ fun Modifier.shimmer(shape: Shape = RectangleShape): Modifier = composed {
     )
 }
 
-@Composable
-fun shimmerPainter(): BrushPainter {
-    return BrushPainter(shimmerBrush())
-}
-
 
 @Composable
 fun LazyListState.isScrollingUp(): Boolean {

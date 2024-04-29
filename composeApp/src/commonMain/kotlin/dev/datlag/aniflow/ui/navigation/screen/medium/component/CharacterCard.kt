@@ -21,7 +21,6 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferredName
-import dev.datlag.aniflow.common.shimmerPainter
 import dev.datlag.tooling.compose.ifTrue
 
 @Composable
@@ -52,11 +51,9 @@ fun CharacterCard(
                     )
                 },
             contentScale = ContentScale.Crop,
-            placeholder = shimmerPainter(),
             error = rememberAsyncImagePainter(
                 model = char.image.medium,
                 contentScale = ContentScale.Crop,
-                placeholder = shimmerPainter(),
                 onSuccess = {
                     imageShadow = true
                 }

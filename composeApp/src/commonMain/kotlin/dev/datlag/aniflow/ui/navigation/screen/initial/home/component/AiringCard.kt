@@ -17,7 +17,6 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferred
-import dev.datlag.aniflow.common.shimmerPainter
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 
 @Composable
@@ -49,7 +48,6 @@ fun AiringCard(
                         contentScale = ContentScale.Crop,
                         error = rememberAsyncImagePainter(
                             model = media.coverImage.medium,
-                            placeholder = shimmerPainter(),
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
                                 SchemeTheme.update(
@@ -59,7 +57,6 @@ fun AiringCard(
                                 )
                             }
                         ),
-                        placeholder = shimmerPainter(),
                         onSuccess = { state ->
                             SchemeTheme.update(
                                 key = media.id,
@@ -68,7 +65,6 @@ fun AiringCard(
                             )
                         }
                     ),
-                    placeholder = shimmerPainter(),
                     onSuccess = { state ->
                         SchemeTheme.update(
                             key = media.id,

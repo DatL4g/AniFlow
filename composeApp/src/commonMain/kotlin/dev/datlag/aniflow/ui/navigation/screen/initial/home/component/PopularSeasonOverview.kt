@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.SeasonQuery
@@ -17,16 +21,24 @@ import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun PopularSeasonOverview(
-    state: StateFlow<SeasonState>,
+    state: Flow<SeasonState>,
     current: Boolean,
     onClick: (Medium) -> Unit,
 ) {
-    val loadingState by state.collectAsStateWithLifecycle()
+    val loadingState by state.collectAsStateWithLifecycle(
+        if (current) {
+            StateSaver.Home.popularCurrentState
+        } else {
+            StateSaver.Home.popularNextState
+        }
+    )
 
     when (val reachedState = loadingState) {
         is SeasonState.Loading -> {
@@ -47,18 +59,13 @@ fun PopularSeasonOverview(
 
 @Composable
 private fun Loading() {
-    LazyRow(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+    Box(
+        modifier = Modifier.fillMaxWidth().height(280.dp),
+        contentAlignment = Alignment.Center
     ) {
-        repeat(5) {
-            item {
-                Box(
-                    modifier = Modifier.width(200.dp).height(280.dp).shimmer(CardDefaults.shape)
-                )
-            }
-        }
+        LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+        )
     }
 }
 

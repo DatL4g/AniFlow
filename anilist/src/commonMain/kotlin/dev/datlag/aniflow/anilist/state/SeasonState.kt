@@ -11,7 +11,11 @@ import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-sealed interface SeasonState {
+sealed interface SeasonState : CommonState {
+
+    override val isLoadingOrWaiting: Boolean
+        get() = this is Loading
+
     data class Loading(
         internal val query: SeasonQuery
     ) : SeasonState {

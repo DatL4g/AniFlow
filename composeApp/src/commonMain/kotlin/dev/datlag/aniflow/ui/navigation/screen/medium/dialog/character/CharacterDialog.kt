@@ -85,10 +85,8 @@ fun CharacterDialog(component: CharacterComponent) {
                 model = image.large,
                 error = rememberAsyncImagePainter(
                     model = image.medium,
-                    contentScale = ContentScale.Crop,
-                    placeholder = shimmerPainter()
+                    contentScale = ContentScale.Crop
                 ),
-                placeholder = shimmerPainter(),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center,
                 contentDescription = component.initialChar.preferredName()

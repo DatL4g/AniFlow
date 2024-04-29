@@ -20,7 +20,6 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
-import dev.datlag.aniflow.common.shimmerPainter
 import dev.datlag.aniflow.common.text
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -59,15 +58,12 @@ fun CoverSection(
             model = coverImage.extraLarge,
             contentScale = ContentScale.Crop,
             contentDescription = null,
-            placeholder = shimmerPainter(),
             error = rememberAsyncImagePainter(
                 model = coverImage.large,
                 contentScale = ContentScale.Crop,
-                placeholder = shimmerPainter(),
                 error = rememberAsyncImagePainter(
                     model = coverImage.medium,
                     contentScale = ContentScale.Crop,
-                    placeholder = shimmerPainter(),
                     onSuccess = {
                         coverShadow = true
                     }

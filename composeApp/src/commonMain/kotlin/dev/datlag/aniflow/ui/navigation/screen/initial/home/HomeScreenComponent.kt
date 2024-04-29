@@ -11,14 +11,18 @@ import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
+import kotlin.time.Duration.Companion.seconds
 
 class HomeScreenComponent(
     componentContext: ComponentContext,
@@ -27,39 +31,31 @@ class HomeScreenComponent(
 ) : HomeComponent, ComponentContext by componentContext {
 
     private val airingTodayStateMachine by di.instance<AiringTodayStateMachine>()
-    override val airingState: StateFlow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.flowOn(
+    override val airingState: Flow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.map {
+        StateSaver.Home.updateAiring(it)
+    }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = AiringTodayStateMachine.currentState
     )
 
     private val trendingAnimeStateMachine by di.instance<TrendingAnimeStateMachine>()
-    override val trendingState: StateFlow<TrendingAnimeStateMachine.State> = trendingAnimeStateMachine.state.flowOn(
+    override val trendingState: Flow<TrendingAnimeStateMachine.State> = trendingAnimeStateMachine.state.map {
+        StateSaver.Home.updateTrending(it)
+    }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = TrendingAnimeStateMachine.currentState
     )
 
     private val popularSeasonStateMachine by di.instance<PopularSeasonStateMachine>()
-    override val popularSeasonState: StateFlow<SeasonState> = popularSeasonStateMachine.state.flowOn(
+    override val popularSeasonState: Flow<SeasonState> = popularSeasonStateMachine.state.map {
+        StateSaver.Home.updatePopularCurrent(it)
+    }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = PopularSeasonStateMachine.currentState
     )
 
     private val popularNextSeasonStateMachine by di.instance<PopularNextSeasonStateMachine>()
-    override val popularNextSeasonState: StateFlow<SeasonState> = popularNextSeasonStateMachine.state.flowOn(
+    override val popularNextSeasonState: Flow<SeasonState> = popularNextSeasonStateMachine.state.map {
+        StateSaver.Home.updatePopularNext(it)
+    }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = PopularNextSeasonStateMachine.currentState
     )
 
     private val traceStateMachine by di.instance<TraceStateMachine>()

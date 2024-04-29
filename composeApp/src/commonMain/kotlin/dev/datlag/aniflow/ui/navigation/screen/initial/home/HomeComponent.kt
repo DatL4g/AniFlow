@@ -11,14 +11,16 @@ import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import io.ktor.utils.io.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface HomeComponent : ContentHolderComponent {
-    val airingState: StateFlow<AiringTodayStateMachine.State>
-    val trendingState: StateFlow<TrendingAnimeStateMachine.State>
-    val popularSeasonState: StateFlow<SeasonState>
-    val popularNextSeasonState: StateFlow<SeasonState>
+    val airingState: Flow<AiringTodayStateMachine.State>
+    val trendingState: Flow<TrendingAnimeStateMachine.State>
+    val popularSeasonState: Flow<SeasonState>
+    val popularNextSeasonState: Flow<SeasonState>
+
     val traceState: Flow<TraceStateMachine.State>
 
     fun details(medium: Medium)

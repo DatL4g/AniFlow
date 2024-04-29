@@ -48,7 +48,7 @@ fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
     initialMedium: Medium,
-    mediumStateFlow: Flow<MediumStateMachine.State>,
+    mediumStateFlow: StateFlow<MediumStateMachine.State>,
     bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
     titleFlow: Flow<Medium.Title>,
@@ -56,7 +56,6 @@ fun CollapsingToolbar(
     isFavoriteBlockedFlow: Flow<Boolean>,
     siteUrlFlow: Flow<String>,
     showShare: Boolean,
-    initialState: () -> MediumStateMachine.State,
     onBack: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
@@ -163,7 +162,7 @@ fun CollapsingToolbar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle(initialState())
+                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
                     val siteUrl by siteUrlFlow.collectAsStateWithLifecycle(initialMedium.siteUrl)
                     val shareHandler = shareHandler()
 

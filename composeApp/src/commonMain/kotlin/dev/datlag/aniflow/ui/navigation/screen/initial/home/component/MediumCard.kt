@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,10 +24,10 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.bottomShadowBrush
 import dev.datlag.aniflow.common.preferred
-import dev.datlag.aniflow.common.shimmerPainter
 import dev.datlag.aniflow.ui.custom.alignment.rememberParallaxAlignment
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
@@ -46,7 +48,6 @@ fun MediumCard(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val scope = rememberCoroutineScope()
                 val color = medium.coverImage.color?.substringAfter('#')?.let {
                     val colorValue = it.hexToLong() or 0x00000000FF000000
                     Color(colorValue)
@@ -58,54 +59,34 @@ fun MediumCard(
                     defaultColor = color ?: MaterialTheme.colorScheme.primary,
                     defaultOnColor = contentColorFor(color ?: MaterialTheme.colorScheme.primary)
                 )
-                val animatedColor by animateColorAsState(
-                    targetValue = colorState.color,
-                    animationSpec = tween()
-                )
+                var successPainter by remember { mutableStateOf<Painter?>(null) }
+
+                SchemeTheme.update(medium.id, successPainter)
 
                 AsyncImage(
                     model = medium.coverImage.extraLarge,
                     modifier = Modifier.fillMaxSize(),
                     contentDescription = medium.title.userPreferred,
                     contentScale = ContentScale.Crop,
-                    placeholder = shimmerPainter(),
                     error = rememberAsyncImagePainter(
                         model = medium.coverImage.large,
                         contentScale = ContentScale.Crop,
-                        placeholder = shimmerPainter(),
                         error = rememberAsyncImagePainter(
                             model = medium.coverImage.medium,
                             contentScale = ContentScale.Crop,
-                            placeholder = shimmerPainter(),
                             onSuccess = { state ->
-                                SchemeTheme.update(
-                                    key = medium.id,
-                                    input = state.painter,
-                                    scope = scope
-                                )
+                                successPainter = state.painter
                             },
                             onError = {
-                                SchemeTheme.update(
-                                    key = medium.id,
-                                    color = color,
-                                    scope = scope
-                                )
+                                successPainter = color?.let(::ColorPainter)
                             }
                         ),
                         onSuccess = { state ->
-                            SchemeTheme.update(
-                                key = medium.id,
-                                input = state.painter,
-                                scope = scope
-                            )
+                            successPainter = state.painter
                         }
                     ),
                     onSuccess = { state ->
-                        SchemeTheme.update(
-                            key = medium.id,
-                            input = state.painter,
-                            scope = scope
-                        )
+                        successPainter = state.painter
                     }
                 )
 
@@ -120,7 +101,7 @@ fun MediumCard(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .bottomShadowBrush(animatedColor)
+                        .bottomShadowBrush(colorState.color)
                         .padding(16.dp)
                         .padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)

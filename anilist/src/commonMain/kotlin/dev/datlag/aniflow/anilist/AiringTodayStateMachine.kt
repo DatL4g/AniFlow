@@ -3,6 +3,7 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import dev.datlag.aniflow.anilist.state.CommonState
 import dev.datlag.aniflow.anilist.type.AiringSort
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import dev.datlag.aniflow.model.CatchResult
@@ -98,7 +99,11 @@ class AiringTodayStateMachine(
         }
     }
 
-    sealed interface State {
+    sealed interface State : CommonState {
+
+        override val isLoadingOrWaiting: Boolean
+            get() = this is Loading
+
         data class Loading(
             internal val query: AiringQuery,
             val adultContent: Boolean = false

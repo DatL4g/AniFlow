@@ -4,6 +4,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.annotations.ApolloExperimental
 import com.apollographql.apollo3.api.Optional
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import dev.datlag.aniflow.anilist.state.CommonState
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
@@ -73,7 +74,11 @@ class TrendingAnimeStateMachine(
         }
     }
 
-    sealed interface State {
+    sealed interface State : CommonState {
+
+        override val isLoadingOrWaiting: Boolean
+            get() = this is Loading
+
         data class Loading(
             internal val query: TrendingQuery
         ) : State {

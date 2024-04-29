@@ -7,11 +7,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
@@ -19,14 +23,15 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AiringOverview(
-    state: StateFlow<AiringTodayStateMachine.State>,
+    state: Flow<AiringTodayStateMachine.State>,
     onClick: (Medium) -> Unit
 ) {
-    val loadingState by state.collectAsStateWithLifecycle()
+    val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.airingState)
 
     when (val reachedState = loadingState) {
         is AiringTodayStateMachine.State.Loading -> {
@@ -44,25 +49,15 @@ fun AiringOverview(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Loading() {
-    val state = rememberLazyListState()
-
-    LazyRow(
-        state = state,
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        flingBehavior = rememberSnapFlingBehavior(state),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+    Box(
+        modifier = Modifier.fillMaxWidth().height(150.dp),
+        contentAlignment = Alignment.Center
     ) {
-        repeat(5) {
-            item {
-                Box(
-                    modifier = Modifier.width(300.dp).height(150.dp).shimmer(CardDefaults.shape)
-                )
-            }
-        }
+        LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+        )
     }
 }
 

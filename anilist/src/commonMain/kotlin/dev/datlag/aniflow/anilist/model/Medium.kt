@@ -7,7 +7,10 @@ import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaRankType
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.model.ifValue
 import dev.datlag.aniflow.model.toInt
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.Month
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -19,7 +22,7 @@ data class Medium(
     val type: MediaType = MediaType.UNKNOWN__,
     val status: MediaStatus = MediaStatus.UNKNOWN__,
     val description: String? = null,
-    val episodes: Int = -1,
+    private val _episodes: Int = -1,
     val avgEpisodeDurationInMin: Int = -1,
     val format: MediaFormat = MediaFormat.UNKNOWN__,
     private val _isAdult: Boolean = false,
@@ -54,7 +57,7 @@ data class Medium(
         type = trending.type ?: MediaType.UNKNOWN__,
         status = trending.status ?: MediaStatus.UNKNOWN__,
         description = trending.description?.ifBlank { null },
-        episodes = trending.episodes ?: -1,
+        _episodes = trending.episodes ?: -1,
         avgEpisodeDurationInMin = trending.duration ?: -1,
         format = trending.format ?: MediaFormat.UNKNOWN__,
         _isAdult = trending.isAdult ?: false,
@@ -103,7 +106,7 @@ data class Medium(
         type = airing.type ?: MediaType.UNKNOWN__,
         status = airing.status ?: MediaStatus.UNKNOWN__,
         description = airing.description?.ifBlank { null },
-        episodes = airing.episodes ?: -1,
+        _episodes = airing.episodes ?: -1,
         avgEpisodeDurationInMin = airing.duration ?: -1,
         format = airing.format ?: MediaFormat.UNKNOWN__,
         _isAdult = airing.isAdult ?: false,
@@ -152,7 +155,7 @@ data class Medium(
         type = season.type ?: MediaType.UNKNOWN__,
         status = season.status ?: MediaStatus.UNKNOWN__,
         description = season.description?.ifBlank { null },
-        episodes = season.episodes ?: -1,
+        _episodes = season.episodes ?: -1,
         avgEpisodeDurationInMin = season.duration ?: -1,
         format = season.format ?: MediaFormat.UNKNOWN__,
         _isAdult = season.isAdult ?: false,
@@ -201,7 +204,7 @@ data class Medium(
         type = query.type ?: MediaType.UNKNOWN__,
         status = query.status ?: MediaStatus.UNKNOWN__,
         description = query.description?.ifBlank { null },
-        episodes = query.episodes ?: -1,
+        _episodes = query.episodes ?: -1,
         avgEpisodeDurationInMin = query.duration ?: -1,
         format = query.format ?: MediaFormat.UNKNOWN__,
         _isAdult = query.isAdult ?: false,
@@ -254,6 +257,17 @@ data class Medium(
 
     @Transient
     val isFavoriteBlocked: Boolean = _isFavoriteBlocked || type == MediaType.UNKNOWN__
+
+    val episodes: Int
+        get() = _episodes.ifValue(-1) {
+            nextAiringEpisode?.let {
+                if (Instant.fromEpochSeconds(it.airingAt.toLong()) <= Clock.System.now()) {
+                    it.episodes
+                } else {
+                    it.episodes - 1
+                }
+            } ?: -1
+        }
 
     @Serializable
     data class Title(

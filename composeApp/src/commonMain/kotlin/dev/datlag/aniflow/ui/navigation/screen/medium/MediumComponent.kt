@@ -15,9 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
-    val initialState: MediumStateMachine.State
 
-    val mediumState: Flow<MediumStateMachine.State>
+    val mediumState: StateFlow<MediumStateMachine.State>
     val isAdult: Flow<Boolean>
     val isAdultAllowed: Flow<Boolean>
 
