@@ -65,6 +65,7 @@ fun MediumScreen(component: MediumComponent) {
                     state = appBarState,
                     scrollBehavior = scrollState,
                     initialMedium = component.initialMedium,
+                    titleLanguageFlow = component.titleLanguage,
                     mediumStateFlow = component.mediumState,
                     bannerImageFlow = component.bannerImage,
                     coverImage = coverImage,

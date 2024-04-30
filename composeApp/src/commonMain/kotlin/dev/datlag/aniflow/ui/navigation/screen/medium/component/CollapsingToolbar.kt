@@ -33,6 +33,7 @@ import dev.datlag.aniflow.anilist.MediumStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.custom.shareHandler
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
@@ -48,6 +49,7 @@ fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
     initialMedium: Medium,
+    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
     mediumStateFlow: StateFlow<MediumStateMachine.State>,
     bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
@@ -108,14 +110,17 @@ fun CollapsingToolbar(
                 }
             },
             title = {
-                val title by titleFlow.collectAsStateWithLifecycle(initialMedium.title)
+
 
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
                 ) {
+                    val title by titleFlow.collectAsStateWithLifecycle(initialMedium.title)
+                    val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
+
                     Text(
-                        text = title.preferred(),
+                        text = title.preferred(titleLanguage),
                         softWrap = true,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
@@ -131,7 +136,7 @@ fun CollapsingToolbar(
                             LocalTextStyle.current
                         }
                     )
-                    title.notPreferred()?.let {
+                    title.notPreferred(titleLanguage)?.let {
                         Text(
                             text = it,
                             softWrap = true,

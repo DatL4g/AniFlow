@@ -20,6 +20,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun PopularSeasonOverview(
     state: Flow<SeasonState>,
     current: Boolean,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(
@@ -48,6 +50,7 @@ fun PopularSeasonOverview(
             SuccessContent(
                 data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
                 current = current,
+                titleLanguage = titleLanguage,
                 onClick = onClick
             )
         }
@@ -74,6 +77,7 @@ private fun Loading() {
 private fun SuccessContent(
     data: List<SeasonQuery.Medium>,
     current: Boolean,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(
@@ -98,6 +102,7 @@ private fun SuccessContent(
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
+                titleLanguageFlow = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)
                     .height(280.dp)

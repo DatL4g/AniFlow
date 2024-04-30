@@ -24,15 +24,19 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.bottomShadowBrush
 import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.custom.alignment.rememberParallaxAlignment
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun MediumCard(
     medium: Medium,
+    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
@@ -106,8 +110,10 @@ fun MediumCard(
                         .padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
+
                     Text(
-                        text = medium.preferred(),
+                        text = medium.preferred(titleLanguage),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = if (medium.averageScore > 0F) {
                             1

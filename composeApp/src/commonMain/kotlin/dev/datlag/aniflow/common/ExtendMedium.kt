@@ -16,30 +16,18 @@ import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.StringResource
 import org.kodein.di.instance
 
-@Composable
 fun Medium.preferred(setting: AppSettings.TitleLanguage? = null): String {
-    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
-    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
-
-    return this.title.preferred(setting ?: title).ifBlank { this.id.toString() }
+    return this.title.preferred(setting).ifBlank { this.id.toString() }
 }
 
-@Composable
 fun Medium.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
-    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
-    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
-
-    return this.title.notPreferred(setting ?: title)?.ifBlank { null }
+    return this.title.notPreferred(setting)?.ifBlank { null }
 }
 
 expect fun Medium.Title.preferred(setting: AppSettings.TitleLanguage? = null): String
 
-@Composable
 fun Medium.Title.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
-    val appSettings by LocalDI.current.instance<Settings.PlatformAppSettings>()
-    val title by appSettings.titleLanguage.collectAsStateWithLifecycle(null)
-
-    val preferred = this.preferred(setting ?: title).trim()
+    val preferred = this.preferred(setting).trim()
     val notPreferred =  when {
         this.native?.trim().equals(preferred, ignoreCase = true) -> {
             when {

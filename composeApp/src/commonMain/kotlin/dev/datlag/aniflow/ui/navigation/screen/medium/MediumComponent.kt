@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.DialogComponent
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
+    val titleLanguage: Flow<AppSettings.TitleLanguage?>
 
     val mediumState: StateFlow<MediumStateMachine.State>
     val isAdult: Flow<Boolean>

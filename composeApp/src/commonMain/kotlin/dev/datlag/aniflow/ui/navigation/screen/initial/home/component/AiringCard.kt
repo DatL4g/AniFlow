@@ -23,12 +23,14 @@ import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.Flow
 import org.kodein.di.instance
 import org.kodein.di.instanceOrNull
 
 @Composable
 fun AiringCard(
     airing: AiringQuery.AiringSchedule,
+    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
@@ -45,10 +47,12 @@ fun AiringCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
+
                 AsyncImage(
                     modifier = Modifier.widthIn(min = 100.dp, max = 120.dp).fillMaxHeight().clip(MaterialTheme.shapes.medium),
                     model = media.coverImage.extraLarge,
-                    contentDescription = media.preferred(),
+                    contentDescription = media.preferred(titleLanguage),
                     contentScale = ContentScale.Crop,
                     error = rememberAsyncImagePainter(
                         model = media.coverImage.large,
@@ -85,7 +89,7 @@ fun AiringCard(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = media.preferred(),
+                        text = media.preferred(titleLanguage),
                         style = MaterialTheme.typography.titleLarge,
                         overflow = TextOverflow.Ellipsis,
                         softWrap = true,

@@ -18,6 +18,7 @@ import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun TrendingOverview(
     state: Flow<TrendingAnimeStateMachine.State>,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.trendingState)
@@ -38,6 +40,7 @@ fun TrendingOverview(
         is TrendingAnimeStateMachine.State.Success -> {
             SuccessContent(
                 data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
+                titleLanguage = titleLanguage,
                 onClick = onClick
             )
         }
@@ -63,6 +66,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(
@@ -79,6 +83,7 @@ private fun SuccessContent(
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
+                titleLanguageFlow = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)
                     .height(280.dp)

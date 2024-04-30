@@ -22,6 +22,7 @@ import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AiringOverview(
     state: Flow<AiringTodayStateMachine.State>,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.airingState)
@@ -40,6 +42,7 @@ fun AiringOverview(
         is AiringTodayStateMachine.State.Success -> {
             SuccessContent(
                 data = reachedState.data.Page?.airingSchedulesFilterNotNull() ?: emptyList(),
+                titleLanguage = titleLanguage,
                 onClick = onClick
             )
         }
@@ -65,6 +68,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<AiringQuery.AiringSchedule>,
+    titleLanguage: Flow<AppSettings.TitleLanguage?>,
     onClick: (Medium) -> Unit
 ) {
     val state = rememberLazyListState(
@@ -82,6 +86,7 @@ private fun SuccessContent(
         items(data, key = { it.episode to it.media?.id }) { media ->
             AiringCard(
                 airing = media,
+                titleLanguageFlow = titleLanguage,
                 modifier = Modifier
                     .height(150.dp)
                     .fillParentMaxWidth(fraction = 0.9F)

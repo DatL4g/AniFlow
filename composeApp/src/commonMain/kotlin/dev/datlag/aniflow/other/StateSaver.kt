@@ -69,7 +69,7 @@ data object StateSaver {
             t1.isLoadingOrWaiting && t2.isLoadingOrWaiting && t3.isLoadingOrWaiting && t4.isLoadingOrWaiting
         }.flowOn(
             context = ioDispatcher()
-        )
+        ).distinctUntilChanged()
 
         fun updateAiring(state: AiringTodayStateMachine.State) = _airingState.updateAndGet {
             state

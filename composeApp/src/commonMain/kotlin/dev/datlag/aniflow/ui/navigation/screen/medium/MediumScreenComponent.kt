@@ -24,6 +24,7 @@ import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
 import dev.datlag.tooling.alsoTrue
@@ -52,6 +53,8 @@ class MediumScreenComponent(
     private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     private val userHelper by di.instance<UserHelper>()
+
+    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage.flowOn(ioDispatcher())
 
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,

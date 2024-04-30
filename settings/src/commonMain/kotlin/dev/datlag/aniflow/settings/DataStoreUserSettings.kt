@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.minutes
 class DataStoreUserSettings(
     private val dataStore: DataStore<UserSettings>
 ) : Settings.PlatformUserSettings {
-    override val aniList: Flow<UserSettings.AniList> = dataStore.data.map { it.aniList }
+    override val aniList: Flow<UserSettings.AniList> = dataStore.data.map { it.aniList }.distinctUntilChanged()
     private val clockNow = flow {
         do {
             emit(Clock.System.now())
@@ -24,7 +24,7 @@ class DataStoreUserSettings(
         clockNow
     ) { data, now ->
         data.accessToken != null && now.epochSeconds < (data.expires ?: 0)
-    }
+    }.distinctUntilChanged()
 
     override suspend fun setAniListAccessToken(token: String) {
         dataStore.updateData {

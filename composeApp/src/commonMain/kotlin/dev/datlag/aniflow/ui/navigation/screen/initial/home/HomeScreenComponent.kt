@@ -1,9 +1,11 @@
 package dev.datlag.aniflow.ui.navigation.screen.initial.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
+import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
@@ -12,11 +14,14 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -30,33 +35,36 @@ class HomeScreenComponent(
     private val onMediumDetails: (Medium) -> Unit
 ) : HomeComponent, ComponentContext by componentContext {
 
+    private val appSettings by di.instance<Settings.PlatformAppSettings>()
+    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage.flowOn(ioDispatcher())
+
     private val airingTodayStateMachine by di.instance<AiringTodayStateMachine>()
     override val airingState: Flow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.map {
         StateSaver.Home.updateAiring(it)
     }.flowOn(
         context = ioDispatcher()
-    )
+    ).distinctUntilChanged()
 
     private val trendingAnimeStateMachine by di.instance<TrendingAnimeStateMachine>()
     override val trendingState: Flow<TrendingAnimeStateMachine.State> = trendingAnimeStateMachine.state.map {
         StateSaver.Home.updateTrending(it)
     }.flowOn(
         context = ioDispatcher()
-    )
+    ).distinctUntilChanged()
 
     private val popularSeasonStateMachine by di.instance<PopularSeasonStateMachine>()
     override val popularSeasonState: Flow<SeasonState> = popularSeasonStateMachine.state.map {
         StateSaver.Home.updatePopularCurrent(it)
     }.flowOn(
         context = ioDispatcher()
-    )
+    ).distinctUntilChanged()
 
     private val popularNextSeasonStateMachine by di.instance<PopularNextSeasonStateMachine>()
     override val popularNextSeasonState: Flow<SeasonState> = popularNextSeasonStateMachine.state.map {
         StateSaver.Home.updatePopularNext(it)
     }.flowOn(
         context = ioDispatcher()
-    )
+    ).distinctUntilChanged()
 
     private val traceStateMachine by di.instance<TraceStateMachine>()
     override val traceState: Flow<TraceStateMachine.State> = traceStateMachine.state.flowOn(

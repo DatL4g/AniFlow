@@ -105,13 +105,14 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
                 )
             }
             val useCase = rememberUseCaseState(visible = results.isNotEmpty())
+            val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
             OptionDialog(
                 state = useCase,
                 selection = OptionSelection.Single(
                     options = results.map {
                         Option(
-                            titleText = it.aniList.asMedium().title.preferred(),
+                            titleText = it.aniList.asMedium().title.preferred(titleLanguage),
                             details = OptionDetails(
                                 title = stringResource(SharedRes.strings.similarity_title),
                                 body = if (it.isSingle) {
@@ -151,6 +152,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             AiringOverview(
                 state = component.airingState,
+                titleLanguage = component.titleLanguage,
                 onClick = component::details
             )
         }
@@ -165,6 +167,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             TrendingOverview(
                 state = component.trendingState,
+                titleLanguage = component.titleLanguage,
                 onClick = component::details
             )
         }
@@ -180,6 +183,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
             PopularSeasonOverview(
                 state = component.popularSeasonState,
                 current = true,
+                titleLanguage = component.titleLanguage,
                 onClick = component::details,
             )
         }
@@ -195,6 +199,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
             PopularSeasonOverview(
                 state = component.popularNextSeasonState,
                 current = false,
+                titleLanguage = component.titleLanguage,
                 onClick = component::details
             )
         }
