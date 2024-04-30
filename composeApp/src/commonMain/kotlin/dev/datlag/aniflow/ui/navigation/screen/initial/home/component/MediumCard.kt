@@ -31,6 +31,7 @@ import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
@@ -42,7 +43,7 @@ fun MediumCard(
 ) {
     SchemeTheme(
         key = medium.id
-    ) {
+    ) { schemeState ->
         Card(
             modifier = modifier,
             onClick = {
@@ -63,9 +64,7 @@ fun MediumCard(
                     defaultColor = color ?: MaterialTheme.colorScheme.primary,
                     defaultOnColor = contentColorFor(color ?: MaterialTheme.colorScheme.primary)
                 )
-                var successPainter by remember { mutableStateOf<Painter?>(null) }
-
-                SchemeTheme.update(medium.id, successPainter)
+                val scope = rememberCoroutineScope()
 
                 AsyncImage(
                     model = medium.coverImage.extraLarge,
@@ -79,18 +78,28 @@ fun MediumCard(
                             model = medium.coverImage.medium,
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
-                                successPainter = state.painter
+                                scope.launch {
+                                    schemeState.updateFrom(state.painter)
+                                }
                             },
                             onError = {
-                                successPainter = color?.let(::ColorPainter)
+                                color?.let(::ColorPainter)?.let { painter ->
+                                    scope.launch {
+                                        schemeState.updateFrom(painter)
+                                    }
+                                }
                             }
                         ),
                         onSuccess = { state ->
-                            successPainter = state.painter
+                            scope.launch {
+                                schemeState.updateFrom(state.painter)
+                            }
                         }
                     ),
                     onSuccess = { state ->
-                        successPainter = state.painter
+                        scope.launch {
+                            schemeState.updateFrom(state.painter)
+                        }
                     }
                 )
 

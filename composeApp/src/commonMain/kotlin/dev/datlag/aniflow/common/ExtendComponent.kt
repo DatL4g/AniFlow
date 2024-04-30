@@ -1,8 +1,10 @@
 package dev.datlag.aniflow.common
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.painter.Painter
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
+import com.kmpalette.DominantColorState
 import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.theme.SchemeTheme
@@ -33,14 +35,14 @@ fun Component.onRender(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun Component.onRenderWithScheme(key: Any?, content: @Composable () -> Unit) {
+fun Component.onRenderWithScheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
     onRender {
         SchemeTheme(key, content)
     }
 }
 
 @Composable
-fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable () -> Unit) {
+fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
     onRenderWithScheme(key, content)
 
     SchemeTheme.setCommon(key)
