@@ -55,10 +55,11 @@ internal fun App(
                 appSettings.color
             }.collectAsStateWithLifecycle(null)
             val seedColor = remember(savedColor) { savedColor?.toComposeColor() }
-            val allLoading by StateSaver.Home.isAllLoading.collectAsStateWithLifecycle(true)
+            val allLoading by StateSaver.Home.isAllLoading.collectAsStateWithLifecycle(StateSaver.Home.currentAllLoading)
+            val tempColor by StateSaver.temporaryColor.collectAsStateWithLifecycle()
 
             DynamicMaterialTheme(
-                seedColor = seedColor,
+                seedColor = tempColor?.toComposeColor() ?: seedColor,
                 animate = !allLoading
             ) {
                 CommonSchemeTheme(animate = !allLoading) {

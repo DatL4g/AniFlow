@@ -14,10 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +45,8 @@ import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.update
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -105,7 +104,18 @@ fun SettingsScreen(component: SettingsComponent) {
         }
         item {
             val selectedColor by component.selectedColor.collectAsStateWithLifecycle(null)
-            val useCase = rememberUseCaseState()
+            val temporaryColor by StateSaver.temporaryColor.collectAsStateWithLifecycle()
+            val useCase = rememberUseCaseState(
+                onFinishedRequest = {
+                    StateSaver.updateTemporaryColor(null)
+                },
+                onCloseRequest = {
+                    StateSaver.updateTemporaryColor(null)
+                },
+                onDismissRequest = {
+                    StateSaver.updateTemporaryColor(null)
+                }
+            )
             val colors = remember { AppSettings.Color.all.toList() }
 
             OptionDialog(
@@ -117,8 +127,15 @@ fun SettingsScreen(component: SettingsComponent) {
                                 imageVector = Icons.Filled.Circle,
                                 tint = it.toComposeColor()
                             ),
-                            selected = it == selectedColor,
-                            titleText = stringResource(it.toComposeString())
+                            selected = if (temporaryColor != null) {
+                                it == temporaryColor
+                            } else {
+                                it == selectedColor
+                            },
+                            titleText = stringResource(it.toComposeString()),
+                            onClick = {
+                                StateSaver.updateTemporaryColor(it)
+                            }
                         )
                     },
                     onSelectOption = { option, _ ->

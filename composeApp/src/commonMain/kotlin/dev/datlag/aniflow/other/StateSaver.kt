@@ -1,15 +1,22 @@
 package dev.datlag.aniflow.other
 
+import androidx.compose.ui.graphics.Color
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
 import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.ioDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlin.time.Duration.Companion.milliseconds
 
 data object StateSaver {
     var sekretLibraryLoaded: Boolean = false
+    val temporaryColor = MutableStateFlow<AppSettings.Color?>(null)
+
+    fun updateTemporaryColor(value: AppSettings.Color?) = temporaryColor.update { value }
 
     data object List {
         var homeOverview: Int = 0
