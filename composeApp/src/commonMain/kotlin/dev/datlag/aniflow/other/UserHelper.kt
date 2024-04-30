@@ -1,5 +1,9 @@
 package dev.datlag.aniflow.other
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.ViewerMutation
@@ -11,22 +15,23 @@ import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.suspendCatching
+import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
-import org.publicvalue.multiplatform.oidc.appsupport.CodeAuthFlowFactory
-import org.publicvalue.multiplatform.oidc.types.remote.AccessTokenResponse
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 class UserHelper(
     private val userSettings: Settings.PlatformUserSettings,
     private val appSettings: Settings.PlatformAppSettings,
     private val client: ApolloClient,
-    private val authFlowFactory: CodeAuthFlowFactory,
-    private val oidc: OpenIdConnectClient
+    private val clientId: String
 ) {
 
     val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.distinctUntilChanged()
+    val loginUrl: String = "https://anilist.co/api/v2/oauth/authorize?client_id=$clientId&response_type=token"
 
     private val changedUser: MutableStateFlow<User?> = MutableStateFlow(null)
     private val userQuery = client.query(
@@ -63,26 +68,6 @@ class UserHelper(
                 )
             }
         )
-    }
-
-    suspend fun login(): Boolean {
-        if (isLoggedIn.safeFirstOrNull() == true) {
-            return true
-        }
-
-        val flow = withMainContext {
-            authFlowFactory.createAuthFlow(oidc)
-        }
-
-        val tokenResult = suspendCatching {
-            flow.getAccessToken()
-        }
-
-        tokenResult.getOrNull()?.let {
-            updateStoredToken(it)
-        }
-
-        return tokenResult.isSuccess
     }
 
     suspend fun updateAdultSetting(value: Boolean) {
@@ -127,12 +112,15 @@ class UserHelper(
         }
     }
 
-    private suspend fun updateStoredToken(tokenResponse: AccessTokenResponse) {
+    suspend fun saveLogin(
+        accessToken: String,
+        expiresIn: Int?,
+    ) {
         userSettings.setAniListTokens(
-            access = tokenResponse.access_token,
-            expires = tokenResponse.expires_in?.let {
-                Clock.System.now().epochSeconds + it
-            }?.toInt()
+            access = accessToken,
+            expires = expiresIn?.let {
+                Clock.System.now().plus(it.seconds).epochSeconds.toInt()
+            }
         )
     }
 }

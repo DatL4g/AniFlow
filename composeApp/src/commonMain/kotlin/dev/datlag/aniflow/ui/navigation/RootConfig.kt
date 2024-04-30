@@ -10,5 +10,7 @@ sealed class RootConfig {
     data object Home : RootConfig()
 
     @Serializable
-    data class Details(val medium: Medium) : RootConfig()
+    data class Details(val medium: Medium) : RootConfig() {
+        constructor(id: Int) : this(Medium(id))
+    }
 }

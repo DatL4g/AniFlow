@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
@@ -28,15 +29,18 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import org.kodein.di.instance
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -111,6 +115,8 @@ fun MediumScreen(component: MediumComponent) {
                 )
 
                 if (!notReleased) {
+                    val uriHandler = LocalUriHandler.current
+
                     EditFAB(
                         displayAdd = !alreadyAdded,
                         bsAvailable = component.bsAvailable,
@@ -119,9 +125,7 @@ fun MediumScreen(component: MediumComponent) {
 
                         },
                         onRate = {
-                            component.rate {
-                                ratingState.show()
-                            }
+
                         },
                         onProgress = {
                             // ratingState.show()

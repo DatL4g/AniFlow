@@ -107,7 +107,6 @@ kotlin {
             implementation(libs.aboutlibraries)
             implementation(libs.kasechange)
 
-            implementation(libs.oidc)
             implementation(libs.kache)
 
             implementation("dev.datlag.sheets-compose-dialogs:rating:2.0.0-SNAPSHOT")
@@ -168,10 +167,6 @@ android {
 
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
-
-        addManifestPlaceholders(
-            mapOf("oidcRedirectScheme" to "aniflow")
-        )
     }
     packaging {
         resources {

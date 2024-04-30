@@ -21,7 +21,6 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
-import dev.datlag.aniflow.ui.theme.LocalDominantColorState
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -36,8 +35,6 @@ fun AiringCard(
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
-    val schemeState = LocalDominantColorState.current
-
     airing.media?.let(::Medium)?.let { media ->
         Card(
             modifier = modifier,
@@ -65,27 +62,15 @@ fun AiringCard(
                             model = media.coverImage.medium,
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
-                                if (schemeState != null) {
-                                    scope.launch {
-                                        schemeState.updateFrom(state.painter)
-                                    }
-                                }
+
                             }
                         ),
                         onSuccess = { state ->
-                            if (schemeState != null) {
-                                scope.launch {
-                                    schemeState.updateFrom(state.painter)
-                                }
-                            }
+
                         }
                     ),
                     onSuccess = { state ->
-                        if (schemeState != null) {
-                            scope.launch {
-                                schemeState.updateFrom(state.painter)
-                            }
-                        }
+
                     }
                 )
                 Column(

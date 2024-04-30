@@ -38,8 +38,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
-import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
-import org.publicvalue.multiplatform.oidc.appsupport.CodeAuthFlowFactory
 import kotlin.time.Duration.Companion.seconds
 
 class MediumScreenComponent(
@@ -275,15 +273,13 @@ class MediumScreenComponent(
 
     override fun rate(onLoggedIn: () -> Unit) {
         launchIO {
-            if (userHelper.login()) {
-                val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
-                if (currentRating <= -1) {
-                    requestMediaListEntry()
-                }
+            val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
+            if (currentRating <= -1) {
+                requestMediaListEntry()
+            }
 
-                withMainContext {
-                    onLoggedIn()
-                }
+            withMainContext {
+                onLoggedIn()
             }
         }
     }

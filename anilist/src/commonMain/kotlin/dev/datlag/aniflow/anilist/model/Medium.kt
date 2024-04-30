@@ -484,6 +484,6 @@ data class Medium(
     }
 
     companion object {
-        private const val SITE_URL = "https://anilist.co/"
+        private const val SITE_URL = "https://anilist.co/anime/"
     }
 }

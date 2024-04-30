@@ -34,7 +34,6 @@ import dev.datlag.tooling.async.suspendCatching
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.map
 import org.kodein.di.bindProvider
-import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 
 data object NetworkModule {
 
@@ -118,26 +117,12 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindSingleton<OpenIdConnectClient>(Constants.AniList.Auth.CLIENT) {
-            OpenIdConnectClient {
-                endpoints {
-                    baseUrl(Constants.AniList.Auth.BASE_URL) {
-                        authorizationEndpoint = "authorize"
-                        tokenEndpoint = "token"
-                    }
-                }
-                clientId = Sekret.anilistClientId(BuildKonfig.packageName)
-                clientSecret = Sekret.anilistClientSecret(BuildKonfig.packageName)
-                redirectUri = Constants.AniList.Auth.REDIRECT_URL
-            }
-        }
         bindSingleton<UserHelper> {
             UserHelper(
                 userSettings = instance(),
                 appSettings = instance(),
                 client = instance(Constants.AniList.APOLLO_CLIENT),
-                authFlowFactory = instance(),
-                oidc = instance(Constants.AniList.Auth.CLIENT)
+                clientId = Sekret.anilistClientId(BuildKonfig.packageName)!!
             )
         }
         bindSingleton<Ktorfit.Builder> {

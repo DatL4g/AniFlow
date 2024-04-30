@@ -45,31 +45,6 @@ data object SchemeTheme {
 }
 
 @Composable
-fun rememberSchemeThemeDominantColor(
-    key: Any?,
-    state: DominantColorState<Painter>? = null,
-): Color? {
-    if (key == null) {
-        return null
-    }
-
-    val fallbackState = remember(state) {
-        state
-    } ?: remember(key) {
-        SchemeTheme.kache.getIfAvailable(key)
-    } ?: rememberPainterDominantColorState(
-        coroutineContext = ioDispatcher()
-    )
-    val useState by produceState(fallbackState, key) {
-        value = withIOContext {
-            SchemeTheme.kache.getOrPut(key) { fallbackState }
-        } ?: fallbackState
-    }
-
-    return remember(useState) { useState.color }
-}
-
-@Composable
 fun rememberSchemeThemeDominantColorState(
     key: Any?,
     defaultColor: Color = MaterialTheme.colorScheme.primary,
@@ -131,22 +106,16 @@ fun rememberSchemeThemeDominantColorState(
     )
 }
 
-val LocalDominantColorState = compositionLocalOf<DominantColorState<Painter>?>{ null }
-
 @Composable
 fun SchemeTheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
     val state = rememberSchemeThemeDominantColorState(key)
 
     DynamicMaterialTheme(
-        seedColor = rememberSchemeThemeDominantColor(key, state) ?: MaterialTheme.colorScheme.primary,
+        seedColor = state.color,
         useDarkTheme = LocalDarkMode.current,
         animate = true
     ) {
-        CompositionLocalProvider(
-            LocalDominantColorState provides state,
-        ) {
-            content(state)
-        }
+        content(state)
     }
 }
 
