@@ -1,6 +1,5 @@
 package dev.datlag.aniflow.common
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -8,21 +7,19 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.painter.BrushPainter
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import com.kmpalette.DominantColorState
 import dev.datlag.aniflow.LocalPaddingValues
 
 fun Modifier.bottomShadowBrush(color: Color, alpha: Float = 1F): Modifier {
@@ -109,44 +106,6 @@ fun Modifier.mergedLocalPadding(other: PaddingValues, additional: Dp) = composed
 }
 
 @Composable
-private fun shimmerBrush(): Brush {
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.3f),
-        Color.LightGray.copy(alpha = 0.4f),
-        Color.LightGray.copy(alpha = 0.3f),
-        Color.LightGray.copy(alpha = 0.2f),
-    )
-
-    val transition = rememberInfiniteTransition()
-    val translateAnimation by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1500.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 1000,
-                easing = LinearEasing,
-            ),
-            repeatMode = RepeatMode.Restart,
-        )
-    )
-
-    return Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset(x = translateAnimation - 500, y = 0.0f),
-        end = Offset(x = translateAnimation, y = 270F),
-    )
-}
-
-fun Modifier.shimmer(shape: Shape = RectangleShape): Modifier = composed {
-    this.background(
-        brush = shimmerBrush(),
-        shape = shape
-    )
-}
-
-
-@Composable
 fun LazyListState.isScrollingUp(): Boolean {
     var previousIndex by remember(this) {
         mutableStateOf(firstVisibleItemIndex)
@@ -187,3 +146,11 @@ fun SheetState.isFullyExpandedOrTargeted(forceFullExpand: Boolean = false): Bool
 
     return this.targetValue == checkState
 }
+
+val <T : Any> DominantColorState<T>?.primary
+    @Composable
+    get() = this?.color ?: MaterialTheme.colorScheme.primary
+
+val <T : Any> DominantColorState<T>?.onPrimary
+    @Composable
+    get() = this?.onColor ?: MaterialTheme.colorScheme.onPrimary

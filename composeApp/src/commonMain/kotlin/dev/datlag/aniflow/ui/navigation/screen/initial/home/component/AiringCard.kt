@@ -22,6 +22,7 @@ import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
+import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -36,14 +37,14 @@ fun AiringCard(
     onClick: (Medium) -> Unit
 ) {
     airing.media?.let(::Medium)?.let { media ->
+        val updater = SchemeTheme.create(media.id)
+
         Card(
             modifier = modifier,
             onClick = {
                 onClick(media)
             }
         ) {
-            val scope = rememberCoroutineScope()
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -62,15 +63,15 @@ fun AiringCard(
                             model = media.coverImage.medium,
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
-
+                                updater?.update(state.painter)
                             }
                         ),
                         onSuccess = { state ->
-
+                            updater?.update(state.painter)
                         }
                     ),
                     onSuccess = { state ->
-
+                        updater?.update(state.painter)
                     }
                 )
                 Column(

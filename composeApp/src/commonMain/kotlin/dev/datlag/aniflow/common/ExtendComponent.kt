@@ -35,14 +35,14 @@ fun Component.onRender(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun Component.onRenderWithScheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
+fun Component.onRenderWithScheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     onRender {
         SchemeTheme(key, content)
     }
 }
 
 @Composable
-fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
+fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     onRenderWithScheme(key, content)
 
     SchemeTheme.setCommon(key)

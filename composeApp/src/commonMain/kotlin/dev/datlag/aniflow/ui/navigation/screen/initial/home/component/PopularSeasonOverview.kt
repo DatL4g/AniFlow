@@ -18,7 +18,6 @@ import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
-import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle

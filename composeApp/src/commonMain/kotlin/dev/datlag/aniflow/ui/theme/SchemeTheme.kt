@@ -1,6 +1,5 @@
 package dev.datlag.aniflow.ui.theme
 
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -10,37 +9,95 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import com.kmpalette.DominantColorState
 import com.kmpalette.palette.graphics.Palette
-import com.kmpalette.rememberDominantColorState
 import com.kmpalette.rememberPainterDominantColorState
-import com.materialkolor.AnimatedDynamicMaterialTheme
 import com.materialkolor.DynamicMaterialTheme
-import com.materialkolor.ktx.isDisliked
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.LocalDarkMode
+import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.launchIO
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 
 data object SchemeTheme {
 
+    internal val executor = Executor()
     internal val commonSchemeKey = MutableStateFlow<Any?>(null)
-    internal val kache = InMemoryKache<Any, DominantColorState<Painter>>(
+    private val kache = InMemoryKache<Any, DominantColorState<Painter>>(
         maxSize = 25L * 1024 * 1024
     ) {
         strategy = KacheStrategy.LRU
     }
 
+    internal fun get(key: Any) = scopeCatching {
+        kache.getIfAvailable(key)
+    }.getOrNull()
+
+    internal suspend fun getOrPut(key: Any, fallback: DominantColorState<Painter>) = suspendCatching {
+        kache.getOrPut(key) { fallback }
+    }.getOrNull()
+
     fun setCommon(key: Any?) {
         commonSchemeKey.update { key }
+    }
+
+    @Composable
+    fun create(key: Any?): Updater? {
+        if (key == null) {
+            return null
+        }
+
+        val state = rememberSchemeThemeDominantColorState(key)
+        val scope = rememberCoroutineScope()
+        return remember(state, scope) {
+            state?.let { Updater.State(scope, it) }
+        }
+    }
+
+    sealed interface Updater {
+        fun update(input: Painter?)
+        fun update(color: Color?) = update(color?.let(::ColorPainter))
+
+        data class State(
+            private val scope: CoroutineScope,
+            private val state: DominantColorState<Painter>
+        ) : Updater {
+            override fun update(input: Painter?) {
+                if (input == null) {
+                    return
+                }
+
+                scope.launchIO {
+                    executor.enqueue {
+                        state.updateFrom(input)
+                    }
+                }
+            }
+        }
+
+        data class Default(
+            private val key: Any,
+            private val scope: CoroutineScope,
+        ) : Updater {
+            override fun update(input: Painter?) {
+                if (input == null) {
+                    return
+                }
+
+                scope.launchIO {
+                    executor.enqueue {
+                        val state = get(key) ?: return@enqueue
+                        state.updateFrom(input)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -52,10 +109,13 @@ fun rememberSchemeThemeDominantColorState(
     coroutineContext: CoroutineContext = ioDispatcher(),
     isSwatchValid: (Palette.Swatch) -> Boolean = { true },
     builder: Palette.Builder.() -> Unit = {},
-): DominantColorState<Painter> {
+): DominantColorState<Painter>? {
+    if (key == null) {
+        return null
+    }
 
     val fallbackState = remember(key) {
-        key?.let { SchemeTheme.kache.getIfAvailable(it) }
+        SchemeTheme.get(key)
     } ?: rememberPainterDominantColorState(
         defaultColor = defaultColor,
         defaultOnColor = defaultOnColor,
@@ -65,9 +125,7 @@ fun rememberSchemeThemeDominantColorState(
     )
     val state by produceState(fallbackState, key) {
         value = withIOContext {
-            key?.let {
-                SchemeTheme.kache.getOrPut(it) { fallbackState }
-            } ?: fallbackState
+            SchemeTheme.getOrPut(key, fallbackState) ?: fallbackState
         }
     }
 
@@ -83,7 +141,7 @@ fun rememberSchemeThemeDominantColorState(
     applyMinContrast: Boolean = false,
     minContrastBackgroundColor: Color = Color.Transparent,
     coroutineContext: CoroutineContext = ioDispatcher()
-): DominantColorState<Painter> {
+): DominantColorState<Painter>? {
     return rememberSchemeThemeDominantColorState(
         key = key,
         defaultColor = defaultColor,
@@ -107,20 +165,22 @@ fun rememberSchemeThemeDominantColorState(
 }
 
 @Composable
-fun SchemeTheme(key: Any?, content: @Composable (DominantColorState<Painter>) -> Unit) {
+fun SchemeTheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     val state = rememberSchemeThemeDominantColorState(key)
+    val scope = rememberCoroutineScope()
+    val updater = remember(key, scope) {
+        key?.let { SchemeTheme.Updater.Default(it, scope) }
+    } ?: SchemeTheme.create(key)
 
     DynamicMaterialTheme(
-        seedColor = state.color,
-        useDarkTheme = LocalDarkMode.current,
-        animate = true
+        seedColor = state?.color
     ) {
-        content(state)
+        content(updater)
     }
 }
 
 @Composable
-fun CommonSchemeTheme(content: @Composable (DominantColorState<Painter>) -> Unit) {
+fun CommonSchemeTheme(content: @Composable (SchemeTheme.Updater?) -> Unit) {
     val key by SchemeTheme.commonSchemeKey.collectAsStateWithLifecycle()
 
     SchemeTheme(key, content)

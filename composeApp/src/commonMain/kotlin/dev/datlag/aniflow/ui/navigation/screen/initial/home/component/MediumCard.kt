@@ -1,10 +1,6 @@
 package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,10 +8,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -23,15 +16,14 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.bottomShadowBrush
+import dev.datlag.aniflow.common.onPrimary
+import dev.datlag.aniflow.common.primary
 import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.settings.model.AppSettings
-import dev.datlag.aniflow.ui.custom.alignment.rememberParallaxAlignment
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
@@ -43,7 +35,7 @@ fun MediumCard(
 ) {
     SchemeTheme(
         key = medium.id
-    ) { schemeState ->
+    ) { updater ->
         Card(
             modifier = modifier,
             onClick = {
@@ -64,7 +56,6 @@ fun MediumCard(
                     defaultColor = color ?: MaterialTheme.colorScheme.primary,
                     defaultOnColor = contentColorFor(color ?: MaterialTheme.colorScheme.primary)
                 )
-                val scope = rememberCoroutineScope()
 
                 AsyncImage(
                     model = medium.coverImage.extraLarge,
@@ -78,28 +69,18 @@ fun MediumCard(
                             model = medium.coverImage.medium,
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
-                                scope.launch {
-                                    schemeState.updateFrom(state.painter)
-                                }
+                                updater?.update(state.painter)
                             },
                             onError = {
-                                color?.let(::ColorPainter)?.let { painter ->
-                                    scope.launch {
-                                        schemeState.updateFrom(painter)
-                                    }
-                                }
+                                updater?.update(color)
                             }
                         ),
                         onSuccess = { state ->
-                            scope.launch {
-                                schemeState.updateFrom(state.painter)
-                            }
+                            updater?.update(state.painter)
                         }
                     ),
                     onSuccess = { state ->
-                        scope.launch {
-                            schemeState.updateFrom(state.painter)
-                        }
+                        updater?.update(state.painter)
                     }
                 )
 
@@ -114,7 +95,7 @@ fun MediumCard(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .bottomShadowBrush(colorState.color)
+                        .bottomShadowBrush(colorState.primary)
                         .padding(16.dp)
                         .padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -131,10 +112,10 @@ fun MediumCard(
                         },
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth(),
-                        color = colorState.onColor
+                        color = colorState.onPrimary
                     )
                     if (medium.averageScore > 0F) {
-                        Rating(medium, colorState.onColor)
+                        Rating(medium, colorState.onPrimary)
                     }
                 }
             }

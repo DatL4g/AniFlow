@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.common.shimmer
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
