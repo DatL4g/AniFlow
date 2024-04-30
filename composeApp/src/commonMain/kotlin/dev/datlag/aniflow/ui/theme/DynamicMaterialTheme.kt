@@ -15,9 +15,10 @@ import dev.datlag.aniflow.LocalDarkMode
 @Composable
 fun DynamicMaterialTheme(
     seedColor: Color?,
+    animate: Boolean = false,
+    animationSpec: AnimationSpec<Color> = spring(stiffness = Spring.StiffnessLow),
     content: @Composable () -> Unit
 ) {
-
     val dynamicColorScheme = if (seedColor != null) {
         rememberDynamicColorScheme(
             seedColor = seedColor,
@@ -29,47 +30,51 @@ fun DynamicMaterialTheme(
     } else {
         MaterialTheme.colorScheme
     }
-    val colorScheme = dynamicColorScheme.copy(
-        primary = dynamicColorScheme.primary,
-        primaryContainer = dynamicColorScheme.primaryContainer,
-        secondary = dynamicColorScheme.secondary,
-        secondaryContainer = dynamicColorScheme.secondaryContainer,
-        tertiary = dynamicColorScheme.tertiary,
-        tertiaryContainer = dynamicColorScheme.tertiaryContainer,
-        background = dynamicColorScheme.background,
-        surface = dynamicColorScheme.surface,
-        surfaceTint = dynamicColorScheme.surfaceTint,
-        surfaceBright = dynamicColorScheme.surfaceBright,
-        surfaceDim = dynamicColorScheme.surfaceDim,
-        surfaceContainer = dynamicColorScheme.surfaceContainer,
-        surfaceContainerHigh = dynamicColorScheme.surfaceContainerHigh,
-        surfaceContainerHighest = dynamicColorScheme.surfaceContainerHighest,
-        surfaceContainerLow = dynamicColorScheme.surfaceContainerLow,
-        surfaceContainerLowest = dynamicColorScheme.surfaceContainerLowest,
-        surfaceVariant = dynamicColorScheme.surfaceVariant,
-        error = dynamicColorScheme.error,
-        errorContainer = dynamicColorScheme.errorContainer,
-        onPrimary = dynamicColorScheme.onPrimary,
-        onPrimaryContainer = dynamicColorScheme.onPrimaryContainer,
-        onSecondary = dynamicColorScheme.onSecondary,
-        onSecondaryContainer = dynamicColorScheme.onSecondaryContainer,
-        onTertiary = dynamicColorScheme.onTertiary,
-        onTertiaryContainer = dynamicColorScheme.onTertiaryContainer,
-        onBackground = dynamicColorScheme.onBackground,
-        onSurface = dynamicColorScheme.onSurface,
-        onSurfaceVariant = dynamicColorScheme.onSurfaceVariant,
-        onError = dynamicColorScheme.onError,
-        onErrorContainer = dynamicColorScheme.onErrorContainer,
-        inversePrimary = dynamicColorScheme.inversePrimary,
-        inverseSurface = dynamicColorScheme.inverseSurface,
-        inverseOnSurface = dynamicColorScheme.inverseOnSurface,
-        outline = dynamicColorScheme.outline,
-        outlineVariant = dynamicColorScheme.outlineVariant,
-        scrim = dynamicColorScheme.scrim,
-    )
+    val animatedColorScheme = if (!animate) {
+        dynamicColorScheme
+    } else {
+        dynamicColorScheme.copy(
+            primary = dynamicColorScheme.primary.animate(animationSpec),
+            primaryContainer = dynamicColorScheme.primaryContainer.animate(animationSpec),
+            secondary = dynamicColorScheme.secondary.animate(animationSpec),
+            secondaryContainer = dynamicColorScheme.secondaryContainer.animate(animationSpec),
+            tertiary = dynamicColorScheme.tertiary.animate(animationSpec),
+            tertiaryContainer = dynamicColorScheme.tertiaryContainer.animate(animationSpec),
+            background = dynamicColorScheme.background.animate(animationSpec),
+            surface = dynamicColorScheme.surface.animate(animationSpec),
+            surfaceTint = dynamicColorScheme.surfaceTint.animate(animationSpec),
+            surfaceBright = dynamicColorScheme.surfaceBright.animate(animationSpec),
+            surfaceDim = dynamicColorScheme.surfaceDim.animate(animationSpec),
+            surfaceContainer = dynamicColorScheme.surfaceContainer.animate(animationSpec),
+            surfaceContainerHigh = dynamicColorScheme.surfaceContainerHigh.animate(animationSpec),
+            surfaceContainerHighest = dynamicColorScheme.surfaceContainerHighest.animate(animationSpec),
+            surfaceContainerLow = dynamicColorScheme.surfaceContainerLow.animate(animationSpec),
+            surfaceContainerLowest = dynamicColorScheme.surfaceContainerLowest.animate(animationSpec),
+            surfaceVariant = dynamicColorScheme.surfaceVariant.animate(animationSpec),
+            error = dynamicColorScheme.error.animate(animationSpec),
+            errorContainer = dynamicColorScheme.errorContainer.animate(animationSpec),
+            onPrimary = dynamicColorScheme.onPrimary.animate(animationSpec),
+            onPrimaryContainer = dynamicColorScheme.onPrimaryContainer.animate(animationSpec),
+            onSecondary = dynamicColorScheme.onSecondary.animate(animationSpec),
+            onSecondaryContainer = dynamicColorScheme.onSecondaryContainer.animate(animationSpec),
+            onTertiary = dynamicColorScheme.onTertiary.animate(animationSpec),
+            onTertiaryContainer = dynamicColorScheme.onTertiaryContainer.animate(animationSpec),
+            onBackground = dynamicColorScheme.onBackground.animate(animationSpec),
+            onSurface = dynamicColorScheme.onSurface.animate(animationSpec),
+            onSurfaceVariant = dynamicColorScheme.onSurfaceVariant.animate(animationSpec),
+            onError = dynamicColorScheme.onError.animate(animationSpec),
+            onErrorContainer = dynamicColorScheme.onErrorContainer.animate(animationSpec),
+            inversePrimary = dynamicColorScheme.inversePrimary.animate(animationSpec),
+            inverseSurface = dynamicColorScheme.inverseSurface.animate(animationSpec),
+            inverseOnSurface = dynamicColorScheme.inverseOnSurface.animate(animationSpec),
+            outline = dynamicColorScheme.outline.animate(animationSpec),
+            outlineVariant = dynamicColorScheme.outlineVariant.animate(animationSpec),
+            scrim = dynamicColorScheme.scrim.animate(animationSpec),
+        )
+    }
 
     MaterialTheme(
-        colorScheme = colorScheme
+        colorScheme = animatedColorScheme
     ) {
         content()
     }

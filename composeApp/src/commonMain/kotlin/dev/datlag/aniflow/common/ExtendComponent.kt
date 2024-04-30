@@ -37,7 +37,7 @@ fun Component.onRender(content: @Composable () -> Unit) {
 @Composable
 fun Component.onRenderWithScheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     onRender {
-        SchemeTheme(key, content)
+        SchemeTheme(key = key, content = content)
     }
 }
 

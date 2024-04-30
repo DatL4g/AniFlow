@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.common.toComposeColor
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.Colors
@@ -54,11 +55,13 @@ internal fun App(
                 appSettings.color
             }.collectAsStateWithLifecycle(null)
             val seedColor = remember(savedColor) { savedColor?.toComposeColor() }
+            val allLoading by StateSaver.Home.isAllLoading.collectAsStateWithLifecycle(true)
 
             DynamicMaterialTheme(
-                seedColor = seedColor
+                seedColor = seedColor,
+                animate = !allLoading
             ) {
-                CommonSchemeTheme {
+                CommonSchemeTheme(animate = !allLoading) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,

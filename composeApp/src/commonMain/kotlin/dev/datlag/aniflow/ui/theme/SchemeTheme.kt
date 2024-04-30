@@ -165,7 +165,11 @@ fun rememberSchemeThemeDominantColorState(
 }
 
 @Composable
-fun SchemeTheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
+fun SchemeTheme(
+    key: Any?,
+    animate: Boolean = false,
+    content: @Composable (SchemeTheme.Updater?) -> Unit
+) {
     val state = rememberSchemeThemeDominantColorState(key)
     val scope = rememberCoroutineScope()
     val updater = remember(key, scope) {
@@ -173,17 +177,18 @@ fun SchemeTheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) 
     } ?: SchemeTheme.create(key)
 
     DynamicMaterialTheme(
-        seedColor = state?.color
+        seedColor = state?.color,
+        animate = animate
     ) {
         content(updater)
     }
 }
 
 @Composable
-fun CommonSchemeTheme(content: @Composable (SchemeTheme.Updater?) -> Unit) {
+fun CommonSchemeTheme(animate: Boolean = false, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     val key by SchemeTheme.commonSchemeKey.collectAsStateWithLifecycle()
 
-    SchemeTheme(key, content)
+    SchemeTheme(key, animate, content)
 }
 
 private fun Color.contrastAgainst(background: Color): Float {
