@@ -14,6 +14,7 @@ import dev.datlag.aniflow.common.toSettings
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.tooling.async.suspendCatching
+import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
 import kotlinx.coroutines.flow.*
@@ -37,10 +38,8 @@ class UserHelper(
 
     private val changedUser: MutableStateFlow<User?> = MutableStateFlow(null)
     private val userQuery = client.query(
-        ViewerQuery(
-            html = Optional.present(true)
-        )
-    ).toFlow()
+        ViewerQuery()
+    ).toFlow().flowOn(ioDispatcher())
     private val defaultUser = isLoggedIn.transform { loggedIn ->
         if (loggedIn) {
             emitAll(
@@ -51,14 +50,14 @@ class UserHelper(
         } else {
             emit(null)
         }
-    }
+    }.flowOn(ioDispatcher())
     private val latestUser = defaultUser.transform { default ->
         emit(default)
         emitAll(changedUser.filterNotNull().map { changed ->
             changedUser.update { null }
             changed
         })
-    }
+    }.flowOn(ioDispatcher())
 
     val user = latestUser.transform { user ->
         emit(
@@ -71,15 +70,14 @@ class UserHelper(
                 )
             }
         )
-    }
+    }.flowOn(ioDispatcher())
 
     suspend fun updateAdultSetting(value: Boolean) {
         appSettings.setAdultContent(value)
         changedUser.emit(
             client.mutation(
                 ViewerMutation(
-                    adult = Optional.present(value),
-                    html = Optional.present(true)
+                    adult = Optional.present(value)
                 )
             ).execute().data?.UpdateUser?.let(::User)
         )
@@ -92,8 +90,7 @@ class UserHelper(
             changedUser.emit(
                 client.mutation(
                     ViewerMutation(
-                        color = Optional.present(value.label),
-                        html = Optional.present(true)
+                        color = Optional.present(value.label)
                     )
                 ).execute().data?.UpdateUser?.let(::User)
             )
@@ -107,8 +104,7 @@ class UserHelper(
             changedUser.emit(
                 client.mutation(
                     ViewerMutation(
-                        title = Optional.presentIfNotNull(value.toMutation()),
-                        html = Optional.present(true)
+                        title = Optional.presentIfNotNull(value.toMutation())
                     )
                 ).execute().data?.UpdateUser?.let(::User)
             )
@@ -122,8 +118,7 @@ class UserHelper(
             changedUser.emit(
                 client.mutation(
                     ViewerMutation(
-                        char = Optional.presentIfNotNull(value.toMutation()),
-                        html = Optional.present(true)
+                        char = Optional.presentIfNotNull(value.toMutation())
                     )
                 ).execute().data?.UpdateUser?.let(::User)
             )

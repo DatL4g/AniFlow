@@ -36,6 +36,7 @@ kotlin = "1.9.23"
 ksp = "1.9.23-1.0.20"
 ktor = "2.3.10"
 ktorfit = "1.13.0"
+markdown-renderer = "0.16.0"
 moko-resources = "0.24.0-beta-2"
 multidex = "2.0.1"
 napier = "2.7.1"
@@ -95,6 +96,7 @@ ktor-js = { group = "io.ktor", name = "ktor-client-js", version.ref = "ktor" }
 ktor-darwin = { group = "io.ktor", name = "ktor-client-darwin", version.ref = "ktor" }
 ktor-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+markdown-renderer = { group = "com.mikepenz", name = "multiplatform-markdown-renderer-m3", version.ref = "markdown-renderer" }
 moko-resources-compose = { group = "dev.icerock.moko", name = "resources-compose", version.ref = "moko-resources" }
 moko-resources-generator = { group = "dev.icerock.moko", name = "resources-generator", version.ref = "moko-resources" }
 multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }

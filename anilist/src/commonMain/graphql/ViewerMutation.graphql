@@ -1,14 +1,13 @@
 mutation ViewerMutation(
     $adult: Boolean,
     $color: String,
-    $html: Boolean,
     $title: UserTitleLanguage,
     $char: UserStaffNameLanguage
 ) {
     UpdateUser(displayAdultContent: $adult, profileColor: $color, titleLanguage: $title, staffNameLanguage: $char) {
         id,
         name,
-        about(asHtml: $html),
+        about(asHtml: false),
         avatar {
             medium,
             large

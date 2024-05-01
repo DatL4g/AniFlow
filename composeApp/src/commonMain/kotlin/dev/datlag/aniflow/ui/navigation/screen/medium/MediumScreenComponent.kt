@@ -54,8 +54,8 @@ class MediumScreenComponent(
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     private val userHelper by di.instance<UserHelper>()
 
-    override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage
-    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage
+    override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
+    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,
@@ -229,7 +229,7 @@ class MediumScreenComponent(
     }
 
     override fun rate(onLoggedIn: () -> Unit) {
-        launchDefault {
+        launchIO {
             val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
             if (currentRating <= -1) {
                 requestMediaListEntry()

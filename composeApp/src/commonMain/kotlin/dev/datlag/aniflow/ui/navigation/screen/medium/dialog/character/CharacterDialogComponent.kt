@@ -38,7 +38,7 @@ class CharacterDialogComponent(
     )
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
-    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage
+    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     override val state = characterStateMachine.state.flowOn(
         context = ioDispatcher()
@@ -101,7 +101,7 @@ class CharacterDialogComponent(
     }
 
     override fun retry() {
-        launchDefault {
+        launchIO {
             characterStateMachine.dispatch(CharacterStateMachine.Action.Retry)
         }
     }

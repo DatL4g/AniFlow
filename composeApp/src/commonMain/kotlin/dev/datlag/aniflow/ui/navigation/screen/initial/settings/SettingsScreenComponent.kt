@@ -23,11 +23,11 @@ class SettingsScreenComponent(
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     private val userHelper by di.instance<UserHelper>()
 
-    override val user: Flow<User?> = userHelper.user
-    override val adultContent: Flow<Boolean> = appSettings.adultContent
-    override val selectedColor: Flow<SettingsColor?> = appSettings.color
-    override val selectedTitleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage
-    override val selectedCharLanguage: Flow<SettingsChar?> = appSettings.charLanguage
+    override val user: Flow<User?> = userHelper.user.flowOn(ioDispatcher())
+    override val adultContent: Flow<Boolean> = appSettings.adultContent.flowOn(ioDispatcher())
+    override val selectedColor: Flow<SettingsColor?> = appSettings.color.flowOn(ioDispatcher())
+    override val selectedTitleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
+    override val selectedCharLanguage: Flow<SettingsChar?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     @Composable
     override fun render() {

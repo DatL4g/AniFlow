@@ -19,6 +19,7 @@ import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.launchDefault
+import dev.datlag.tooling.compose.launchIO
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
@@ -73,7 +74,7 @@ data object SchemeTheme {
                     return
                 }
 
-                scope.launchDefault {
+                scope.launchIO {
                     executor.enqueue {
                         state.updateFrom(input)
                     }
@@ -90,7 +91,7 @@ data object SchemeTheme {
                     return
                 }
 
-                scope.launchDefault {
+                scope.launchIO {
                     executor.enqueue {
                         val state = get(key) ?: return@enqueue
                         state.updateFrom(input)
@@ -119,7 +120,8 @@ fun rememberSchemeThemeDominantColorState(
         defaultColor = defaultColor,
         defaultOnColor = defaultOnColor,
         builder = builder,
-        isSwatchValid = isSwatchValid
+        isSwatchValid = isSwatchValid,
+        coroutineContext = ioDispatcher()
     )
     val state by produceState(fallbackState, key) {
         value = withIOContext {

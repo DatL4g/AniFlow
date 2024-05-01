@@ -108,6 +108,7 @@ kotlin {
             implementation(libs.kasechange)
 
             implementation(libs.kache)
+            implementation(libs.markdown.renderer)
 
             implementation("dev.datlag.sheets-compose-dialogs:rating:2.0.0-SNAPSHOT")
             implementation("dev.datlag.sheets-compose-dialogs:option:2.0.0-SNAPSHOT")

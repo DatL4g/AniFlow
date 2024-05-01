@@ -32,6 +32,7 @@ import com.maxkeppeler.sheets.option.models.DisplayMode
 import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
+import com.mikepenz.markdown.m3.Markdown
 import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
@@ -91,9 +92,9 @@ fun SettingsScreen(component: SettingsComponent) {
                         fontWeight = FontWeight.Bold
                     )
                     u.description?.let {
-                        Text(
-                            modifier = Modifier.padding(bottom = 8.dp),
-                            text = it.htmlToAnnotatedString()
+                        Markdown(
+                            modifier = Modifier.padding(bottom = 16.dp),
+                            content = it
                         )
                     }
                 }
