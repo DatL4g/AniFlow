@@ -77,7 +77,7 @@ class RootComponent(
     }
 
     fun onLogin(accessToken: String, expiresIn: Int?) {
-        launchIO {
+        launchDefault {
             userHelper.saveLogin(accessToken, expiresIn)
         }
     }

@@ -82,6 +82,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         it?.let(component::trace)
     }
     val traceState by component.traceState.collectAsStateWithLifecycle(TraceStateMachine.State.Waiting)
+    val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(listState, traceState) {
         FABConfig.state.value = FABConfig.Scan(
@@ -105,7 +106,6 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
                 )
             }
             val useCase = rememberUseCaseState(visible = results.isNotEmpty())
-            val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
             OptionDialog(
                 state = useCase,
@@ -152,7 +152,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             AiringOverview(
                 state = component.airingState,
-                titleLanguage = component.titleLanguage,
+                titleLanguage = titleLanguage,
                 onClick = component::details
             )
         }
@@ -167,7 +167,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         item {
             TrendingOverview(
                 state = component.trendingState,
-                titleLanguage = component.titleLanguage,
+                titleLanguage = titleLanguage,
                 onClick = component::details
             )
         }
@@ -183,7 +183,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
             PopularSeasonOverview(
                 state = component.popularSeasonState,
                 current = true,
-                titleLanguage = component.titleLanguage,
+                titleLanguage = titleLanguage,
                 onClick = component::details,
             )
         }
@@ -199,7 +199,7 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
             PopularSeasonOverview(
                 state = component.popularNextSeasonState,
                 current = false,
-                titleLanguage = component.titleLanguage,
+                titleLanguage = titleLanguage,
                 onClick = component::details
             )
         }

@@ -32,7 +32,7 @@ import org.kodein.di.instanceOrNull
 @Composable
 fun AiringCard(
     airing: AiringQuery.AiringSchedule,
-    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
@@ -49,8 +49,6 @@ fun AiringCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
-
                 AsyncImage(
                     modifier = Modifier.widthIn(min = 100.dp, max = 120.dp).fillMaxHeight().clip(MaterialTheme.shapes.medium),
                     model = media.coverImage.extraLarge,

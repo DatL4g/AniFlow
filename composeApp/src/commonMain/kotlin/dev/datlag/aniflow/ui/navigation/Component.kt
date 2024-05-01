@@ -9,6 +9,7 @@ import dev.datlag.tooling.decompose.defaultScope
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.decompose.mainScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import org.kodein.di.DIAware
 
 interface Component : DIAware, ComponentContext {

@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun AiringOverview(
     state: Flow<AiringTodayStateMachine.State>,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.airingState)
@@ -67,7 +67,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<AiringQuery.AiringSchedule>,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit
 ) {
     val state = rememberLazyListState(
@@ -85,7 +85,7 @@ private fun SuccessContent(
         items(data, key = { it.episode to it.media?.id }) { media ->
             AiringCard(
                 airing = media,
-                titleLanguageFlow = titleLanguage,
+                titleLanguage = titleLanguage,
                 modifier = Modifier
                     .height(150.dp)
                     .fillParentMaxWidth(fraction = 0.9F)

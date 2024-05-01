@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun TrendingOverview(
     state: Flow<TrendingAnimeStateMachine.State>,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.trendingState)
@@ -65,7 +65,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(
@@ -82,7 +82,7 @@ private fun SuccessContent(
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
-                titleLanguageFlow = titleLanguage,
+                titleLanguage = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)
                     .height(280.dp)

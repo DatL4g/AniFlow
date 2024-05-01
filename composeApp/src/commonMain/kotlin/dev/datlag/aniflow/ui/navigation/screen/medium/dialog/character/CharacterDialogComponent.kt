@@ -43,105 +43,41 @@ class CharacterDialogComponent(
     )
     private val characterSuccessState = state.mapNotNull {
         it.safeCast<CharacterStateMachine.State.Success>()
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = null
-    )
+    }
 
-    private val id = characterSuccessState.mapNotNull {
-        it?.character?.id
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.id
-    )
+    override val image: Flow<Character.Image> = characterSuccessState.map {
+        it.character.image
+    }
 
-    override val image: StateFlow<Character.Image> = characterSuccessState.mapNotNull {
-        it?.character?.image
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.image
-    )
+    override val name: Flow<Character.Name> = characterSuccessState.map {
+        it.character.name
+    }
 
-    override val name: StateFlow<Character.Name> = characterSuccessState.mapNotNull {
-        it?.character?.name
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.name
-    )
+    override val gender: Flow<String?> = characterSuccessState.map {
+        it.character.gender
+    }
 
-    override val gender: StateFlow<String?> = characterSuccessState.mapNotNull {
-        it?.character?.gender
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.gender
-    )
+    override val bloodType: Flow<String?> = characterSuccessState.map {
+        it.character.bloodType
+    }
 
-    override val bloodType: StateFlow<String?> = characterSuccessState.mapNotNull {
-        it?.character?.bloodType
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.bloodType
-    )
+    override val birthDate: Flow<Character.BirthDate?> = characterSuccessState.map {
+        it.character.birthDate
+    }
 
-    override val birthDate: StateFlow<Character.BirthDate?> = characterSuccessState.mapNotNull {
-        it?.character?.birthDate
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.birthDate
-    )
-
-    override val description: StateFlow<String?> = characterSuccessState.mapNotNull {
-        it?.character?.description
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.description
-    )
+    override val description: Flow<String?> = characterSuccessState.map {
+        it.character.description
+    }
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    override val isFavorite: StateFlow<Boolean> = characterSuccessState.mapNotNull {
-        it?.character?.isFavorite
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.isFavorite
-    )
+    override val isFavorite: Flow<Boolean> = characterSuccessState.map {
+        it.character.isFavorite
+    }
 
-    override val isFavoriteBlocked: StateFlow<Boolean> = characterSuccessState.mapNotNull {
-        it?.character?.isFavoriteBlocked
-    }.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = initialChar.isFavoriteBlocked
-    )
+    override val isFavoriteBlocked: Flow<Boolean> = characterSuccessState.map {
+        it.character.isFavoriteBlocked
+    }
 
     @Composable
     override fun render() {
@@ -159,14 +95,14 @@ class CharacterDialogComponent(
     }
 
     override fun retry() {
-        launchIO {
+        launchDefault {
             characterStateMachine.dispatch(CharacterStateMachine.Action.Retry)
         }
     }
 
     override fun toggleFavorite() {
         launchIO {
-            val charId = id.safeFirstOrNull() ?: id.value
+            val charId = initialChar.id
             val mutation = FavoriteToggleMutation(
                 characterId = Optional.present(charId)
             )

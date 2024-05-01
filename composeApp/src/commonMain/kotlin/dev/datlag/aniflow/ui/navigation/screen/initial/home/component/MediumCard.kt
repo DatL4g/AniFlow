@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun MediumCard(
     medium: Medium,
-    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
@@ -100,8 +100,6 @@ fun MediumCard(
                         .padding(top = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
-
                     Text(
                         text = medium.preferred(titleLanguage),
                         style = MaterialTheme.typography.titleLarge,

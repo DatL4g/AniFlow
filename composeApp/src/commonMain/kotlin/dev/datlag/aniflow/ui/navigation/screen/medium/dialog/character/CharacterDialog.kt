@@ -52,13 +52,13 @@ fun CharacterDialog(component: CharacterComponent) {
         windowInsets = insets,
         sheetState = sheetState
     ) {
-        val name by component.name.collectAsStateWithLifecycle()
+        val name by component.name.collectAsStateWithLifecycle(component.initialChar.name)
 
         Box(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center
         ) {
-            val image by component.image.collectAsStateWithLifecycle()
+            val image by component.image.collectAsStateWithLifecycle(component.initialChar.image)
             val state by component.state.collectAsStateWithLifecycle()
 
             this@ModalBottomSheet.AnimatedVisibility(
@@ -108,8 +108,8 @@ fun CharacterDialog(component: CharacterComponent) {
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle()
-                val isFavorite by component.isFavorite.collectAsStateWithLifecycle()
+                val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle(component.initialChar.isFavoriteBlocked)
+                val isFavorite by component.isFavorite.collectAsStateWithLifecycle(component.initialChar.isFavorite)
                 var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
 
                 IconButton(
@@ -146,7 +146,7 @@ fun CharacterDialog(component: CharacterComponent) {
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val description by component.description.collectAsStateWithLifecycle()
+            val description by component.description.collectAsStateWithLifecycle(component.initialChar.description)
             val translatedDescription by component.translatedDescription.collectAsStateWithLifecycle()
             val textHasPadding = remember(translatedDescription, description) {
                 !translatedDescription.isNullOrBlank() || !description.isNullOrBlank()
@@ -162,9 +162,9 @@ fun CharacterDialog(component: CharacterComponent) {
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                val gender by component.gender.collectAsStateWithLifecycle()
-                val bloodType by component.bloodType.collectAsStateWithLifecycle()
-                val birthDate by component.birthDate.collectAsStateWithLifecycle()
+                val gender by component.gender.collectAsStateWithLifecycle(component.initialChar.gender)
+                val bloodType by component.bloodType.collectAsStateWithLifecycle(component.initialChar.bloodType)
+                val birthDate by component.birthDate.collectAsStateWithLifecycle(component.initialChar.birthDate)
 
                 bloodType?.let {
                     Column(

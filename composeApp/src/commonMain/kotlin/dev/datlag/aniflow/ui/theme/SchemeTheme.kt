@@ -18,7 +18,7 @@ import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
-import dev.datlag.tooling.compose.launchIO
+import dev.datlag.tooling.compose.launchDefault
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
@@ -73,7 +73,7 @@ data object SchemeTheme {
                     return
                 }
 
-                scope.launchIO {
+                scope.launchDefault {
                     executor.enqueue {
                         state.updateFrom(input)
                     }
@@ -90,7 +90,7 @@ data object SchemeTheme {
                     return
                 }
 
-                scope.launchIO {
+                scope.launchDefault {
                     executor.enqueue {
                         val state = get(key) ?: return@enqueue
                         state.updateFrom(input)
@@ -106,7 +106,6 @@ fun rememberSchemeThemeDominantColorState(
     key: Any?,
     defaultColor: Color = MaterialTheme.colorScheme.primary,
     defaultOnColor: Color = MaterialTheme.colorScheme.onPrimary,
-    coroutineContext: CoroutineContext = ioDispatcher(),
     isSwatchValid: (Palette.Swatch) -> Boolean = { true },
     builder: Palette.Builder.() -> Unit = {},
 ): DominantColorState<Painter>? {
@@ -119,7 +118,6 @@ fun rememberSchemeThemeDominantColorState(
     } ?: rememberPainterDominantColorState(
         defaultColor = defaultColor,
         defaultOnColor = defaultOnColor,
-        coroutineContext = coroutineContext,
         builder = builder,
         isSwatchValid = isSwatchValid
     )
@@ -139,14 +137,12 @@ fun rememberSchemeThemeDominantColorState(
     defaultOnColor: Color = MaterialTheme.colorScheme.onPrimary,
     clearFilter: Boolean = false,
     applyMinContrast: Boolean = false,
-    minContrastBackgroundColor: Color = Color.Transparent,
-    coroutineContext: CoroutineContext = ioDispatcher()
+    minContrastBackgroundColor: Color = Color.Transparent
 ): DominantColorState<Painter>? {
     return rememberSchemeThemeDominantColorState(
         key = key,
         defaultColor = defaultColor,
         defaultOnColor = defaultOnColor,
-        coroutineContext = coroutineContext,
         builder = {
             if (clearFilter) {
                 clearFilters()

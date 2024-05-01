@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun PopularSeasonOverview(
     state: Flow<SeasonState>,
     current: Boolean,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(
@@ -76,7 +76,7 @@ private fun Loading() {
 private fun SuccessContent(
     data: List<SeasonQuery.Medium>,
     current: Boolean,
-    titleLanguage: Flow<AppSettings.TitleLanguage?>,
+    titleLanguage: AppSettings.TitleLanguage?,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(
@@ -101,7 +101,7 @@ private fun SuccessContent(
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
                 medium = Medium(medium),
-                titleLanguageFlow = titleLanguage,
+                titleLanguage = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)
                     .height(280.dp)

@@ -36,7 +36,7 @@ class HomeScreenComponent(
 ) : HomeComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
-    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage.flowOn(ioDispatcher())
+    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage
 
     private val airingTodayStateMachine by di.instance<AiringTodayStateMachine>()
     override val airingState: Flow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.map {
@@ -87,7 +87,7 @@ class HomeScreenComponent(
     }
 
     override fun trace(channel: ByteArray) {
-        launchIO {
+        launchDefault {
             traceStateMachine.dispatch(TraceStateMachine.Action.Load(channel))
         }
     }

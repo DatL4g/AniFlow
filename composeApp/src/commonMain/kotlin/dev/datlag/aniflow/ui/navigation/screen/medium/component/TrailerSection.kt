@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -63,7 +64,14 @@ fun TrailerSection(
                             modifier = Modifier.size(48.dp),
                             painter = painterResource(SharedRes.images.youtube),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(LocalContentColor.current)
+                            colorFilter = ColorFilter.tint(
+                                Color(
+                                    alpha = 200,
+                                    red = 205,
+                                    green = 32,
+                                    blue = 31
+                                )
+                            )
                         )
                     } else {
                         Icon(
