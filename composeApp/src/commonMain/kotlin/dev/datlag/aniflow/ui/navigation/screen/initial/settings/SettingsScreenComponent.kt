@@ -24,6 +24,9 @@ class SettingsScreenComponent(
     private val userHelper by di.instance<UserHelper>()
 
     override val user: Flow<User?> = userHelper.user.flowOn(ioDispatcher())
+    override val isLoggedIn: Flow<Boolean> = userHelper.isLoggedIn.flowOn(ioDispatcher())
+    override val loginUri: String = userHelper.loginUrl
+
     override val adultContent: Flow<Boolean> = appSettings.adultContent.flowOn(ioDispatcher())
     override val selectedColor: Flow<SettingsColor?> = appSettings.color.flowOn(ioDispatcher())
     override val selectedTitleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
@@ -57,6 +60,12 @@ class SettingsScreenComponent(
     override fun changeCharLanguage(value: SettingsChar?) {
         launchIO {
             userHelper.updateCharLanguage(value)
+        }
+    }
+
+    override fun logout() {
+        launchIO {
+            userHelper.logout()
         }
     }
 }

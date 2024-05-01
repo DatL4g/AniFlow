@@ -14,6 +14,7 @@ data object Settings {
             access: String,
             expires: Int?
         )
+        suspend fun removeAniListToken()
     }
 
     interface PlatformAppSettings {

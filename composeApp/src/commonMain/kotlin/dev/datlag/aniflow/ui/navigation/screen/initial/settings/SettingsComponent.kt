@@ -9,6 +9,9 @@ import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
 interface SettingsComponent : Component {
     val user: Flow<User?>
+    val isLoggedIn: Flow<Boolean>
+    val loginUri: String
+
     val adultContent: Flow<Boolean>
     val selectedColor: Flow<SettingsColor?>
     val selectedTitleLanguage: Flow<SettingsTitle?>
@@ -18,4 +21,5 @@ interface SettingsComponent : Component {
     fun changeProfileColor(value: SettingsColor?)
     fun changeTitleLanguage(value: SettingsTitle?)
     fun changeCharLanguage(value: SettingsChar?)
+    fun logout()
 }

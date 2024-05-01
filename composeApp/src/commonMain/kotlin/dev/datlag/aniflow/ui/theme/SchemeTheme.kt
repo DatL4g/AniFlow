@@ -169,10 +169,7 @@ fun SchemeTheme(
     content: @Composable (SchemeTheme.Updater?) -> Unit
 ) {
     val state = rememberSchemeThemeDominantColorState(key)
-    val scope = rememberCoroutineScope()
-    val updater = remember(key, scope) {
-        key?.let { SchemeTheme.Updater.Default(it, scope) }
-    } ?: SchemeTheme.create(key)
+    val updater = SchemeTheme.create(key)
 
     DynamicMaterialTheme(
         seedColor = state?.color,

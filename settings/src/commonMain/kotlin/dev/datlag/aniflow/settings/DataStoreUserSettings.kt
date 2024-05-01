@@ -49,4 +49,15 @@ class DataStoreUserSettings(
             )
         }
     }
+
+    override suspend fun removeAniListToken() {
+        dataStore.updateData {
+            it.copy(
+                aniList = it.aniList.copy(
+                    accessToken = null,
+                    expires = null
+                )
+            )
+        }
+    }
 }

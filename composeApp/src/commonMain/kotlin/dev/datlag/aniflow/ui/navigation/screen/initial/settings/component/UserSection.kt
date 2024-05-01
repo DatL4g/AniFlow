@@ -32,6 +32,7 @@ import org.kodein.di.instance
 @Composable
 fun UserSection(
     userFlow: Flow<User?>,
+    loginUri: String,
     modifier: Modifier = Modifier,
 ) {
     val user by userFlow.collectAsStateWithLifecycle(null)
@@ -42,13 +43,12 @@ fun UserSection(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val uriHandler = LocalUriHandler.current
-        val userHelper by LocalDI.current.instance<UserHelper>()
 
         AsyncImage(
             modifier = Modifier.size(96.dp).clip(CircleShape).onClick(
                 enabled = user == null,
             ) {
-                uriHandler.openUri(userHelper.loginUrl)
+                uriHandler.openUri(loginUri)
             },
             model = user?.avatar?.large,
             contentDescription = null,
@@ -65,15 +65,9 @@ fun UserSection(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        user?.description?.let {
-            Markdown(
-                modifier = Modifier.padding(bottom = 16.dp),
-                content = it
-            )
-        } ?: run {
-            Text(
-                text = "Click the image above to login with AniList"
-            )
-        }
+        Markdown(
+            modifier = Modifier.padding(bottom = 16.dp),
+            content = user?.description ?: "Login with [AniList](${loginUri})"
+        )
     }
 }

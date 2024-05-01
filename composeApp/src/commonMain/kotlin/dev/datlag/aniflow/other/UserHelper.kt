@@ -37,7 +37,7 @@ class UserHelper(
     private val clientId: String
 ) {
 
-    val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.distinctUntilChanged()
+    val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.flowOn(ioDispatcher()).distinctUntilChanged()
     val loginUrl: String = "https://anilist.co/api/v2/oauth/authorize?client_id=$clientId&response_type=token"
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -132,5 +132,9 @@ class UserHelper(
                 Clock.System.now().plus(it.seconds).epochSeconds.toInt()
             }
         )
+    }
+
+    suspend fun logout() {
+        userSettings.removeAniListToken()
     }
 }
