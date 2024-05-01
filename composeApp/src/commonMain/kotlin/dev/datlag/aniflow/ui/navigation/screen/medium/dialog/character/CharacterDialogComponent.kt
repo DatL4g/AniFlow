@@ -11,6 +11,9 @@ import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.CharLanguage
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
@@ -33,6 +36,9 @@ class CharacterDialogComponent(
         crashlytics = di.nullableFirebaseInstance()?.crashlytics,
         id = initialChar.id
     )
+
+    private val appSettings by di.instance<Settings.PlatformAppSettings>()
+    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage
 
     override val state = characterStateMachine.state.flowOn(
         context = ioDispatcher()

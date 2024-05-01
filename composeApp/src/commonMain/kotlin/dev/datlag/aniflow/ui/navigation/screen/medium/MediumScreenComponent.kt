@@ -25,6 +25,7 @@ import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
+import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
 import dev.datlag.tooling.alsoTrue
@@ -39,6 +40,7 @@ import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
 import kotlin.time.Duration.Companion.seconds
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 class MediumScreenComponent(
     componentContext: ComponentContext,
@@ -52,7 +54,8 @@ class MediumScreenComponent(
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     private val userHelper by di.instance<UserHelper>()
 
-    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage
+    override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage
+    override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage
 
     private val mediumStateMachine = MediumStateMachine(
         client = aniListClient,

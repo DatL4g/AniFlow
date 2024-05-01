@@ -1,7 +1,6 @@
 package dev.datlag.aniflow.settings
 
-import dev.datlag.aniflow.settings.model.AppSettings
-import dev.datlag.aniflow.settings.model.UserSettings
+import dev.datlag.aniflow.settings.model.*
 import kotlinx.coroutines.flow.Flow
 
 data object Settings {
@@ -19,19 +18,22 @@ data object Settings {
 
     interface PlatformAppSettings {
         val adultContent: Flow<Boolean>
-        val color: Flow<AppSettings.Color?>
-        val titleLanguage: Flow<AppSettings.TitleLanguage?>
+        val color: Flow<Color?>
+        val titleLanguage: Flow<TitleLanguage?>
+        val charLanguage: Flow<CharLanguage?>
 
         suspend fun setAdultContent(value: Boolean)
-        suspend fun setColor(value: AppSettings.Color?)
+        suspend fun setColor(value: Color?)
         suspend fun setColor(value: String?) = setColor(value?.let {
-            AppSettings.Color.fromString(it)
+            Color.fromString(it)
         })
-        suspend fun setTitleLanguage(value: AppSettings.TitleLanguage?)
+        suspend fun setTitleLanguage(value: TitleLanguage?)
+        suspend fun setCharLanguage(value: CharLanguage?)
         suspend fun setData(
             adultContent: Boolean,
-            color: AppSettings.Color?,
-            titleLanguage: AppSettings.TitleLanguage?,
+            color: Color?,
+            titleLanguage: TitleLanguage?,
+            charLanguage: CharLanguage?,
         )
     }
 }

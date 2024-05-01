@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 import kotlin.time.Duration.Companion.seconds
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 class HomeScreenComponent(
     componentContext: ComponentContext,
@@ -36,7 +37,7 @@ class HomeScreenComponent(
 ) : HomeComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
-    override val titleLanguage: Flow<AppSettings.TitleLanguage?> = appSettings.titleLanguage
+    override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage
 
     private val airingTodayStateMachine by di.instance<AiringTodayStateMachine>()
     override val airingState: Flow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.map {

@@ -28,11 +28,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 import org.kodein.di.instanceOrNull
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun AiringCard(
     airing: AiringQuery.AiringSchedule,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {

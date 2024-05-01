@@ -11,12 +11,13 @@ import dev.datlag.tooling.compose.ioDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlin.time.Duration.Companion.milliseconds
+import dev.datlag.aniflow.settings.model.Color as SettingsColor
 
 data object StateSaver {
     var sekretLibraryLoaded: Boolean = false
-    val temporaryColor = MutableStateFlow<AppSettings.Color?>(null)
+    val temporaryColor = MutableStateFlow<SettingsColor?>(null)
 
-    fun updateTemporaryColor(value: AppSettings.Color?) = temporaryColor.update { value }
+    fun updateTemporaryColor(value: SettingsColor?) = temporaryColor.update { value }
 
     data object List {
         var homeOverview: Int = 0

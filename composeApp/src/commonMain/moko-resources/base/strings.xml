@@ -51,4 +51,7 @@
     <string name="title_romaji">Romaji</string>
     <string name="title_english">English</string>
     <string name="title_native">Native</string>
+    <string name="char_romaji_western">Romaji (Western Order)</string>
+    <string name="char_romaji">Romaji</string>
+    <string name="char_native">Native</string>
 </resources>

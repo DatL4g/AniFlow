@@ -13,10 +13,13 @@ import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
+import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
 interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
-    val titleLanguage: Flow<AppSettings.TitleLanguage?>
+    val titleLanguage: Flow<SettingsTitle?>
+    val charLanguage: Flow<SettingsChar?>
 
     val mediumState: StateFlow<MediumStateMachine.State>
     val isAdult: Flow<Boolean>

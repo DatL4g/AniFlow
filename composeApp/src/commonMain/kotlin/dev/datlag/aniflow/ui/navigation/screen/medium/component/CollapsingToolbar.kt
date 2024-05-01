@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
 import kotlin.math.min
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
@@ -49,7 +50,7 @@ fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
     initialMedium: Medium,
-    titleLanguageFlow: Flow<AppSettings.TitleLanguage?>,
+    titleLanguageFlow: Flow<SettingsTitle?>,
     mediumStateFlow: StateFlow<MediumStateMachine.State>,
     bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,

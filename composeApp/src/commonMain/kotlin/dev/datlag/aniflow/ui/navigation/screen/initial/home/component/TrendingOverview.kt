@@ -23,11 +23,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun TrendingOverview(
     state: Flow<TrendingAnimeStateMachine.State>,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.trendingState)
@@ -65,7 +66,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<TrendingQuery.Medium>,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(

@@ -25,12 +25,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun PopularSeasonOverview(
     state: Flow<SeasonState>,
     current: Boolean,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit,
 ) {
     val loadingState by state.collectAsStateWithLifecycle(
@@ -76,7 +77,7 @@ private fun Loading() {
 private fun SuccessContent(
     data: List<SeasonQuery.Medium>,
     current: Boolean,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
     val listState = rememberLazyListState(

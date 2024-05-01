@@ -11,7 +11,8 @@ query ViewerQuery($html: Boolean) {
         options {
             displayAdultContent,
             profileColor,
-            titleLanguage
+            titleLanguage,
+            staffNameLanguage
         }
     }
 }

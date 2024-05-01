@@ -9,3 +9,12 @@ inline fun <T : Number> T?.ifValueOrNull(value: T, defaultValue: () -> T): T {
 }
 
 fun Boolean.toInt() = if (this) 1 else 0
+
+fun StringBuilder.appendWithSpace(str: String?): StringBuilder {
+    var builder = this
+    if (!str.isNullOrBlank()) {
+        builder = builder.append(str)
+        builder = builder.append(" ")
+    }
+    return builder
+}

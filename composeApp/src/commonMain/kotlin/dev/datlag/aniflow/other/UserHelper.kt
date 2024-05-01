@@ -13,7 +13,6 @@ import dev.datlag.aniflow.common.toMutation
 import dev.datlag.aniflow.common.toSettings
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
@@ -22,6 +21,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import dev.datlag.aniflow.settings.model.Color as SettingsColor
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
+import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
 class UserHelper(
     private val userSettings: Settings.PlatformUserSettings,
@@ -63,8 +65,9 @@ class UserHelper(
             user?.also {
                 appSettings.setData(
                     adultContent = it.displayAdultContent,
-                    color = AppSettings.Color.fromString(it.profileColor),
-                    titleLanguage = it.titleLanguage.toSettings()
+                    color = SettingsColor.fromString(it.profileColor),
+                    titleLanguage = it.titleLanguage.toSettings(),
+                    charLanguage = it.charLanguage.toSettings()
                 )
             }
         )
@@ -82,7 +85,7 @@ class UserHelper(
         )
     }
 
-    suspend fun updateProfileColorSetting(value: AppSettings.Color?) {
+    suspend fun updateProfileColorSetting(value: SettingsColor?) {
         appSettings.setColor(value)
 
         if (value != null) {
@@ -97,7 +100,7 @@ class UserHelper(
         }
     }
 
-    suspend fun updateTitleLanguage(value: AppSettings.TitleLanguage?) {
+    suspend fun updateTitleLanguage(value: SettingsTitle?) {
         appSettings.setTitleLanguage(value)
 
         if (value != null) {
@@ -105,6 +108,21 @@ class UserHelper(
                 client.mutation(
                     ViewerMutation(
                         title = Optional.presentIfNotNull(value.toMutation()),
+                        html = Optional.present(true)
+                    )
+                ).execute().data?.UpdateUser?.let(::User)
+            )
+        }
+    }
+
+    suspend fun updateCharLanguage(value: SettingsChar?) {
+        appSettings.setCharLanguage(value)
+
+        if (value != null) {
+            changedUser.emit(
+                client.mutation(
+                    ViewerMutation(
+                        char = Optional.presentIfNotNull(value.toMutation()),
                         html = Optional.present(true)
                     )
                 ).execute().data?.UpdateUser?.let(::User)

@@ -15,18 +15,20 @@ import dev.datlag.aniflow.trace.model.SearchResponse
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.StringResource
 import org.kodein.di.instance
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
+import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
-fun Medium.preferred(setting: AppSettings.TitleLanguage? = null): String {
+fun Medium.preferred(setting: SettingsTitle?): String {
     return this.title.preferred(setting).ifBlank { this.id.toString() }
 }
 
-fun Medium.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
+fun Medium.notPreferred(setting: SettingsTitle?): String? {
     return this.title.notPreferred(setting)?.ifBlank { null }
 }
 
-expect fun Medium.Title.preferred(setting: AppSettings.TitleLanguage? = null): String
+expect fun Medium.Title.preferred(setting: SettingsTitle?): String
 
-fun Medium.Title.notPreferred(setting: AppSettings.TitleLanguage? = null): String? {
+fun Medium.Title.notPreferred(setting: SettingsTitle?): String? {
     val preferred = this.preferred(setting).trim()
     val notPreferred =  when {
         this.native?.trim().equals(preferred, ignoreCase = true) -> {
@@ -127,9 +129,9 @@ fun Collection<Medium.Ranking>.popular(): Medium.Ranking? {
 
 fun Medium.popular(): Medium.Ranking? = this.ranking.popular()
 
-expect fun Character.Name.preferred(): String
+expect fun Character.Name.preferred(setting: SettingsChar?): String
 
-fun Character.preferredName(): String = this.name.preferred()
+fun Character.preferredName(settings: SettingsChar?): String = this.name.preferred(settings)
 
 private fun SearchResponse.Result.AniList.Title?.asMediumTitle(): Medium.Title {
     return Medium.Title(
@@ -148,5 +150,3 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
         title = this.title.asMediumTitle()
     )
 }
-
-fun SearchResponse.Result.AniList.Title.preferred(): String = this.asMediumTitle().preferred()

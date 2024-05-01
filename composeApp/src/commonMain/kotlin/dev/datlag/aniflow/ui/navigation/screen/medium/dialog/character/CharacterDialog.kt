@@ -53,6 +53,7 @@ fun CharacterDialog(component: CharacterComponent) {
         sheetState = sheetState
     ) {
         val name by component.name.collectAsStateWithLifecycle(component.initialChar.name)
+        val charLanguage by component.charLanguage.collectAsStateWithLifecycle(null)
 
         Box(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -89,7 +90,7 @@ fun CharacterDialog(component: CharacterComponent) {
                 ),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.Center,
-                contentDescription = component.initialChar.preferredName()
+                contentDescription = component.initialChar.preferredName(charLanguage)
             )
 
             this@ModalBottomSheet.AnimatedVisibility(
@@ -133,7 +134,7 @@ fun CharacterDialog(component: CharacterComponent) {
 
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = name.preferred(),
+            text = name.preferred(charLanguage),
             style = MaterialTheme.typography.headlineMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

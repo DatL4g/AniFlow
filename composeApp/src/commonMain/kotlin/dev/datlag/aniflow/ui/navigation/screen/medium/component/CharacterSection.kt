@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 fun CharacterSection(
     initialMedium: Medium,
     characterFlow: Flow<Collection<Character>>,
+    charLanguage: Flow<CharLanguage?>,
     modifier: Modifier = Modifier,
     onClick: (Character) -> Unit
 ) {
@@ -46,6 +48,7 @@ fun CharacterSection(
                 items(characters.toList()) { char ->
                     CharacterCard(
                         char = char,
+                        languageFlow = charLanguage,
                         modifier = Modifier.width(96.dp).height(200.dp),
                         onClick = onClick
                     )

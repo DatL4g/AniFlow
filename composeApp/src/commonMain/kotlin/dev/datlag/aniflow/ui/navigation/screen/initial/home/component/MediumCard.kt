@@ -24,12 +24,13 @@ import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
 fun MediumCard(
     medium: Medium,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {

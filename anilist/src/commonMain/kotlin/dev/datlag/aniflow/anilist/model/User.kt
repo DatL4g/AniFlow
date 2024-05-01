@@ -2,6 +2,7 @@ package dev.datlag.aniflow.anilist.model
 
 import dev.datlag.aniflow.anilist.ViewerMutation
 import dev.datlag.aniflow.anilist.ViewerQuery
+import dev.datlag.aniflow.anilist.type.UserStaffNameLanguage
 import dev.datlag.aniflow.anilist.type.UserTitleLanguage
 import kotlinx.serialization.Serializable
 
@@ -15,6 +16,7 @@ data class User(
     val displayAdultContent: Boolean = false,
     val profileColor: String? = null,
     val titleLanguage: TitleLanguage? = null,
+    val charLanguage: CharLanguage? = null
 ) {
     constructor(query: ViewerQuery.Viewer) : this(
         id = query.id,
@@ -24,7 +26,8 @@ data class User(
         banner = query.bannerImage?.ifBlank { null },
         displayAdultContent = query.options?.displayAdultContent ?: false,
         profileColor = query.options?.profileColor?.ifBlank { null },
-        titleLanguage = TitleLanguage.fromUser(query.options?.titleLanguage)
+        titleLanguage = TitleLanguage.fromUser(query.options?.titleLanguage),
+        charLanguage = CharLanguage.fromUser(query.options?.staffNameLanguage)
     )
 
     constructor(mutation: ViewerMutation.UpdateUser) : this(
@@ -35,7 +38,8 @@ data class User(
         banner = mutation.bannerImage?.ifBlank { null },
         displayAdultContent = mutation.options?.displayAdultContent ?: false,
         profileColor = mutation.options?.profileColor?.ifBlank { null },
-        titleLanguage = TitleLanguage.fromUser(mutation.options?.titleLanguage)
+        titleLanguage = TitleLanguage.fromUser(mutation.options?.titleLanguage),
+        charLanguage = CharLanguage.fromUser(mutation.options?.staffNameLanguage)
     )
 
     @Serializable
@@ -70,6 +74,27 @@ data class User(
                 UserTitleLanguage.ROMAJI, UserTitleLanguage.ROMAJI_STYLISED -> Romaji
                 UserTitleLanguage.ENGLISH, UserTitleLanguage.ENGLISH_STYLISED -> English
                 UserTitleLanguage.NATIVE, UserTitleLanguage.NATIVE_STYLISED -> Native
+                else -> null
+            }
+        }
+    }
+
+    @Serializable
+    sealed interface CharLanguage {
+        @Serializable
+        data object RomajiWestern : CharLanguage
+
+        @Serializable
+        data object Romaji : CharLanguage
+
+        @Serializable
+        data object Native : CharLanguage
+
+        companion object {
+            fun fromUser(user: UserStaffNameLanguage?): CharLanguage? = when (user) {
+                UserStaffNameLanguage.ROMAJI_WESTERN-> RomajiWestern
+                UserStaffNameLanguage.ROMAJI -> Romaji
+                UserStaffNameLanguage.NATIVE -> Native
                 else -> null
             }
         }

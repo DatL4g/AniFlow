@@ -41,12 +41,14 @@ import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.common.toComposeColor
 import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.other.StateSaver
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.update
+import dev.datlag.aniflow.settings.model.Color as SettingsColor
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
+import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -116,7 +118,7 @@ fun SettingsScreen(component: SettingsComponent) {
                     StateSaver.updateTemporaryColor(null)
                 }
             )
-            val colors = remember { AppSettings.Color.all.toList() }
+            val colors = remember { SettingsColor.all.toList() }
 
             OptionDialog(
                 state = useCase,
@@ -175,7 +177,7 @@ fun SettingsScreen(component: SettingsComponent) {
         item {
             val selectedTitle by component.selectedTitleLanguage.collectAsStateWithLifecycle(null)
             val useCase = rememberUseCaseState()
-            val languages = remember { AppSettings.TitleLanguage.all.toList() }
+            val languages = remember { SettingsTitle.all.toList() }
 
             OptionDialog(
                 state = useCase,
@@ -206,6 +208,52 @@ fun SettingsScreen(component: SettingsComponent) {
                 )
                 Text(
                     text = "Title Language"
+                )
+                Spacer(modifier = Modifier.weight(1F))
+                IconButton(
+                    onClick = { useCase.show() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = null
+                    )
+                }
+            }
+        }
+        item {
+            val selectedChar by component.selectedCharLanguage.collectAsStateWithLifecycle(null)
+            val useCase = rememberUseCaseState()
+            val languages = remember { SettingsChar.all.toList() }
+
+            OptionDialog(
+                state = useCase,
+                selection = OptionSelection.Single(
+                    options = languages.map {
+                        Option(
+                            selected = it == selectedChar,
+                            titleText = stringResource(it.toComposeString())
+                        )
+                    },
+                    onSelectOption = { option, _ ->
+                        component.changeCharLanguage(languages[option])
+                    }
+                ),
+                config = OptionConfig(
+                    mode = DisplayMode.LIST,
+                )
+            )
+
+            Row(
+                modifier = Modifier.fillParentMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PersonPin,
+                    contentDescription = null
+                )
+                Text(
+                    text = "Character Language"
                 )
                 Spacer(modifier = Modifier.weight(1F))
                 IconButton(
@@ -257,19 +305,4 @@ fun SettingsScreen(component: SettingsComponent) {
             StateSaver.List.settingsOverviewOffset = listState.firstVisibleItemScrollOffset
         }
     }
-}
-
-@OptIn(ExperimentalStdlibApi::class)
-@Composable
-fun ColorItem(
-    color: AppSettings.Color,
-    onClick: (AppSettings.Color) -> Unit
-) {
-    Card(
-        modifier = Modifier.size(48.dp),
-        onClick = { onClick(color) },
-        colors = CardDefaults.cardColors(containerColor = color.toComposeColor()),
-        shape = CircleShape,
-        content = { }
-    )
 }

@@ -1,5 +1,11 @@
-mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean, $title: UserTitleLanguage) {
-    UpdateUser(displayAdultContent: $adult, profileColor: $color, titleLanguage: $title) {
+mutation ViewerMutation(
+    $adult: Boolean,
+    $color: String,
+    $html: Boolean,
+    $title: UserTitleLanguage,
+    $char: UserStaffNameLanguage
+) {
+    UpdateUser(displayAdultContent: $adult, profileColor: $color, titleLanguage: $title, staffNameLanguage: $char) {
         id,
         name,
         about(asHtml: $html),
@@ -11,7 +17,8 @@ mutation ViewerMutation($adult: Boolean, $color: String, $html: Boolean, $title:
         options {
             displayAdultContent,
             profileColor,
-            titleLanguage
+            titleLanguage,
+            staffNameLanguage
         }
     }
 }

@@ -21,11 +21,15 @@ import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferredName
+import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.tooling.compose.ifTrue
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun CharacterCard(
     char: Character,
+    languageFlow: Flow<CharLanguage?>,
     modifier: Modifier = Modifier,
     onClick: (Character) -> Unit
 ) {
@@ -67,8 +71,10 @@ fun CharacterCard(
             modifier = Modifier.weight(1F),
             contentAlignment = Alignment.Center
         ) {
+            val charLanguage by languageFlow.collectAsStateWithLifecycle(null)
+
             Text(
-                text = char.preferredName(),
+                text = char.preferredName(charLanguage),
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 2,
                 softWrap = true,

@@ -15,9 +15,10 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 interface HomeComponent : ContentHolderComponent {
-    val titleLanguage: Flow<AppSettings.TitleLanguage?>
+    val titleLanguage: Flow<SettingsTitle?>
 
     val airingState: Flow<AiringTodayStateMachine.State>
     val trendingState: Flow<TrendingAnimeStateMachine.State>

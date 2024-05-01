@@ -116,6 +116,7 @@ fun MediumScreen(component: MediumComponent) {
 
                 if (!notReleased) {
                     val uriHandler = LocalUriHandler.current
+                    val userHelper by LocalDI.current.instance<UserHelper>()
 
                     EditFAB(
                         displayAdd = !alreadyAdded,
@@ -125,7 +126,7 @@ fun MediumScreen(component: MediumComponent) {
 
                         },
                         onRate = {
-
+                            uriHandler.openUri(userHelper.loginUrl)
                         },
                         onProgress = {
                             // ratingState.show()
@@ -184,6 +185,7 @@ fun MediumScreen(component: MediumComponent) {
                         CharacterSection(
                             initialMedium = component.initialMedium,
                             characterFlow = component.characters,
+                            charLanguage = component.charLanguage,
                             modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
                         ) { char ->
                             component.showCharacter(char)

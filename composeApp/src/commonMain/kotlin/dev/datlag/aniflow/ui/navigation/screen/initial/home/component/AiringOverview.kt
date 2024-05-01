@@ -25,11 +25,12 @@ import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun AiringOverview(
     state: Flow<AiringTodayStateMachine.State>,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
     val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.airingState)
@@ -67,7 +68,7 @@ private fun Loading() {
 @Composable
 private fun SuccessContent(
     data: List<AiringQuery.AiringSchedule>,
-    titleLanguage: AppSettings.TitleLanguage?,
+    titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
     val state = rememberLazyListState(
