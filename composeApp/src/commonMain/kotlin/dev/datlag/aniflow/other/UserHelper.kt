@@ -11,12 +11,16 @@ import dev.datlag.aniflow.anilist.ViewerQuery
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.common.toMutation
 import dev.datlag.aniflow.common.toSettings
+import dev.datlag.aniflow.model.emitNotNull
+import dev.datlag.aniflow.model.mutableStateIn
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
@@ -36,30 +40,23 @@ class UserHelper(
     val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.distinctUntilChanged()
     val loginUrl: String = "https://anilist.co/api/v2/oauth/authorize?client_id=$clientId&response_type=token"
 
-    private val changedUser: MutableStateFlow<User?> = MutableStateFlow(null)
-    private val userQuery = client.query(
-        ViewerQuery()
-    ).toFlow().flowOn(ioDispatcher())
-    private val defaultUser = isLoggedIn.transform { loggedIn ->
+    @OptIn(DelicateCoroutinesApi::class)
+    private val updatableUser = isLoggedIn.transform { loggedIn ->
         if (loggedIn) {
             emitAll(
-                userQuery.map {
+                client.query(ViewerQuery()).toFlow().map {
                     it.data?.Viewer?.let(::User)
                 }
             )
         } else {
             emit(null)
         }
-    }.flowOn(ioDispatcher())
-    private val latestUser = defaultUser.transform { default ->
-        emit(default)
-        emitAll(changedUser.filterNotNull().map { changed ->
-            changedUser.update { null }
-            changed
-        })
-    }.flowOn(ioDispatcher())
+    }.mutableStateIn(
+        scope = GlobalScope,
+        initialValue = null
+    )
 
-    val user = latestUser.transform { user ->
+    val user = updatableUser.transform { user ->
         emit(
             user?.also {
                 appSettings.setData(
@@ -74,7 +71,7 @@ class UserHelper(
 
     suspend fun updateAdultSetting(value: Boolean) {
         appSettings.setAdultContent(value)
-        changedUser.emit(
+        updatableUser.emitNotNull(
             client.mutation(
                 ViewerMutation(
                     adult = Optional.present(value)
@@ -87,7 +84,7 @@ class UserHelper(
         appSettings.setColor(value)
 
         if (value != null) {
-            changedUser.emit(
+            updatableUser.emitNotNull(
                 client.mutation(
                     ViewerMutation(
                         color = Optional.present(value.label)
@@ -101,7 +98,7 @@ class UserHelper(
         appSettings.setTitleLanguage(value)
 
         if (value != null) {
-            changedUser.emit(
+            updatableUser.emitNotNull(
                 client.mutation(
                     ViewerMutation(
                         title = Optional.presentIfNotNull(value.toMutation())
@@ -115,7 +112,7 @@ class UserHelper(
         appSettings.setCharLanguage(value)
 
         if (value != null) {
-            changedUser.emit(
+            updatableUser.emitNotNull(
                 client.mutation(
                     ViewerMutation(
                         char = Optional.presentIfNotNull(value.toMutation())

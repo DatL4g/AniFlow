@@ -42,6 +42,7 @@ import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.common.toComposeColor
 import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.ui.navigation.screen.initial.settings.component.*
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
@@ -67,236 +68,43 @@ fun SettingsScreen(component: SettingsComponent) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            val user by component.user.collectAsStateWithLifecycle(null)
-
-            user?.let { u ->
-                Column(
-                    modifier = Modifier.fillParentMaxWidth().padding(bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AsyncImage(
-                        modifier = Modifier.size(96.dp).clip(CircleShape),
-                        model = u.avatar.large,
-                        contentDescription = null,
-                        error = rememberAsyncImagePainter(
-                            model = u.avatar.medium,
-                            contentScale = ContentScale.Crop,
-                        ),
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center
-                    )
-                    Text(
-                        text = u.name,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    u.description?.let {
-                        Markdown(
-                            modifier = Modifier.padding(bottom = 16.dp),
-                            content = it
-                        )
-                    }
-                }
-            } ?: Text(
-                modifier = Modifier.padding(bottom = 8.dp),
-                text = "Settings",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+            UserSection(
+                userFlow = component.user,
+                modifier = Modifier.fillParentMaxWidth()
             )
         }
         item {
-            val selectedColor by component.selectedColor.collectAsStateWithLifecycle(null)
-            val temporaryColor by StateSaver.temporaryColor.collectAsStateWithLifecycle()
-            val useCase = rememberUseCaseState(
-                onFinishedRequest = {
-                    StateSaver.updateTemporaryColor(null)
-                },
-                onCloseRequest = {
-                    StateSaver.updateTemporaryColor(null)
-                },
-                onDismissRequest = {
-                    StateSaver.updateTemporaryColor(null)
-                }
-            )
-            val colors = remember { SettingsColor.all.toList() }
-
-            OptionDialog(
-                state = useCase,
-                selection = OptionSelection.Single(
-                    options = colors.map {
-                        Option(
-                            icon = IconSource(
-                                imageVector = Icons.Filled.Circle,
-                                tint = it.toComposeColor()
-                            ),
-                            selected = if (temporaryColor != null) {
-                                it == temporaryColor
-                            } else {
-                                it == selectedColor
-                            },
-                            titleText = stringResource(it.toComposeString()),
-                            onClick = {
-                                StateSaver.updateTemporaryColor(it)
-                            }
-                        )
-                    },
-                    onSelectOption = { option, _ ->
-                        component.changeProfileColor(colors[option])
-                    }
-                ),
-                config = OptionConfig(
-                    mode = DisplayMode.GRID_VERTICAL,
-                    gridColumns = 4
-                )
-            )
-
-            Row(
+            ColorSection(
+                selectedColorFlow = component.selectedColor,
                 modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Palette,
-                    contentDescription = null,
-                )
-                Text(
-                    text = "Profile Color"
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                IconButton(
-                    onClick = { useCase.show() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Circle,
-                        contentDescription = null,
-                        tint = selectedColor?.toComposeColor() ?: LocalContentColor.current
-                    )
-                }
-            }
+                onChange = component::changeProfileColor
+            )
         }
         item {
-            val selectedTitle by component.selectedTitleLanguage.collectAsStateWithLifecycle(null)
-            val useCase = rememberUseCaseState()
-            val languages = remember { SettingsTitle.all.toList() }
-
-            OptionDialog(
-                state = useCase,
-                selection = OptionSelection.Single(
-                    options = languages.map {
-                        Option(
-                            selected = it == selectedTitle,
-                            titleText = stringResource(it.toComposeString())
-                        )
-                    },
-                    onSelectOption = { option, _ ->
-                        component.changeTitleLanguage(languages[option])
-                    }
-                ),
-                config = OptionConfig(
-                    mode = DisplayMode.LIST,
-                )
-            )
-
-            Row(
+            TitleSection(
+                titleFlow = component.selectedTitleLanguage,
                 modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Title,
-                    contentDescription = null
-                )
-                Text(
-                    text = "Title Language"
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                IconButton(
-                    onClick = { useCase.show() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null
-                    )
-                }
-            }
+                onChange = component::changeTitleLanguage
+            )
         }
         item {
-            val selectedChar by component.selectedCharLanguage.collectAsStateWithLifecycle(null)
-            val useCase = rememberUseCaseState()
-            val languages = remember { SettingsChar.all.toList() }
-
-            OptionDialog(
-                state = useCase,
-                selection = OptionSelection.Single(
-                    options = languages.map {
-                        Option(
-                            selected = it == selectedChar,
-                            titleText = stringResource(it.toComposeString())
-                        )
-                    },
-                    onSelectOption = { option, _ ->
-                        component.changeCharLanguage(languages[option])
-                    }
-                ),
-                config = OptionConfig(
-                    mode = DisplayMode.LIST,
-                )
-            )
-
-            Row(
+            CharacterSection(
+                characterFlow = component.selectedCharLanguage,
                 modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PersonPin,
-                    contentDescription = null
-                )
-                Text(
-                    text = "Character Language"
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                IconButton(
-                    onClick = { useCase.show() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null
-                    )
-                }
-            }
+                onChanged = component::changeCharLanguage
+            )
         }
         item {
-            val adultContent by component.adultContent.collectAsStateWithLifecycle(false)
-
-            Row(
+            AdultSection(
+                adultFlow = component.adultContent,
                 modifier = Modifier.fillParentMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.NoAdultContent,
-                    contentDescription = null,
-                )
-                Text(
-                    text = stringResource(SharedRes.strings.adult_content_setting)
-                )
-                Spacer(modifier = Modifier.weight(1F))
-                Switch(
-                    checked = adultContent,
-                    onCheckedChange = component::changeAdultContent,
-                    thumbContent = {
-                        if (adultContent) {
-                            Icon(
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                )
-            }
+                onChange = component::changeAdultContent
+            )
+        }
+        item {
+            DomainSection(
+                modifier = Modifier.fillParentMaxWidth()
+            )
         }
     }
 

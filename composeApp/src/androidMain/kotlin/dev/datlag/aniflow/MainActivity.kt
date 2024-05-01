@@ -19,6 +19,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.essenty.statekeeper.stateKeeper
+import dev.datlag.aniflow.other.DomainVerifier
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.navigation.RootComponent
 import dev.datlag.tooling.compose.launchIO
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
             ),
             di = di
         )
+
+        DomainVerifier.verify(this)
 
         setContent {
             CompositionLocalProvider(
@@ -86,6 +89,42 @@ class MainActivity : AppCompatActivity() {
             accessToken = accessToken,
             expiresIn = uri.getFragmentOrQueryParameter("expires_in")?.toIntOrNull()
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        DomainVerifier.verify(this)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        DomainVerifier.verify(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        DomainVerifier.verify(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        DomainVerifier.verify(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        DomainVerifier.verify(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        DomainVerifier.verify(this)
     }
 
     private fun Uri.getFragmentOrQueryParameter(param: String): String? {
