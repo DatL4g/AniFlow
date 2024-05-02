@@ -1,10 +1,7 @@
 package dev.datlag.aniflow.other
 
 import androidx.compose.ui.graphics.Color
-import dev.datlag.aniflow.anilist.AiringTodayStateMachine
-import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
-import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
-import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.compose.ioDispatcher
@@ -45,16 +42,10 @@ data object StateSaver {
     }
 
     data object Home {
-        private val _airingState = MutableStateFlow(airingState)
-        private val _trendingState = MutableStateFlow(trendingState)
+        private val airingLoading = MutableStateFlow(true)
+        private val trendingLoading = MutableStateFlow(true)
         private val _popularCurrentState = MutableStateFlow(popularCurrentState)
         private val _popularNextState = MutableStateFlow(popularNextState)
-
-        val airingState: AiringTodayStateMachine.State
-            get() = AiringTodayStateMachine.currentState
-
-        val trendingState: TrendingAnimeStateMachine.State
-            get() = TrendingAnimeStateMachine.currentState
 
         val popularCurrentState: SeasonState
             get() = PopularSeasonStateMachine.currentState
@@ -63,26 +54,28 @@ data object StateSaver {
             get() = PopularNextSeasonStateMachine.currentState
 
         val currentAllLoading: Boolean
-            get() = _airingState.value.isLoadingOrWaiting
-                    && _trendingState.value.isLoadingOrWaiting
+            get() = airingLoading.value
+                    && trendingLoading.value
                     && _popularCurrentState.value.isLoadingOrWaiting
                     && _popularNextState.value.isLoadingOrWaiting
 
         val isAllLoading = combine(
-            _airingState,
-            _trendingState,
+            airingLoading,
+            trendingLoading,
             _popularCurrentState,
             _popularNextState
         ) { t1, t2, t3, t4 ->
-            t1.isLoadingOrWaiting && t2.isLoadingOrWaiting && t3.isLoadingOrWaiting && t4.isLoadingOrWaiting
+            t1 && t2 && t3.isLoadingOrWaiting && t4.isLoadingOrWaiting
         }.flowOn(ioDispatcher()).distinctUntilChanged()
 
-        fun updateAiring(state: AiringTodayStateMachine.State) = _airingState.updateAndGet {
-            state
+        fun updateAiring(state: AiringTodayRepository.State): AiringTodayRepository.State {
+            airingLoading.update { false }
+            return state
         }
 
-        fun updateTrending(state: TrendingAnimeStateMachine.State) = _trendingState.updateAndGet {
-            state
+        fun updateTrending(state: TrendingRepository.State): TrendingRepository.State {
+            trendingLoading.update { false }
+            return state
         }
 
         fun updatePopularCurrent(state: SeasonState) = _popularCurrentState.updateAndGet {

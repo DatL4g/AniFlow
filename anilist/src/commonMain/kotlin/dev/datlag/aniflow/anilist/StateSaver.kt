@@ -5,8 +5,6 @@ import dev.datlag.aniflow.anilist.state.SeasonState
 import kotlinx.datetime.Clock
 
 internal object StateSaver {
-    var trendingAnime: TrendingAnimeStateMachine.State = TrendingAnimeStateMachine.State.Loading(page = 0)
-    var airing: AiringTodayStateMachine.State = AiringTodayStateMachine.State.Loading(page = 0)
     var popularSeason: SeasonState = SeasonState.Loading(page = 0)
     var popularNextSeason: SeasonState = run {
         val (nextSeason, nextYear) = Clock.System.now().nextSeason

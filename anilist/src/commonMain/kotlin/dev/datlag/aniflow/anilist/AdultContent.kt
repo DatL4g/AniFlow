@@ -1,6 +1,13 @@
 package dev.datlag.aniflow.anilist
 
 internal data object AdultContent {
+
+    fun isAdultContent(schedule: AiringQuery.AiringSchedule): Boolean {
+        return schedule.media?.isAdult == true || schedule.media?.genresFilterNotNull()?.any {
+            Genre.exists(it)
+        } == true
+    }
+
     sealed interface Genre : CharSequence {
         val tag: String
 

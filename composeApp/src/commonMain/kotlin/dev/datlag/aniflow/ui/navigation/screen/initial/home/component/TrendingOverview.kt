@@ -13,12 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
-import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.datlag.tooling.safeSubList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,19 +27,17 @@ import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun TrendingOverview(
-    state: Flow<TrendingAnimeStateMachine.State>,
+    state: Flow<TrendingRepository.State>,
     titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit,
 ) {
-    val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.trendingState)
+    val loadingState by state.collectAsStateWithLifecycle(null)
 
     when (val reachedState = loadingState) {
-        is TrendingAnimeStateMachine.State.Loading -> {
-            Loading()
-        }
-        is TrendingAnimeStateMachine.State.Success -> {
+        null -> Loading()
+        is TrendingRepository.State.Success -> {
             SuccessContent(
-                data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
+                data = reachedState.collection.toList(),
                 titleLanguage = titleLanguage,
                 onClick = onClick
             )
@@ -65,7 +63,7 @@ private fun Loading() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessContent(
-    data: List<TrendingQuery.Medium>,
+    data: List<Medium>,
     titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
@@ -80,9 +78,9 @@ private fun SuccessContent(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
+        itemsIndexed(data.safeSubList(0, 10), key = { _, it -> it.id }) { _, medium ->
             MediumCard(
-                medium = Medium(medium),
+                medium = medium,
                 titleLanguage = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)

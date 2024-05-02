@@ -161,7 +161,7 @@ fun MediumScreen(component: MediumComponent) {
                             ratedFlow = component.rated,
                             popularFlow = component.popular,
                             scoreFlow = component.score,
-                            modifier = Modifier.fillParentMaxWidth().padding(16.dp)
+                            modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp)
                         )
                     }
                     item {

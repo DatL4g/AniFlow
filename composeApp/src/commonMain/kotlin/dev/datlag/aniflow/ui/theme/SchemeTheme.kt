@@ -41,6 +41,10 @@ data object SchemeTheme {
     }.getOrNull()
 
     internal suspend fun getOrPut(key: Any, fallback: DominantColorState<Painter>) = suspendCatching {
+        kache.getIfAvailable(key)
+    }.getOrNull() ?: suspendCatching {
+        kache.put(key, fallback)
+    }.getOrNull() ?: suspendCatching {
         kache.getOrPut(key) { fallback }
     }.getOrNull()
 
@@ -114,22 +118,28 @@ fun rememberSchemeThemeDominantColorState(
         return null
     }
 
-    val fallbackState = remember(key) {
+    val existingState = remember(key) {
         SchemeTheme.get(key)
-    } ?: rememberPainterDominantColorState(
+    } ?: SchemeTheme.get(key)
+
+    if (existingState != null) {
+        return existingState
+    }
+
+    val fallbackState = rememberPainterDominantColorState(
         defaultColor = defaultColor,
         defaultOnColor = defaultOnColor,
         builder = builder,
         isSwatchValid = isSwatchValid,
         coroutineContext = ioDispatcher()
     )
-    val state by produceState(fallbackState, key) {
+    val state by produceState<DominantColorState<Painter>?>(null, key) {
         value = withIOContext {
             SchemeTheme.getOrPut(key, fallbackState) ?: fallbackState
         }
     }
 
-    return state
+    return remember(state) { state ?: fallbackState }
 }
 
 @Composable

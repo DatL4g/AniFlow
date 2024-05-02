@@ -106,43 +106,39 @@ class MediumScreenComponent(
 
     override val genres: Flow<Set<String>> = mediumSuccessState.map {
         it.data.genres
-    }
+    }.mapNotEmpty()
 
     override val format: Flow<MediaFormat> = mediumSuccessState.map {
         it.data.format
     }
 
-    private val nextAiringEpisode: Flow<Medium.NextAiring?> = mediumSuccessState.map {
-        it.data.nextAiringEpisode
-    }
-
     override val episodes: Flow<Int> = mediumSuccessState.map {
         it.data.episodes
-    }
+    }.distinctUntilChanged()
 
     override val duration: Flow<Int> = mediumSuccessState.map {
         it.data.avgEpisodeDurationInMin
-    }
+    }.distinctUntilChanged()
 
     override val status: Flow<MediaStatus> = mediumSuccessState.map {
         it.data.status
-    }
+    }.distinctUntilChanged()
 
-    override val rated: Flow<Medium.Ranking?> = mediumSuccessState.map {
+    override val rated: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
         it.data.rated()
-    }
+    }.distinctUntilChanged()
 
-    override val popular: Flow<Medium.Ranking?> = mediumSuccessState.map {
+    override val popular: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
         it.data.popular()
-    }
+    }.distinctUntilChanged()
 
     override val score: Flow<Int?> = mediumSuccessState.mapNotNull {
-        it.data.averageScore.ifValue(-1) { return@mapNotNull null }
-    }
+        it.data.averageScore.asNullIf(-1)
+    }.distinctUntilChanged()
 
     override val characters: Flow<Set<Character>> = mediumSuccessState.map {
         it.data.characters
-    }
+    }.mapNotEmpty()
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
     override val rating: Flow<Int> = combine(

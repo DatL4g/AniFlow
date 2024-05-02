@@ -26,3 +26,9 @@ suspend fun <T> FlowCollector<T>.emitNotNull(value: T?) {
         emit(value)
     }
 }
+
+inline fun <T : Collection<*>> Flow<T>.mapNotEmpty(): Flow<T> = transform { value ->
+    if (value.isNotEmpty()) {
+        return@transform emit(value)
+    }
+}

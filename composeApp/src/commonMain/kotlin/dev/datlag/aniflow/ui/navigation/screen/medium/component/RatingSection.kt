@@ -7,12 +7,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.popular
 import dev.datlag.aniflow.common.rated
+import dev.datlag.aniflow.model.asNullIf
+import dev.datlag.aniflow.model.ifValue
+import dev.datlag.aniflow.model.ifValueOrNull
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +37,7 @@ fun RatingSection(
     ) {
         val rated by ratedFlow.collectAsStateWithLifecycle(initialMedium.rated())
         val popular by popularFlow.collectAsStateWithLifecycle(initialMedium.popular())
-        val score by scoreFlow.collectAsStateWithLifecycle(initialMedium.averageScore)
+        val score by scoreFlow.collectAsStateWithLifecycle(initialMedium.averageScore.asNullIf(-1))
 
         rated?.let {
             Column(

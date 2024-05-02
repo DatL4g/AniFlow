@@ -6,10 +6,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
 import dev.datlag.aniflow.LocalDI
-import dev.datlag.aniflow.anilist.AiringTodayStateMachine
-import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
-import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
-import dev.datlag.aniflow.anilist.TrendingAnimeStateMachine
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.common.onRender
@@ -39,19 +36,15 @@ class HomeScreenComponent(
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
 
-    private val airingTodayStateMachine by di.instance<AiringTodayStateMachine>()
-    override val airingState: Flow<AiringTodayStateMachine.State> = airingTodayStateMachine.state.map {
+    private val airingTodayRepository by di.instance<AiringTodayRepository>()
+    override val airingState: Flow<AiringTodayRepository.State> = airingTodayRepository.airing.map {
         StateSaver.Home.updateAiring(it)
-    }.flowOn(
-        context = ioDispatcher()
-    ).distinctUntilChanged()
+    }
 
-    private val trendingAnimeStateMachine by di.instance<TrendingAnimeStateMachine>()
-    override val trendingState: Flow<TrendingAnimeStateMachine.State> = trendingAnimeStateMachine.state.map {
+    private val trendingRepository by di.instance<TrendingRepository>()
+    override val trendingState: Flow<TrendingRepository.State> = trendingRepository.trending.map {
         StateSaver.Home.updateTrending(it)
-    }.flowOn(
-        context = ioDispatcher()
-    ).distinctUntilChanged()
+    }
 
     private val popularSeasonStateMachine by di.instance<PopularSeasonStateMachine>()
     override val popularSeasonState: Flow<SeasonState> = popularSeasonStateMachine.state.map {

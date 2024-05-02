@@ -18,30 +18,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.AiringQuery
-import dev.datlag.aniflow.anilist.AiringTodayStateMachine
+import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.datlag.tooling.safeSubList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable
 fun AiringOverview(
-    state: Flow<AiringTodayStateMachine.State>,
+    state: Flow<AiringTodayRepository.State>,
     titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
 ) {
-    val loadingState by state.collectAsStateWithLifecycle(StateSaver.Home.airingState)
+    val loadingState by state.collectAsStateWithLifecycle(null)
 
     when (val reachedState = loadingState) {
-        is AiringTodayStateMachine.State.Loading -> {
-            Loading()
-        }
-        is AiringTodayStateMachine.State.Success -> {
+        null -> Loading()
+        is AiringTodayRepository.State.Success -> {
             SuccessContent(
-                data = reachedState.data.Page?.airingSchedulesFilterNotNull() ?: emptyList(),
+                data = reachedState.collection.toList(),
                 titleLanguage = titleLanguage,
                 onClick = onClick
             )
@@ -83,7 +82,7 @@ private fun SuccessContent(
         flingBehavior = rememberSnapFlingBehavior(state),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
-        items(data, key = { it.episode to it.media?.id }) { media ->
+        items(data.safeSubList(0, 10), key = { it.episode to it.media?.id }) { media ->
             AiringCard(
                 airing = media,
                 titleLanguage = titleLanguage,

@@ -4,6 +4,10 @@ inline fun <T : Number> T.ifValue(value: T, defaultValue: () -> T): T {
     return if (this == value) defaultValue() else this
 }
 
+inline fun <T : Number> T.asNullIf(value: T): T? {
+    return if (this == value) null else this
+}
+
 inline fun <T : Number> T?.ifValueOrNull(value: T, defaultValue: () -> T): T {
     return if (this == value || this == null) defaultValue() else this
 }
