@@ -26,6 +26,7 @@ import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
+import dev.icerock.moko.resources.compose.stringResource
 import dev.icerock.moko.resources.compose.painterResource
 import org.kodein.di.instance
 
@@ -61,7 +62,7 @@ fun UserSection(
             alignment = Alignment.Center
         )
         Text(
-            text = user?.name ?: "Settings",
+            text = user?.name ?: stringResource(SharedRes.strings.settings),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )

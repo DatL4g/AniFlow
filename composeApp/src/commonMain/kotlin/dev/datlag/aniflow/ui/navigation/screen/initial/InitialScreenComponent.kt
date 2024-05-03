@@ -1,6 +1,7 @@
 package dev.datlag.aniflow.ui.navigation.screen.initial
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -31,7 +32,7 @@ class InitialScreenComponent(
         ),
         InitialComponent.PagerItem(
             label = SharedRes.strings.settings,
-            icon = Icons.Default.Settings
+            icon = Icons.Filled.AccountCircle
         )
     )
 
