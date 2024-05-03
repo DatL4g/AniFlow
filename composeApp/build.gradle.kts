@@ -110,6 +110,9 @@ kotlin {
             implementation(libs.kache)
             implementation(libs.markdown.renderer)
 
+            implementation(libs.apollo.cache)
+            implementation(libs.apollo.cache.sql)
+
             implementation("dev.datlag.sheets-compose-dialogs:rating:2.0.0-SNAPSHOT")
             implementation("dev.datlag.sheets-compose-dialogs:option:2.0.0-SNAPSHOT")
 

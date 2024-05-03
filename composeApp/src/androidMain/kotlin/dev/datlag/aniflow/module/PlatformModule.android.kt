@@ -6,6 +6,9 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
 import coil3.ImageLoader
 import coil3.request.allowHardware
+import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
+import com.apollographql.apollo3.cache.normalized.api.NormalizedCacheFactory
+import com.apollographql.apollo3.cache.normalized.sql.SqlNormalizedCacheFactory
 import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.firebase.FirebaseFactory
@@ -119,6 +122,11 @@ actual object PlatformModule {
         }
         bindSingleton<BurningSeriesResolver> {
             BurningSeriesResolver(context = instance())
+        }
+        bindSingleton<NormalizedCacheFactory>(Constants.AniList.CACHE_FACTORY) {
+            MemoryCacheFactory(maxSizeBytes = 25 * 1024 * 1024).chain(
+                SqlNormalizedCacheFactory(context = instance(), name = "anilist.db")
+            )
         }
     }
 }

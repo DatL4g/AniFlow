@@ -12,6 +12,7 @@ import kotlinx.datetime.Clock
 
 class PopularNextSeasonRepository(
     private val apolloClient: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
 ) {
 
@@ -28,11 +29,40 @@ class PopularNextSeasonRepository(
             year = year
         )
     }
+    private val fallbackQuery = query.transform {
+        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+    }.mapNotNull {
+        val data = it.data
+        if (data == null) {
+            if (it.hasErrors()) {
+                SeasonState.fromGraphQL(data)
+            } else {
+                null
+            }
+        } else {
+            SeasonState.fromGraphQL(data)
+        }
+    }
 
     val popularNextSeason = query.transform {
         return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
-    }.map {
-        SeasonState.fromGraphQL(it.data)
+    }.mapNotNull {
+        val data = it.data
+        if (data == null) {
+            if (it.hasErrors()) {
+                SeasonState.fromGraphQL(data)
+            } else {
+                null
+            }
+        } else {
+            SeasonState.fromGraphQL(data)
+        }
+    }.transform {
+        return@transform if (it is SeasonState.Error) {
+            emitAll(fallbackQuery)
+        } else {
+            emit(it)
+        }
     }
 
     fun nextPage() = page.getAndUpdate {

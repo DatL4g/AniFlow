@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 
 class TrendingRepository(
     private val apolloClient: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
 ) {
 
@@ -21,11 +22,40 @@ class TrendingRepository(
             nsfw = n
         )
     }
+    private val fallbackQuery = query.transform {
+        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+    }.mapNotNull {
+        val data = it.data
+        if (data == null) {
+            if (it.hasErrors()) {
+                State.fromGraphQL(data)
+            } else {
+                null
+            }
+        } else {
+            State.fromGraphQL(data)
+        }
+    }
 
     val trending = query.transform {
         return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
-    }.map {
-        State.fromGraphQL(it.data)
+    }.mapNotNull {
+        val data = it.data
+        if (data == null) {
+            if (it.hasErrors()) {
+                State.fromGraphQL(data)
+            } else {
+                null
+            }
+        } else {
+            State.fromGraphQL(data)
+        }
+    }.transform {
+        return@transform if (it is State.Error) {
+            emitAll(fallbackQuery)
+        } else {
+            emit(it)
+        }
     }
 
     fun nextPage() = page.getAndUpdate {

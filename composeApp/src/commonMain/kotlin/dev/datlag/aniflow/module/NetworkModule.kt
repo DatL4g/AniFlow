@@ -10,6 +10,9 @@ import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
+import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
+import com.apollographql.apollo3.cache.normalized.api.NormalizedCacheFactory
+import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
 import de.jensklingenberg.ktorfit.Ktorfit
@@ -81,12 +84,14 @@ data object NetworkModule {
                         return chain.proceed(req)
                     }
                 })
+                .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
                 .build()
         }
         bindSingleton<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT) {
             ApolloClient.Builder()
                 .dispatcher(ioDispatcher())
                 .serverUrl(Constants.AniList.SERVER_URL)
+                .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
                 .build()
         }
         bindSingleton<UserHelper> {
@@ -119,6 +124,7 @@ data object NetworkModule {
 
             TrendingRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
             )
         }
@@ -127,6 +133,7 @@ data object NetworkModule {
 
             AiringTodayRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
             )
         }
@@ -135,6 +142,7 @@ data object NetworkModule {
 
             PopularSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
             )
         }
@@ -143,6 +151,7 @@ data object NetworkModule {
 
             PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
             )
         }

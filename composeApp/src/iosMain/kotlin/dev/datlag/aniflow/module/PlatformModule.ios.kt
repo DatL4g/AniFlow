@@ -13,7 +13,6 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.kodein.di.*
-import org.publicvalue.multiplatform.oidc.appsupport.IosCodeAuthFlowFactory
 
 actual object PlatformModule {
 
@@ -50,9 +49,6 @@ actual object PlatformModule {
                 googleAuthProvider = instanceOrNull(),
                 localLogger = instanceOrNull()
             )
-        }
-        bindEagerSingleton<IosCodeAuthFlowFactory> {
-            IosCodeAuthFlowFactory()
         }
     }
 }

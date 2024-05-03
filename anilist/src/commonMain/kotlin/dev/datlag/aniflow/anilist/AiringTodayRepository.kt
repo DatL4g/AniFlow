@@ -10,6 +10,7 @@ import kotlin.time.Duration.Companion.hours
 
 class AiringTodayRepository(
     private val apolloClient: ApolloClient,
+    private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
 ) {
 
@@ -24,8 +25,39 @@ class AiringTodayRepository(
     private val airingPreFilter = query.transform {
         return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }
-    val airing = combine(airingPreFilter, nsfw) { q, n ->
-        State.fromGraphQL(q.data, n)
+    private val fallbackPreFilter = query.transform {
+        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+    }
+    private val fallbackQuery = combine(fallbackPreFilter, nsfw.distinctUntilChanged()) { q, n ->
+        val data = q.data
+        if (data == null) {
+            if (q.hasErrors()) {
+                State.fromGraphQL(data, n)
+            } else {
+                null
+            }
+        } else {
+            State.fromGraphQL(data, n)
+        }
+    }.filterNotNull()
+
+    val airing = combine(airingPreFilter, nsfw.distinctUntilChanged()) { q, n ->
+        val data = q.data
+        if (data == null) {
+            if (q.hasErrors()) {
+                State.fromGraphQL(data, n)
+            } else {
+                null
+            }
+        } else {
+            State.fromGraphQL(data, n)
+        }
+    }.filterNotNull().transform {
+        return@transform if (it is State.Error) {
+            emitAll(fallbackQuery)
+        } else {
+            emit(it)
+        }
     }
 
     fun nextPage() = page.getAndUpdate {
