@@ -24,7 +24,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
-import dev.datlag.aniflow.anilist.CharacterStateMachine
+import dev.datlag.aniflow.anilist.CharacterRepository
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
 import dev.datlag.tooling.compose.ifFalse
@@ -60,7 +60,7 @@ fun CharacterDialog(component: CharacterComponent) {
             contentAlignment = Alignment.Center
         ) {
             val image by component.image.collectAsStateWithLifecycle(component.initialChar.image)
-            val state by component.state.collectAsStateWithLifecycle()
+            val state by component.state.collectAsStateWithLifecycle(null)
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -94,7 +94,7 @@ fun CharacterDialog(component: CharacterComponent) {
             )
 
             this@ModalBottomSheet.AnimatedVisibility(
-                visible = state.isLoading,
+                visible = state == null,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
@@ -105,7 +105,7 @@ fun CharacterDialog(component: CharacterComponent) {
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterEnd),
-                visible = state.isSuccess,
+                visible = state is CharacterRepository.State.Success,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {

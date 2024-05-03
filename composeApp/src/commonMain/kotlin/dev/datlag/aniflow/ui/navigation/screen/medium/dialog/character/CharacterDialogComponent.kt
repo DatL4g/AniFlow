@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
-import dev.datlag.aniflow.anilist.CharacterStateMachine
+import dev.datlag.aniflow.anilist.CharacterRepository
 import dev.datlag.aniflow.anilist.FavoriteToggleMutation
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.common.nullableFirebaseInstance
@@ -29,26 +29,14 @@ class CharacterDialogComponent(
 ) : CharacterComponent, ComponentContext by componentContext {
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
-    private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
-    private val characterStateMachine = CharacterStateMachine(
-        client = aniListClient,
-        fallbackClient = aniListFallbackClient,
-        crashlytics = di.nullableFirebaseInstance()?.crashlytics,
-        id = initialChar.id
-    )
+    private val characterRepository by di.instance<CharacterRepository>()
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
-    override val state = characterStateMachine.state.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = characterStateMachine.currentState
-    )
+    override val state = characterRepository.character
     private val characterSuccessState = state.mapNotNull {
-        it.safeCast<CharacterStateMachine.State.Success>()
+        it.safeCast<CharacterRepository.State.Success>()
     }
 
     override val image: Flow<Character.Image> = characterSuccessState.map {
@@ -85,6 +73,10 @@ class CharacterDialogComponent(
         it.character.isFavoriteBlocked
     }
 
+    init {
+        characterRepository.load(initialChar.id)
+    }
+
     @Composable
     override fun render() {
         onRender {
@@ -101,9 +93,7 @@ class CharacterDialogComponent(
     }
 
     override fun retry() {
-        launchIO {
-            characterStateMachine.dispatch(CharacterStateMachine.Action.Retry)
-        }
+
     }
 
     override fun toggleFavorite() {

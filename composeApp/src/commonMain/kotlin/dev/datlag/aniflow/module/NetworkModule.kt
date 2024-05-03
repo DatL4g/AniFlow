@@ -155,5 +155,11 @@ data object NetworkModule {
                 nsfw = appSettings.adultContent
             )
         }
+        bindSingleton<CharacterRepository> {
+            CharacterRepository(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+            )
+        }
     }
 }
