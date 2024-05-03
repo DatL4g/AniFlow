@@ -2,7 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium
 
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.Value
-import dev.datlag.aniflow.anilist.MediumStateMachine
+import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
@@ -21,7 +21,7 @@ interface MediumComponent : ContentHolderComponent {
     val titleLanguage: Flow<SettingsTitle?>
     val charLanguage: Flow<SettingsChar?>
 
-    val mediumState: StateFlow<MediumStateMachine.State>
+    val mediumState: Flow<MediumRepository.State>
     val isAdult: Flow<Boolean>
     val isAdultAllowed: Flow<Boolean>
 

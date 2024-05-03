@@ -2,10 +2,10 @@ package dev.datlag.aniflow.anilist
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
-import dev.datlag.aniflow.anilist.model.Character
+import dev.datlag.aniflow.anilist.model.Medium
 import kotlinx.coroutines.flow.*
 
-class CharacterRepository(
+class MediumRepository(
     private val client: ApolloClient,
     private val fallbackClient: ApolloClient
 ) {
@@ -29,7 +29,7 @@ class CharacterRepository(
         }
     }
 
-    val character = query.transform {
+    val medium = query.transform {
         return@transform emitAll(client.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
@@ -43,7 +43,7 @@ class CharacterRepository(
             State.fromGraphQL(data)
         }
     }.transform {
-        return@transform if (it is Error) {
+        return@transform if (it is State.Error) {
             emitAll(fallbackQuery)
         } else {
             emit(it)
@@ -55,23 +55,24 @@ class CharacterRepository(
     fun load(id: Int) = this.id.update { id }
 
     private data class Query(
-        val id: Int
+        val id: Int,
     ) {
-        fun toGraphQL() = CharacterQuery(
+        fun toGraphQL() = MediumQuery(
             id = Optional.present(id),
+            statusVersion = Optional.present(2),
             html = Optional.present(true)
         )
     }
 
     sealed interface State {
-        data class Success(val character: Character) : State
+        data class Success(val medium: Medium) : State
         data object Error : State
 
         companion object {
-            fun fromGraphQL(query: CharacterQuery.Data?): State {
-                val char = query?.Character?.let { Character(it) } ?: return Error
+            fun fromGraphQL(query: MediumQuery.Data?): State {
+                val medium = query?.Media?.let(::Medium) ?: return Error
 
-                return Success(char)
+                return Success(medium)
             }
         }
     }

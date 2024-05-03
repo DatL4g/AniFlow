@@ -161,5 +161,11 @@ data object NetworkModule {
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
             )
         }
+        bindSingleton<MediumRepository> {
+            MediumRepository(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT)
+            )
+        }
     }
 }

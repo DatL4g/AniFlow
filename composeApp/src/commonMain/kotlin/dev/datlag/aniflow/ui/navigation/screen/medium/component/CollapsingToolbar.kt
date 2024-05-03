@@ -29,7 +29,7 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.anilist.MediumStateMachine
+import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
@@ -51,7 +51,7 @@ fun CollapsingToolbar(
     scrollBehavior: TopAppBarScrollBehavior,
     initialMedium: Medium,
     titleLanguageFlow: Flow<SettingsTitle?>,
-    mediumStateFlow: StateFlow<MediumStateMachine.State>,
+    mediumFlow: Flow<MediumRepository.State>,
     bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
     titleFlow: Flow<Medium.Title>,
@@ -168,12 +168,12 @@ fun CollapsingToolbar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val mediumState by mediumStateFlow.collectAsStateWithLifecycle()
+                    val mediumState by mediumFlow.collectAsStateWithLifecycle(null)
                     val siteUrl by siteUrlFlow.collectAsStateWithLifecycle(initialMedium.siteUrl)
                     val shareHandler = shareHandler()
 
                     AnimatedVisibility(
-                        visible = mediumState.isSuccess,
+                        visible = mediumState is MediumRepository.State.Success,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {

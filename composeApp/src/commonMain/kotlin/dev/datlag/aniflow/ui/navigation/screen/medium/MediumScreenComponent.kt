@@ -50,100 +50,87 @@ class MediumScreenComponent(
 ) : MediumComponent, ComponentContext by componentContext {
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
-    private val aniListFallbackClient by di.instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT)
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
     private val userHelper by di.instance<UserHelper>()
 
     override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
-    private val mediumStateMachine = MediumStateMachine(
-        client = aniListClient,
-        fallbackClient = aniListFallbackClient,
-        crashlytics = di.nullableFirebaseInstance()?.crashlytics,
-        id = initialMedium.id
-    )
-
-    override val mediumState = mediumStateMachine.state.flowOn(
-        context = ioDispatcher()
-    ).stateIn(
-        scope = ioScope(),
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = mediumStateMachine.currentState
-    )
+    private val mediumRepository by di.instance<MediumRepository>()
+    override val mediumState = mediumRepository.medium
 
     private val mediumSuccessState = mediumState.mapNotNull {
-        it.safeCast<MediumStateMachine.State.Success>()
+        it.safeCast<MediumRepository.State.Success>()
     }
 
     override val isAdult: Flow<Boolean> = mediumSuccessState.map {
-        it.data.isAdult
+        it.medium.isAdult
     }
 
     override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
     private val type: Flow<MediaType> = mediumSuccessState.map {
-        it.data.type
+        it.medium.type
     }
 
     override val bannerImage: Flow<String?> = mediumSuccessState.map {
-        it.data.bannerImage
+        it.medium.bannerImage
     }
 
     override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.map {
-        it.data.coverImage
+        it.medium.coverImage
     }
 
     override val title: Flow<Medium.Title> = mediumSuccessState.map {
-        it.data.title
+        it.medium.title
     }
 
     override val description: Flow<String?> = mediumSuccessState.map {
-        it.data.description?.ifBlank { null }
+        it.medium.description?.ifBlank { null }
     }
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
     override val genres: Flow<Set<String>> = mediumSuccessState.map {
-        it.data.genres
+        it.medium.genres
     }.mapNotEmpty()
 
     override val format: Flow<MediaFormat> = mediumSuccessState.map {
-        it.data.format
+        it.medium.format
     }
 
     override val episodes: Flow<Int> = mediumSuccessState.map {
-        it.data.episodes
+        it.medium.episodes
     }.distinctUntilChanged()
 
     override val duration: Flow<Int> = mediumSuccessState.map {
-        it.data.avgEpisodeDurationInMin
+        it.medium.avgEpisodeDurationInMin
     }.distinctUntilChanged()
 
     override val status: Flow<MediaStatus> = mediumSuccessState.map {
-        it.data.status
+        it.medium.status
     }.distinctUntilChanged()
 
     override val rated: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
-        it.data.rated()
+        it.medium.rated()
     }.distinctUntilChanged()
 
     override val popular: Flow<Medium.Ranking?> = mediumSuccessState.mapNotNull {
-        it.data.popular()
+        it.medium.popular()
     }.distinctUntilChanged()
 
     override val score: Flow<Int?> = mediumSuccessState.mapNotNull {
-        it.data.averageScore.asNullIf(-1)
+        it.medium.averageScore.asNullIf(-1)
     }.distinctUntilChanged()
 
     override val characters: Flow<Set<Character>> = mediumSuccessState.map {
-        it.data.characters
+        it.medium.characters
     }.mapNotEmpty()
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
     override val rating: Flow<Int> = combine(
         mediumSuccessState.map {
-            it.data.entry?.score?.toInt()
+            it.medium.entry?.score?.toInt()
         },
         changedRating
     ) { t1, t2 ->
@@ -155,23 +142,23 @@ class MediumScreenComponent(
     }
 
     override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.map {
-        it.data.trailer
+        it.medium.trailer
     }
 
     override val alreadyAdded: Flow<Boolean> = mediumSuccessState.map {
-        it.data.entry != null
+        it.medium.entry != null
     }
 
     override val isFavorite: Flow<Boolean> = mediumSuccessState.map {
-        it.data.isFavorite
+        it.medium.isFavorite
     }
 
     override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.map {
-        it.data.isFavoriteBlocked
+        it.medium.isFavoriteBlocked
     }
 
     override val siteUrl: Flow<String> = mediumSuccessState.map {
-        it.data.siteUrl
+        it.medium.siteUrl
     }
 
     private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
@@ -192,6 +179,10 @@ class MediumScreenComponent(
                 onDismiss = dialogNavigation::dismiss
             )
         }
+    }
+
+    init {
+        mediumRepository.load(initialMedium.id)
     }
 
     @Composable
