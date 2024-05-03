@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.initial.home
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.Value
 import dev.datlag.aniflow.anilist.AiringTodayRepository
+import dev.datlag.aniflow.anilist.PopularSeasonRepository
 import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState

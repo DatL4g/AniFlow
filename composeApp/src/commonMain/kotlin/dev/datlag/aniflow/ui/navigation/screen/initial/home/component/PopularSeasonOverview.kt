@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
@@ -34,21 +33,13 @@ fun PopularSeasonOverview(
     titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit,
 ) {
-    val loadingState by state.collectAsStateWithLifecycle(
-        if (current) {
-            StateSaver.Home.popularCurrentState
-        } else {
-            StateSaver.Home.popularNextState
-        }
-    )
+    val loadingState by state.collectAsStateWithLifecycle(null)
 
     when (val reachedState = loadingState) {
-        is SeasonState.Loading -> {
-            Loading()
-        }
+        null -> Loading()
         is SeasonState.Success -> {
             SuccessContent(
-                data = reachedState.data.Page?.mediaFilterNotNull() ?: emptyList(),
+                data = reachedState.collection.toList(),
                 current = current,
                 titleLanguage = titleLanguage,
                 onClick = onClick
@@ -75,7 +66,7 @@ private fun Loading() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SuccessContent(
-    data: List<SeasonQuery.Medium>,
+    data: List<Medium>,
     current: Boolean,
     titleLanguage: SettingsTitle?,
     onClick: (Medium) -> Unit
@@ -101,7 +92,7 @@ private fun SuccessContent(
     ) {
         itemsIndexed(data, key = { _, it -> it.id }) { _, medium ->
             MediumCard(
-                medium = Medium(medium),
+                medium = medium,
                 titleLanguage = titleLanguage,
                 modifier = Modifier
                     .width(200.dp)

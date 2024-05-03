@@ -46,19 +46,15 @@ class HomeScreenComponent(
         StateSaver.Home.updateTrending(it)
     }
 
-    private val popularSeasonStateMachine by di.instance<PopularSeasonStateMachine>()
-    override val popularSeasonState: Flow<SeasonState> = popularSeasonStateMachine.state.map {
+    private val popularSeasonRepository by di.instance<PopularSeasonRepository>()
+    override val popularSeasonState: Flow<SeasonState> = popularSeasonRepository.popularThisSeason.map {
         StateSaver.Home.updatePopularCurrent(it)
-    }.flowOn(
-        context = ioDispatcher()
-    ).distinctUntilChanged()
+    }
 
-    private val popularNextSeasonStateMachine by di.instance<PopularNextSeasonStateMachine>()
-    override val popularNextSeasonState: Flow<SeasonState> = popularNextSeasonStateMachine.state.map {
+    private val popularNextSeasonRepository by di.instance<PopularNextSeasonRepository>()
+    override val popularNextSeasonState: Flow<SeasonState> = popularNextSeasonRepository.popularNextSeason.map {
         StateSaver.Home.updatePopularNext(it)
-    }.flowOn(
-        context = ioDispatcher()
-    ).distinctUntilChanged()
+    }
 
     private val traceStateMachine by di.instance<TraceStateMachine>()
     override val traceState: Flow<TraceStateMachine.State> = traceStateMachine.state.flowOn(

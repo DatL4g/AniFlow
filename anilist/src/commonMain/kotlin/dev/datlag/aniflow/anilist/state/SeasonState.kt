@@ -5,80 +5,29 @@ import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.common.season
 import dev.datlag.aniflow.anilist.common.year
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-sealed interface SeasonState : CommonState {
-
-    override val isLoadingOrWaiting: Boolean
-        get() = this is Loading
-
-    data class Loading(
-        internal val query: SeasonQuery
-    ) : SeasonState {
-        constructor(
-            page: Int,
-            perPage: Int = 10,
-            adultContent: Boolean = false,
-            type: MediaType = MediaType.ANIME,
-            season: MediaSeason = Clock.System.now().season,
-            year: Int = Clock.System.now().year
-        ) : this(
-            SeasonQuery(
-                page = Optional.present(page),
-                perPage = Optional.present(perPage),
-                adultContent = if (!adultContent) {
-                    Optional.present(adultContent)
-                } else {
-                    Optional.absent()
-                },
-                type = Optional.present(type),
-                sort = Optional.present(listOf(MediaSort.POPULARITY_DESC)),
-                preventGenres = if (!adultContent) {
-                    Optional.present(AdultContent.Genre.allTags)
-                } else {
-                    Optional.absent()
-                },
-                year = Optional.present(year),
-                season = if (season == MediaSeason.UNKNOWN__) {
-                    Optional.absent()
-                } else {
-                    Optional.present(season)
-                },
-                statusVersion = Optional.present(2),
-                html = Optional.present(true)
-            )
-        )
-
-        constructor(
-            page: Int,
-            perPage: Int = 10,
-            adultContent: Boolean = false,
-            type: MediaType = MediaType.ANIME,
-            now: Instant = Clock.System.now()
-        ) : this(
-            page = page,
-            perPage = perPage,
-            adultContent = adultContent,
-            type = type,
-            season = now.season,
-            year = now.year
-        )
-    }
-
+sealed interface SeasonState {
     data class Success(
-        internal val query: SeasonQuery,
-        val data: SeasonQuery.Data
+        val collection: Collection<Medium>
     ) : SeasonState
 
-    data class Error(
-        internal val query: SeasonQuery
-    ) : SeasonState
-}
+    data object Error : SeasonState
 
-sealed interface SeasonAction {
-    data object Retry : SeasonAction
+    companion object {
+        fun fromGraphQL(data: SeasonQuery.Data?): SeasonState {
+            val mediaList = data?.Page?.mediaFilterNotNull()
+
+            if (mediaList.isNullOrEmpty()) {
+                return Error
+            }
+
+            return Success(mediaList.map { Medium(it) })
+        }
+    }
 }

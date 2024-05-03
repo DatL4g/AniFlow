@@ -44,28 +44,22 @@ data object StateSaver {
     data object Home {
         private val airingLoading = MutableStateFlow(true)
         private val trendingLoading = MutableStateFlow(true)
-        private val _popularCurrentState = MutableStateFlow(popularCurrentState)
-        private val _popularNextState = MutableStateFlow(popularNextState)
-
-        val popularCurrentState: SeasonState
-            get() = PopularSeasonStateMachine.currentState
-
-        val popularNextState: SeasonState
-            get() = PopularNextSeasonStateMachine.currentState
+        private val popularCurrentLoading = MutableStateFlow(true)
+        private val popularNextLoading = MutableStateFlow(true)
 
         val currentAllLoading: Boolean
             get() = airingLoading.value
                     && trendingLoading.value
-                    && _popularCurrentState.value.isLoadingOrWaiting
-                    && _popularNextState.value.isLoadingOrWaiting
+                    && popularCurrentLoading.value
+                    && popularNextLoading.value
 
         val isAllLoading = combine(
             airingLoading,
             trendingLoading,
-            _popularCurrentState,
-            _popularNextState
+            popularCurrentLoading,
+            popularNextLoading
         ) { t1, t2, t3, t4 ->
-            t1 && t2 && t3.isLoadingOrWaiting && t4.isLoadingOrWaiting
+            t1 && t2 && t3 && t4
         }.flowOn(ioDispatcher()).distinctUntilChanged()
 
         fun updateAiring(state: AiringTodayRepository.State): AiringTodayRepository.State {
@@ -78,12 +72,14 @@ data object StateSaver {
             return state
         }
 
-        fun updatePopularCurrent(state: SeasonState) = _popularCurrentState.updateAndGet {
-            state
+        fun updatePopularCurrent(state: SeasonState): SeasonState {
+            popularCurrentLoading.update { false }
+            return state
         }
 
-        fun updatePopularNext(state: SeasonState) = _popularNextState.updateAndGet {
-            state
+        fun updatePopularNext(state: SeasonState): SeasonState {
+            popularNextLoading.update { false }
+            return state
         }
     }
 }

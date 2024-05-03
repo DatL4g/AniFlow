@@ -89,20 +89,6 @@ data object NetworkModule {
                 .serverUrl(Constants.AniList.SERVER_URL)
                 .build()
         }
-        bindProvider<PopularSeasonStateMachine> {
-            PopularSeasonStateMachine(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                crashlytics = nullableFirebaseInstance()?.crashlytics
-            )
-        }
-        bindProvider<PopularNextSeasonStateMachine> {
-            PopularNextSeasonStateMachine(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                crashlytics = nullableFirebaseInstance()?.crashlytics
-            )
-        }
         bindSingleton<UserHelper> {
             UserHelper(
                 userSettings = instance(),
@@ -140,6 +126,22 @@ data object NetworkModule {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             AiringTodayRepository(
+                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                nsfw = appSettings.adultContent
+            )
+        }
+        bindSingleton<PopularSeasonRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            PopularSeasonRepository(
+                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
+                nsfw = appSettings.adultContent
+            )
+        }
+        bindSingleton<PopularNextSeasonRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
             )
