@@ -11,10 +11,18 @@ class PopularSeasonRepository(
     private val apolloClient: ApolloClient,
     private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
+    private val viewManga: Flow<Boolean> = flowOf(false),
 ) {
 
     private val page = MutableStateFlow(0)
-    private val type = MutableStateFlow(MediaType.ANIME)
+    private val type = viewManga.distinctUntilChanged().map {
+        page.update { 0 }
+        if (it) {
+            MediaType.MANGA
+        } else {
+            MediaType.ANIME
+        }
+    }
     private val query = combine(page, type, nsfw.distinctUntilChanged()) { p, t, n ->
         Query(
             page = p,
@@ -64,28 +72,6 @@ class PopularSeasonRepository(
 
     fun previousPage() = page.getAndUpdate {
         it - 1
-    }
-
-    fun viewAnime() {
-        type.getAndUpdate {
-            if (it == MediaType.ANIME) {
-                it
-            } else {
-                page.update { 0 }
-                MediaType.ANIME
-            }
-        }
-    }
-
-    fun viewManga() {
-        type.getAndUpdate {
-            if (it == MediaType.MANGA) {
-                it
-            } else {
-                page.update { 0 }
-                MediaType.MANGA
-            }
-        }
     }
 
     private data class Query(

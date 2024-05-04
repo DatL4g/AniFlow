@@ -140,6 +140,11 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         else -> { }
     }
 
+    val type by component.viewing.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
+    val isManga = remember(type) {
+        type == MediaType.MANGA
+    }
+
     LazyColumn(
         state = listState,
         modifier = modifier.haze(state = LocalHaze.current),
@@ -147,11 +152,6 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            val type by component.viewing.subscribeAsState()
-            val isManga = remember(type) {
-                type == MediaType.MANGA
-            }
-
             Box(
                 modifier = Modifier.fillParentMaxWidth().height(200.dp),
                 contentAlignment = Alignment.BottomEnd
@@ -194,20 +194,22 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
                 }
             }
         }
-        item {
-            Text(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                text = "Schedule",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        item {
-            AiringOverview(
-                state = component.airingState,
-                titleLanguage = titleLanguage,
-                onClick = component::details
-            )
+        if (!isManga) {
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = "Schedule",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            item {
+                AiringOverview(
+                    state = component.airingState,
+                    titleLanguage = titleLanguage,
+                    onClick = component::details
+                )
+            }
         }
         item {
             Text(

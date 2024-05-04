@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 interface HomeComponent : ContentHolderComponent {
-    val viewing: Value<MediaType>
+    val viewing: Flow<MediaType>
     val titleLanguage: Flow<SettingsTitle?>
 
     val airingState: Flow<AiringTodayRepository.State>

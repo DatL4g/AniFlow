@@ -13,6 +13,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
@@ -64,7 +65,15 @@ class HomeScreenComponent(
         context = ioDispatcher()
     )
 
-    override val viewing = MutableValue(MediaType.UNKNOWN__)
+    private val viewTypeExecutor = Executor()
+
+    override val viewing = appSettings.viewManga.map {
+        if (it) {
+            MediaType.MANGA
+        } else {
+            MediaType.ANIME
+        }
+    }
 
     @Composable
     override fun render() {
@@ -88,16 +97,18 @@ class HomeScreenComponent(
     }
 
     override fun viewAnime() {
-        viewing.update { MediaType.ANIME }
-        trendingRepository.viewAnime()
-        popularSeasonRepository.viewAnime()
-        popularNextSeasonRepository.viewAnime()
+        launchIO {
+            viewTypeExecutor.enqueue {
+                appSettings.setViewManga(false)
+            }
+        }
     }
 
     override fun viewManga() {
-        viewing.update { MediaType.MANGA }
-        trendingRepository.viewManga()
-        popularSeasonRepository.viewManga()
-        popularNextSeasonRepository.viewManga()
+        launchIO {
+            viewTypeExecutor.enqueue {
+                appSettings.setViewManga(true)
+            }
+        }
     }
 }

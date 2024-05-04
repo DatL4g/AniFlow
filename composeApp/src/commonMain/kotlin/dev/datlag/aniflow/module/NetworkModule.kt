@@ -125,7 +125,8 @@ data object NetworkModule {
             TrendingRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga
             )
         }
         bindSingleton<AiringTodayRepository> {
@@ -143,7 +144,8 @@ data object NetworkModule {
             PopularSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga
             )
         }
         bindSingleton<PopularNextSeasonRepository> {
@@ -152,7 +154,8 @@ data object NetworkModule {
             PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga
             )
         }
         bindSingleton<CharacterRepository> {

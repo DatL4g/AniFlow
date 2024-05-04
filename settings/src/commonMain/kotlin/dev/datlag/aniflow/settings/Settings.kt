@@ -22,6 +22,7 @@ data object Settings {
         val color: Flow<Color?>
         val titleLanguage: Flow<TitleLanguage?>
         val charLanguage: Flow<CharLanguage?>
+        val viewManga: Flow<Boolean>
 
         suspend fun setAdultContent(value: Boolean)
         suspend fun setColor(value: Color?)
@@ -30,6 +31,7 @@ data object Settings {
         })
         suspend fun setTitleLanguage(value: TitleLanguage?)
         suspend fun setCharLanguage(value: CharLanguage?)
+        suspend fun setViewManga(value: Boolean)
         suspend fun setData(
             adultContent: Boolean,
             color: Color?,

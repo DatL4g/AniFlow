@@ -10,5 +10,6 @@ data class AppSettings(
     @ProtoNumber(1) val adultContent: Boolean = false,
     @ProtoNumber(2) val color: Color?,
     @ProtoNumber(3) val titleLanguage: TitleLanguage?,
-    @ProtoNumber(4) val charLanguage: CharLanguage?
+    @ProtoNumber(4) val charLanguage: CharLanguage?,
+    @ProtoNumber(5) val viewManga: Boolean = false
 )

@@ -10,15 +10,16 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class DataStoreAppSettings(
-    private val dateStore: DataStore<AppSettings>
+    private val dataStore: DataStore<AppSettings>
 ) : Settings.PlatformAppSettings {
-    override val adultContent: Flow<Boolean> = dateStore.data.map { it.adultContent }.distinctUntilChanged()
-    override val color: Flow<Color?> = dateStore.data.map { it.color }.distinctUntilChanged()
-    override val titleLanguage: Flow<TitleLanguage?> = dateStore.data.map { it.titleLanguage }.distinctUntilChanged()
-    override val charLanguage: Flow<CharLanguage?> = dateStore.data.map { it.charLanguage }.distinctUntilChanged()
+    override val adultContent: Flow<Boolean> = dataStore.data.map { it.adultContent }.distinctUntilChanged()
+    override val color: Flow<Color?> = dataStore.data.map { it.color }.distinctUntilChanged()
+    override val titleLanguage: Flow<TitleLanguage?> = dataStore.data.map { it.titleLanguage }.distinctUntilChanged()
+    override val charLanguage: Flow<CharLanguage?> = dataStore.data.map { it.charLanguage }.distinctUntilChanged()
+    override val viewManga: Flow<Boolean> = dataStore.data.map { it.viewManga }.distinctUntilChanged()
 
     override suspend fun setAdultContent(value: Boolean) {
-        dateStore.updateData {
+        dataStore.updateData {
             it.copy(
                 adultContent = value
             )
@@ -26,7 +27,7 @@ class DataStoreAppSettings(
     }
 
     override suspend fun setColor(value: Color?) {
-        dateStore.updateData {
+        dataStore.updateData {
             it.copy(
                 color = value
             )
@@ -34,7 +35,7 @@ class DataStoreAppSettings(
     }
 
     override suspend fun setTitleLanguage(value: TitleLanguage?) {
-        dateStore.updateData {
+        dataStore.updateData {
             it.copy(
                 titleLanguage = value
             )
@@ -42,9 +43,17 @@ class DataStoreAppSettings(
     }
 
     override suspend fun setCharLanguage(value: CharLanguage?) {
-        dateStore.updateData {
+        dataStore.updateData {
             it.copy(
                 charLanguage = value
+            )
+        }
+    }
+
+    override suspend fun setViewManga(value: Boolean) {
+        dataStore.updateData {
+            it.copy(
+                viewManga = value
             )
         }
     }
@@ -55,7 +64,7 @@ class DataStoreAppSettings(
         titleLanguage: TitleLanguage?,
         charLanguage: CharLanguage?,
     ) {
-        dateStore.updateData {
+        dataStore.updateData {
             it.copy(
                 adultContent = adultContent,
                 color = color,
