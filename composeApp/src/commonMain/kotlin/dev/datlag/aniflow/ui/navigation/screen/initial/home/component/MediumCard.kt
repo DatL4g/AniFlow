@@ -14,11 +14,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import com.mikepenz.markdown.compose.extendedspans.internal.deserializeToColor
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.common.bottomShadowBrush
-import dev.datlag.aniflow.common.onPrimary
-import dev.datlag.aniflow.common.primary
-import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
@@ -34,8 +32,16 @@ fun MediumCard(
     modifier: Modifier = Modifier,
     onClick: (Medium) -> Unit
 ) {
+    val defaultColor = remember(medium.coverImage.color) {
+        medium.coverImage.color?.substringAfter('#')?.let {
+            val colorValue = it.hexToLong() or 0x00000000FF000000
+            Color(colorValue)
+        }
+    }
+
     SchemeTheme(
-        key = medium.id
+        key = medium.id,
+        defaultColor = defaultColor,
     ) { updater ->
         Card(
             modifier = modifier,
@@ -46,16 +52,12 @@ fun MediumCard(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val color = medium.coverImage.color?.substringAfter('#')?.let {
-                    val colorValue = it.hexToLong() or 0x00000000FF000000
-                    Color(colorValue)
-                }
                 val colorState = rememberSchemeThemeDominantColorState(
                     key = medium.id,
                     applyMinContrast = true,
                     minContrastBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                    defaultColor = color ?: MaterialTheme.colorScheme.primary,
-                    defaultOnColor = contentColorFor(color ?: MaterialTheme.colorScheme.primary)
+                    defaultColor = defaultColor ?: MaterialTheme.colorScheme.primary,
+                    defaultOnColor = defaultColor?.plainOnColor ?: MaterialTheme.colorScheme.onPrimary
                 )
 
                 AsyncImage(
@@ -71,9 +73,6 @@ fun MediumCard(
                             contentScale = ContentScale.Crop,
                             onSuccess = { state ->
                                 updater?.update(state.painter)
-                            },
-                            onError = {
-                                updater?.update(color)
                             }
                         ),
                         onSuccess = { state ->

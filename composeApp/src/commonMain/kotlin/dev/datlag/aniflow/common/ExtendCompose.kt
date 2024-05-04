@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -154,3 +155,10 @@ val <T : Any> DominantColorState<T>?.primary
 val <T : Any> DominantColorState<T>?.onPrimary
     @Composable
     get() = this?.onColor ?: MaterialTheme.colorScheme.onPrimary
+
+val Color.plainOnColor: Color
+    get() = if (this.luminance() > 0.5F) {
+        Color.Black
+    } else {
+        Color.White
+    }

@@ -14,6 +14,7 @@ import com.materialkolor.DynamicMaterialTheme
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.LocalDarkMode
+import dev.datlag.aniflow.common.plainOnColor
 import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
@@ -176,9 +177,18 @@ fun rememberSchemeThemeDominantColorState(
 fun SchemeTheme(
     key: Any?,
     animate: Boolean = false,
+    defaultColor: Color? = null,
+    defaultOnColor: Color? = null,
     content: @Composable (SchemeTheme.Updater?) -> Unit
 ) {
-    val state = rememberSchemeThemeDominantColorState(key)
+    val onColor = defaultOnColor ?: remember(defaultColor) {
+        defaultColor?.plainOnColor
+    }
+    val state = rememberSchemeThemeDominantColorState(
+        key = key,
+        defaultColor = defaultColor ?: MaterialTheme.colorScheme.primary,
+        defaultOnColor = onColor ?: MaterialTheme.colorScheme.onPrimary,
+    )
     val updater = SchemeTheme.create(key)
 
     DynamicMaterialTheme(
@@ -193,7 +203,13 @@ fun SchemeTheme(
 fun CommonSchemeTheme(animate: Boolean = false, content: @Composable (SchemeTheme.Updater?) -> Unit) {
     val key by SchemeTheme.commonSchemeKey.collectAsStateWithLifecycle()
 
-    SchemeTheme(key, animate, content)
+    SchemeTheme(
+        key = key,
+        animate = animate,
+        defaultColor = null,
+        defaultOnColor = null,
+        content = content
+    )
 }
 
 private fun Color.contrastAgainst(background: Color): Float {
