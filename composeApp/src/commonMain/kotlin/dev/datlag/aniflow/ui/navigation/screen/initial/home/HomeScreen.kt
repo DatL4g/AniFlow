@@ -9,8 +9,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material.icons.filled.CameraEnhance
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -19,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -33,6 +37,7 @@ import dev.chrisbanes.haze.haze
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.asMedium
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.plus
@@ -141,6 +146,54 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         contentPadding = LocalPaddingValues.current?.plus(padding) ?: padding,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        item {
+            val type by component.viewing.subscribeAsState()
+            val isManga = remember(type) {
+                type == MediaType.MANGA
+            }
+
+            Box(
+                modifier = Modifier.fillParentMaxWidth().height(200.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp).background(Color.Black.copy(alpha = 0.3F), CircleShape),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    IconButton(
+                        onClick = {
+                            component.viewAnime()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PlayCircleFilled,
+                            contentDescription = null,
+                            tint = if (isManga) {
+                                LocalContentColor.current
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            component.viewManga()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                            contentDescription = null,
+                            tint = if (isManga) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                LocalContentColor.current
+                            }
+                        )
+                    }
+                }
+            }
+        }
         item {
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),

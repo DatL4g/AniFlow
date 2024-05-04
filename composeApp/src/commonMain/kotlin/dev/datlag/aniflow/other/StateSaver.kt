@@ -1,9 +1,13 @@
 package dev.datlag.aniflow.other
 
 import androidx.compose.ui.graphics.Color
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.state.SeasonState
 import dev.datlag.aniflow.settings.model.AppSettings
+import dev.datlag.tooling.async.scopeCatching
+import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -20,8 +24,13 @@ data object StateSaver {
         var homeOverview: Int = 0
         var homeOverviewOffset: Int = 0
 
-        var mediaOverview: Int = 0
-        var mediaOverviewOffset: Int = 0
+        private val mediumOverview = mutableMapOf<Int, Pair<Int, Int>>()
+
+        fun mediumOverview(id: Int): Pair<Int, Int> = mediumOverview.getOrElse(id) { 0 to 0 }
+
+        fun mediumOverview(id: Int, index: Int, offset: Int) {
+            mediumOverview[id] = index to offset
+        }
 
         var settingsOverview: Int = 0
         var settingsOverviewOffset: Int = 0

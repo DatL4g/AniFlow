@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
+import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.decompose.value.update
 import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
@@ -61,6 +64,8 @@ class HomeScreenComponent(
         context = ioDispatcher()
     )
 
+    override val viewing = MutableValue(MediaType.UNKNOWN__)
+
     @Composable
     override fun render() {
         onRender {
@@ -80,5 +85,19 @@ class HomeScreenComponent(
         launchIO {
             traceStateMachine.dispatch(TraceStateMachine.Action.Load(channel))
         }
+    }
+
+    override fun viewAnime() {
+        viewing.update { MediaType.ANIME }
+        trendingRepository.viewAnime()
+        popularSeasonRepository.viewAnime()
+        popularNextSeasonRepository.viewAnime()
+    }
+
+    override fun viewManga() {
+        viewing.update { MediaType.MANGA }
+        trendingRepository.viewManga()
+        popularSeasonRepository.viewManga()
+        popularNextSeasonRepository.viewManga()
     }
 }

@@ -9,7 +9,6 @@ query AiringQuery(
     Page(page: $page, perPage: $perPage) {
         airingSchedules(sort: $sort, airingAt_greater: $airingAtGreater) {
             airingAt,
-            timeUntilAiring,
             episode,
             media {
                 id,

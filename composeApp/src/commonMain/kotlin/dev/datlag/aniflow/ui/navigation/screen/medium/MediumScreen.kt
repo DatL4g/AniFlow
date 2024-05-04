@@ -40,6 +40,7 @@ import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.kodein.di.instance
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class, ExperimentalFoundationApi::class)
@@ -57,9 +58,10 @@ fun MediumScreen(component: MediumComponent) {
         val scrollState = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
             state = appBarState
         )
+        val (index, offset) = StateSaver.List.mediumOverview(component.initialMedium.id)
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = StateSaver.List.mediaOverview,
-            initialFirstVisibleItemScrollOffset = StateSaver.List.mediaOverviewOffset
+            initialFirstVisibleItemIndex = index,
+            initialFirstVisibleItemScrollOffset = offset
         )
 
         Scaffold(
@@ -211,8 +213,11 @@ fun MediumScreen(component: MediumComponent) {
 
         DisposableEffect(listState) {
             onDispose {
-                StateSaver.List.mediaOverview = listState.firstVisibleItemIndex
-                StateSaver.List.mediaOverviewOffset = listState.firstVisibleItemScrollOffset
+                StateSaver.List.mediumOverview(
+                    id = component.initialMedium.id,
+                    index = listState.firstVisibleItemIndex,
+                    offset = listState.firstVisibleItemScrollOffset
+                )
             }
         }
     }

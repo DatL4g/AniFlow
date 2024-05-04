@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.PopularSeasonRepository
 import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.trace.TraceStateMachine
 import dev.datlag.aniflow.ui.navigation.Component
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 interface HomeComponent : ContentHolderComponent {
+    val viewing: Value<MediaType>
     val titleLanguage: Flow<SettingsTitle?>
 
     val airingState: Flow<AiringTodayRepository.State>
@@ -29,4 +31,6 @@ interface HomeComponent : ContentHolderComponent {
 
     fun details(medium: Medium)
     fun trace(channel: ByteArray)
+    fun viewAnime()
+    fun viewManga()
 }
