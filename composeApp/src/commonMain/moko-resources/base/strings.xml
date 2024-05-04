@@ -54,4 +54,5 @@
     <string name="char_romaji_western">Romaji (Western Order)</string>
     <string name="char_romaji">Romaji</string>
     <string name="char_native">Native</string>
+    <string name="explicit">Explicit</string>
 </resources>

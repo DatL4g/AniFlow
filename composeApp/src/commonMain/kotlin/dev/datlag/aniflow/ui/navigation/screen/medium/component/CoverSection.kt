@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.component
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.NoAdultContent
 import androidx.compose.material.icons.filled.OndemandVideo
 import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Timelapse
@@ -17,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
@@ -35,6 +37,7 @@ fun CoverSection(
     episodesFlow: Flow<Int>,
     durationFlow: Flow<Int>,
     statusFlow: Flow<MediaStatus>,
+    isAdultFlow: Flow<Boolean>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -84,6 +87,7 @@ fun CoverSection(
             val episodes by episodesFlow.collectAsStateWithLifecycle(initialMedium.episodes)
             val duration by durationFlow.collectAsStateWithLifecycle(initialMedium.avgEpisodeDurationInMin)
             val status by statusFlow.collectAsStateWithLifecycle(initialMedium.status)
+            val isAdult by isAdultFlow.collectAsStateWithLifecycle(initialMedium.isAdult)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,6 +99,19 @@ fun CoverSection(
                     contentDescription = null
                 )
                 Text(text = stringResource(format.text()))
+            }
+            if (isAdult) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NoAdultContent,
+                        contentDescription = null
+                    )
+                    Text(text = stringResource(SharedRes.strings.explicit))
+                }
             }
             if (episodes > -1) {
                 Row(

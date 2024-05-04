@@ -154,6 +154,7 @@ fun MediumScreen(component: MediumComponent) {
                             episodesFlow = component.episodes,
                             durationFlow = component.duration,
                             statusFlow = component.status,
+                            isAdultFlow = component.isAdult,
                             modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp)
                         )
                     }
