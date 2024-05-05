@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.settings
+package dev.datlag.aniflow.ui.navigation.screen.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -23,7 +23,7 @@ import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
-import dev.datlag.aniflow.ui.navigation.screen.initial.settings.component.*
+import dev.datlag.aniflow.ui.navigation.screen.settings.component.*
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
@@ -38,7 +38,7 @@ fun SettingsScreen(component: SettingsComponent) {
 
     LazyColumn(
         state = listState,
-        modifier = Modifier.fillMaxWidth().haze(state = LocalHaze.current),
+        modifier = Modifier.fillMaxWidth(),
         contentPadding = LocalPaddingValues.current?.plus(padding) ?: padding,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {

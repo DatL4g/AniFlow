@@ -9,18 +9,42 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.custom.ExpandedPages
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialComponent
+import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.icerock.moko.resources.compose.stringResource
 
-@OptIn(ExperimentalDecomposeApi::class)
+@OptIn(ExperimentalDecomposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MediumScreen(component: InitialComponent) {
+    val appBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+        state = appBarState
+    )
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            CollapsingToolbar(
+                state = appBarState,
+                scrollBehavior = scrollBehavior,
+                viewTypeFlow = component.viewing,
+                onProfileClick = {
+                    component.viewProfile()
+                },
+                onAnimeClick = {
+                    component.viewAnime()
+                },
+                onMangaClick = {
+                    component.viewManga()
+                }
+            )
+        },
         floatingActionButton = {
             val state by FABConfig.state
 

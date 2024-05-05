@@ -46,7 +46,7 @@ fun CompactScreen(component: InitialComponent) {
                 scrollBehavior = scrollBehavior,
                 viewTypeFlow = component.viewing,
                 onProfileClick = {
-
+                    component.viewProfile()
                 },
                 onAnimeClick = {
                     component.viewAnime()

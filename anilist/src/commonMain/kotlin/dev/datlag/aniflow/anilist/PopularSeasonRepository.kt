@@ -29,7 +29,7 @@ class PopularSeasonRepository(
             type = t,
             nsfw = n
         )
-    }
+    }.distinctUntilChanged()
     private val fallbackQuery = query.transform {
         return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {

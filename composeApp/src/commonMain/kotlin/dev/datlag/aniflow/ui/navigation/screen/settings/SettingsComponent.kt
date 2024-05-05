@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.settings
+package dev.datlag.aniflow.ui.navigation.screen.settings
 
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.ui.navigation.Component

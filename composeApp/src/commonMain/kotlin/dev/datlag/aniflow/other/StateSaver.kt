@@ -90,5 +90,12 @@ data object StateSaver {
             popularNextLoading.update { false }
             return state
         }
+
+        fun updateAllLoading() {
+            airingLoading.update { true }
+            trendingLoading.update { true }
+            popularCurrentLoading.update { true }
+            popularNextLoading.update { true }
+        }
     }
 }

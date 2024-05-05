@@ -16,12 +16,13 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
+import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.favorites.FavoritesScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.HomeScreenComponent
-import dev.datlag.aniflow.ui.navigation.screen.initial.settings.SettingsScreenComponent
+import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreenComponent
 import kotlinx.coroutines.flow.map
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -29,16 +30,13 @@ import org.kodein.di.instance
 class InitialScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
-    private val onMediumDetails: (Medium) -> Unit
+    private val onMediumDetails: (Medium) -> Unit,
+    private val onProfile: () -> Unit
 ) : InitialComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
 
     override val pagerItems: List<InitialComponent.PagerItem> = listOf(
-        InitialComponent.PagerItem(
-            label = SharedRes.strings.profile,
-            icon = Icons.Filled.AccountCircle
-        ),
         InitialComponent.PagerItem(
             label = SharedRes.strings.home,
             icon = Icons.Default.Home
@@ -59,11 +57,10 @@ class InitialScreenComponent(
         initialPages = {
             Pages(
                 items = listOf(
-                    View.Settings,
                     View.Home,
                     View.Favorites
                 ),
-                selectedIndex = 1
+                selectedIndex = 0
             )
         },
         childFactory = ::createChild
@@ -99,10 +96,6 @@ class InitialScreenComponent(
                 di = di,
                 onMediumDetails = onMediumDetails
             )
-            is View.Settings -> SettingsScreenComponent(
-                componentContext = componentContext,
-                di = di
-            )
             is View.Favorites -> FavoritesScreenComponent(
                 componentContext = componentContext,
                 di = di
@@ -119,7 +112,12 @@ class InitialScreenComponent(
         }
     }
 
+    override fun viewProfile() {
+        onProfile()
+    }
+
     override fun viewAnime() {
+        StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
                 appSettings.setViewManga(false)
@@ -128,6 +126,7 @@ class InitialScreenComponent(
     }
 
     override fun viewManga() {
+        StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
                 appSettings.setViewManga(true)

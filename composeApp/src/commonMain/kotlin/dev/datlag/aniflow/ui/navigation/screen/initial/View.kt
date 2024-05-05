@@ -8,8 +8,5 @@ sealed class View {
     data object Home : View()
 
     @Serializable
-    data object Settings : View()
-
-    @Serializable
     data object Favorites : View()
 }

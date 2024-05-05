@@ -20,7 +20,7 @@ class AiringTodayRepository(
             page = p,
             nsfw = n,
         )
-    }
+    }.distinctUntilChanged()
 
     private val airingPreFilter = query.transform {
         return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())

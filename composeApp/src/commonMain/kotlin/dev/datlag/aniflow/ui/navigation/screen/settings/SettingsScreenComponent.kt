@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.settings
+package dev.datlag.aniflow.ui.navigation.screen.settings
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext

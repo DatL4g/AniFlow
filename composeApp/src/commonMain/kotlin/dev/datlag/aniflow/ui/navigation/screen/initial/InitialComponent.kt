@@ -18,6 +18,7 @@ interface InitialComponent : Component {
     val pages: Value<ChildPages<View, Component>>
 
     fun selectPage(index: Int)
+    fun viewProfile()
     fun viewAnime()
     fun viewManga()
 
