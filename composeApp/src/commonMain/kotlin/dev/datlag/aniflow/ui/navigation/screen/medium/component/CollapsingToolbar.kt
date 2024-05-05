@@ -111,8 +111,6 @@ fun CollapsingToolbar(
                 }
             },
             title = {
-
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)

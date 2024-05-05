@@ -2,6 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.initial
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
@@ -12,12 +13,18 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.operator.map
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.model.coroutines.Executor
+import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
+import dev.datlag.aniflow.ui.navigation.screen.initial.favorites.FavoritesScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.home.HomeScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.settings.SettingsScreenComponent
+import kotlinx.coroutines.flow.map
 import org.kodein.di.DI
+import org.kodein.di.instance
 
 class InitialScreenComponent(
     componentContext: ComponentContext,
@@ -25,14 +32,20 @@ class InitialScreenComponent(
     private val onMediumDetails: (Medium) -> Unit
 ) : InitialComponent, ComponentContext by componentContext {
 
+    private val appSettings by di.instance<Settings.PlatformAppSettings>()
+
     override val pagerItems: List<InitialComponent.PagerItem> = listOf(
+        InitialComponent.PagerItem(
+            label = SharedRes.strings.profile,
+            icon = Icons.Filled.AccountCircle
+        ),
         InitialComponent.PagerItem(
             label = SharedRes.strings.home,
             icon = Icons.Default.Home
         ),
         InitialComponent.PagerItem(
-            label = SharedRes.strings.settings,
-            icon = Icons.Filled.AccountCircle
+            label = SharedRes.strings.favorites,
+            icon = Icons.Filled.Favorite
         )
     )
 
@@ -46,10 +59,11 @@ class InitialScreenComponent(
         initialPages = {
             Pages(
                 items = listOf(
+                    View.Settings,
                     View.Home,
-                    View.Settings
+                    View.Favorites
                 ),
-                selectedIndex = 0
+                selectedIndex = 1
             )
         },
         childFactory = ::createChild
@@ -57,6 +71,16 @@ class InitialScreenComponent(
 
     @OptIn(ExperimentalDecomposeApi::class)
     override val selectedPage: Value<Int> = pages.map { it.selectedIndex }
+
+    private val viewTypeExecutor = Executor()
+
+    override val viewing = appSettings.viewManga.map {
+        if (it) {
+            MediaType.MANGA
+        } else {
+            MediaType.ANIME
+        }
+    }
 
     @Composable
     override fun render() {
@@ -79,6 +103,10 @@ class InitialScreenComponent(
                 componentContext = componentContext,
                 di = di
             )
+            is View.Favorites -> FavoritesScreenComponent(
+                componentContext = componentContext,
+                di = di
+            )
         }
     }
 
@@ -87,6 +115,22 @@ class InitialScreenComponent(
         pagesNavigation.select(index = index) { new, old ->
             if (new.items[new.selectedIndex] == old.items[old.selectedIndex]) {
                 (pages.value.items[pages.value.selectedIndex].instance as? ContentHolderComponent)?.dismissContent()
+            }
+        }
+    }
+
+    override fun viewAnime() {
+        launchIO {
+            viewTypeExecutor.enqueue {
+                appSettings.setViewManga(false)
+            }
+        }
+    }
+
+    override fun viewManga() {
+        launchIO {
+            viewTypeExecutor.enqueue {
+                appSettings.setViewManga(true)
             }
         }
     }

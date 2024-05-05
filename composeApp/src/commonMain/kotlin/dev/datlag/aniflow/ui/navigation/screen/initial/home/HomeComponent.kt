@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 interface HomeComponent : ContentHolderComponent {
-    val viewing: Flow<MediaType>
     val titleLanguage: Flow<SettingsTitle?>
 
     val airingState: Flow<AiringTodayRepository.State>
@@ -31,6 +30,4 @@ interface HomeComponent : ContentHolderComponent {
 
     fun details(medium: Medium)
     fun trace(channel: ByteArray)
-    fun viewAnime()
-    fun viewManga()
 }

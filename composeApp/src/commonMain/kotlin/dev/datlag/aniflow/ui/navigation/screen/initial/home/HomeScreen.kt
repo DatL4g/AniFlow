@@ -140,11 +140,6 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         else -> { }
     }
 
-    val type by component.viewing.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
-    val isManga = remember(type) {
-        type == MediaType.MANGA
-    }
-
     LazyColumn(
         state = listState,
         modifier = modifier.haze(state = LocalHaze.current),
@@ -152,64 +147,19 @@ private fun MainView(component: HomeComponent, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
-            Box(
-                modifier = Modifier.fillParentMaxWidth().height(200.dp),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp).background(Color.Black.copy(alpha = 0.3F), CircleShape),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    IconButton(
-                        onClick = {
-                            component.viewAnime()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayCircleFilled,
-                            contentDescription = null,
-                            tint = if (isManga) {
-                                LocalContentColor.current
-                            } else {
-                                MaterialTheme.colorScheme.primary
-                            }
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            component.viewManga()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
-                            tint = if (isManga) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                LocalContentColor.current
-                            }
-                        )
-                    }
-                }
-            }
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                text = "Schedule",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
-        if (!isManga) {
-            item {
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    text = "Schedule",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            item {
-                AiringOverview(
-                    state = component.airingState,
-                    titleLanguage = titleLanguage,
-                    onClick = component::details
-                )
-            }
+        item {
+            AiringOverview(
+                state = component.airingState,
+                titleLanguage = titleLanguage,
+                onClick = component::details
+            )
         }
         item {
             Text(

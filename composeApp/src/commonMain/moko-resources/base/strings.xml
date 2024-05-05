@@ -55,4 +55,6 @@
     <string name="char_romaji">Romaji</string>
     <string name="char_native">Native</string>
     <string name="explicit">Explicit</string>
+    <string name="profile">Profile</string>
+    <string name="favorites">Favorites</string>
 </resources>

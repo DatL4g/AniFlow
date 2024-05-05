@@ -65,16 +65,6 @@ class HomeScreenComponent(
         context = ioDispatcher()
     )
 
-    private val viewTypeExecutor = Executor()
-
-    override val viewing = appSettings.viewManga.map {
-        if (it) {
-            MediaType.MANGA
-        } else {
-            MediaType.ANIME
-        }
-    }
-
     @Composable
     override fun render() {
         onRender {
@@ -93,22 +83,6 @@ class HomeScreenComponent(
     override fun trace(channel: ByteArray) {
         launchIO {
             traceStateMachine.dispatch(TraceStateMachine.Action.Load(channel))
-        }
-    }
-
-    override fun viewAnime() {
-        launchIO {
-            viewTypeExecutor.enqueue {
-                appSettings.setViewManga(false)
-            }
-        }
-    }
-
-    override fun viewManga() {
-        launchIO {
-            viewTypeExecutor.enqueue {
-                appSettings.setViewManga(true)
-            }
         }
     }
 }

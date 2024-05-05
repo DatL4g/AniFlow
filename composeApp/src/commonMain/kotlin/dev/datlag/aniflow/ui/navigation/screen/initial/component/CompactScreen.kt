@@ -1,16 +1,19 @@
 package dev.datlag.aniflow.ui.navigation.screen.initial.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CameraEnhance
+import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.pages.Pages
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -21,16 +24,41 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialComponent
+import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.icerock.moko.resources.compose.stringResource
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalDecomposeApi::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalDecomposeApi::class, ExperimentalHazeMaterialsApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun CompactScreen(component: InitialComponent) {
-    val selectedPage by component.selectedPage.subscribeAsState()
+    val appBarState = rememberTopAppBarState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+        state = appBarState
+    )
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            CollapsingToolbar(
+                state = appBarState,
+                scrollBehavior = scrollBehavior,
+                viewTypeFlow = component.viewing,
+                onProfileClick = {
+
+                },
+                onAnimeClick = {
+                    component.viewAnime()
+                },
+                onMangaClick = {
+                    component.viewManga()
+                }
+            )
+        },
         bottomBar = {
+            val selectedPage by component.selectedPage.subscribeAsState()
+
             NavigationBar(
                 modifier = Modifier.hazeChild(
                     state = LocalHaze.current,
@@ -89,6 +117,8 @@ fun CompactScreen(component: InitialComponent) {
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
+                val selectedPage by component.selectedPage.subscribeAsState()
+
                 Pages(
                     pages = component.pages,
                     onPageSelected = { index ->

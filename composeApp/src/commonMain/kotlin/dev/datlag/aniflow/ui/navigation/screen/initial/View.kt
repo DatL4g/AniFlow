@@ -9,4 +9,7 @@ sealed class View {
 
     @Serializable
     data object Settings : View()
+
+    @Serializable
+    data object Favorites : View()
 }
