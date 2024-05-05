@@ -1,0 +1,3 @@
+files:
+  - source: composeApp/src/commonMain/moko-resources/base/strings.xml
+    translation: composeApp/src/commonMain/moko-resources/%two_letters_code%/strings.xml
