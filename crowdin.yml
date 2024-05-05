@@ -1,3 +1,14 @@
 files:
   - source: composeApp/src/commonMain/moko-resources/base/strings.xml
-    translation: composeApp/src/commonMain/moko-resources/%two_letters_code%/strings.xml
+    translation: composeApp/src/commonMain/moko-resources/%locale%/strings.xml
+    update_option: update_as_unapproved
+    ignore:
+      - composeApp/src/commonMain/moko-resources/images/
+      - composeApp/src/commonMain/moko-resources/fonts/
+
+  - source: composeApp/src/commonMain/moko-resources/base/plurals.xml
+    translation: composeApp/src/commonMain/moko-resources/%locale%/plurals.xml
+    update_option: update_as_unapproved
+    ignore:
+      - composeApp/src/commonMain/moko-resources/images/
+      - composeApp/src/commonMain/moko-resources/fonts/
