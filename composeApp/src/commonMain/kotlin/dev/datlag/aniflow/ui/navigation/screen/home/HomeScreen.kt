@@ -64,7 +64,7 @@ fun HomeScreen(component: HomeComponent) {
         },
         bottomBar = {
             HidingNavigationBar(
-                visible = listState.isScrollingUp()
+                visible = listState.isScrollingUp() && listState.canScrollForward
             )
         }
     ) {
@@ -85,7 +85,7 @@ fun HomeScreen(component: HomeComponent) {
                     state = listState,
                     modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
                     verticalArrangement = Arrangement.spacedBy(32.dp),
-                    contentPadding = LocalPadding(top = 16.dp)
+                    contentPadding = LocalPadding(vertical = 16.dp)
                 ) {
                     if (!isManga) {
                         item {

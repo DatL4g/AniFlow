@@ -42,18 +42,6 @@ fun Component.onRenderWithScheme(key: Any?, content: @Composable (SchemeTheme.Up
 }
 
 @Composable
-fun Component.onRenderApplyCommonScheme(key: Any?, content: @Composable (SchemeTheme.Updater?) -> Unit) {
-    onRenderWithScheme(key, content)
-
-    SchemeTheme.setCommon(key)
-    DisposableEffect(key) {
-        onDispose {
-            SchemeTheme.setCommon(null)
-        }
-    }
-}
-
-@Composable
 fun <T, R> StateFlow<T>.mapCollect(transform: (value: T) -> R): State<R> {
     return remember(this) {
         this.map(transform)

@@ -16,10 +16,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
-import dev.datlag.aniflow.common.nullableFirebaseInstance
-import dev.datlag.aniflow.common.onRenderApplyCommonScheme
-import dev.datlag.aniflow.common.popular
-import dev.datlag.aniflow.common.rated
+import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
@@ -193,7 +190,7 @@ class MediumScreenComponent(
         CompositionLocalProvider(
             LocalHaze provides state
         ) {
-            onRenderApplyCommonScheme(initialMedium.id) {
+            onRenderWithScheme(initialMedium.id) {
                 MediumScreen(this)
             }
         }

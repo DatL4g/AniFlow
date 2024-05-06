@@ -20,7 +20,6 @@ import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.Colors
-import dev.datlag.aniflow.ui.theme.CommonSchemeTheme
 import dev.datlag.aniflow.ui.theme.DynamicMaterialTheme
 import dev.datlag.tooling.compose.toTypography
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -62,14 +61,12 @@ internal fun App(
                 seedColor = tempColor?.toComposeColor() ?: seedColor,
                 animate = !allLoading
             ) {
-                CommonSchemeTheme(animate = !allLoading) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ) {
-                        content()
-                    }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) {
+                    content()
                 }
             }
         }
