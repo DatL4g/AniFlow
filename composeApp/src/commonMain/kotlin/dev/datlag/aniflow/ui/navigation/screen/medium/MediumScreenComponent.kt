@@ -2,6 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
@@ -187,7 +188,7 @@ class MediumScreenComponent(
 
     @Composable
     override fun render() {
-        val state = HazeState()
+        val state = remember { HazeState() }
 
         CompositionLocalProvider(
             LocalHaze provides state

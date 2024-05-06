@@ -15,7 +15,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.custom.ExpandedPages
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialComponent
-import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.CollapsingToolbar
+import dev.datlag.aniflow.ui.navigation.screen.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.icerock.moko.resources.compose.stringResource
 

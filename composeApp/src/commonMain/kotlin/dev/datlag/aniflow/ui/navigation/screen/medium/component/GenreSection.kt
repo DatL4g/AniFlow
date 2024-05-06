@@ -10,10 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.GenreChip
+import dev.datlag.aniflow.ui.navigation.screen.home.component.default.GenreChip
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun GenreSection(

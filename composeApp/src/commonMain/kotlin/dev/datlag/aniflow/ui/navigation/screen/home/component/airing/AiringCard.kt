@@ -1,12 +1,10 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
+package dev.datlag.aniflow.ui.navigation.screen.home.component.airing
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -15,19 +13,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
-import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.preferred
-import dev.datlag.aniflow.settings.Settings
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
-import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
-import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
-import org.kodein.di.instance
-import org.kodein.di.instanceOrNull
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @Composable

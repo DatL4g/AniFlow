@@ -16,6 +16,7 @@ import com.arkivanov.decompose.router.stack.*
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.ifValueOrNull
 import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.ui.navigation.screen.home.HomeScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreen
@@ -43,7 +44,7 @@ class RootComponent(
         componentContext: ComponentContext
     ): Component {
         return when (rootConfig) {
-            is RootConfig.Home -> InitialScreenComponent(
+            is RootConfig.Home -> HomeScreenComponent(
                 componentContext = componentContext,
                 di = di,
                 onMediumDetails = {

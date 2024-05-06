@@ -3,9 +3,11 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.coroutines.flow.*
+import kotlinx.serialization.Serializable
 
 class TrendingRepository(
     private val apolloClient: ApolloClient,
@@ -36,12 +38,12 @@ class TrendingRepository(
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                State.fromGraphQL(data)
+                CollectionState.fromTrendingGraphQL(data)
             } else {
                 null
             }
         } else {
-            State.fromGraphQL(data)
+            CollectionState.fromTrendingGraphQL(data)
         }
     }
 
@@ -51,15 +53,15 @@ class TrendingRepository(
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                State.fromGraphQL(data)
+                CollectionState.fromTrendingGraphQL(data)
             } else {
                 null
             }
         } else {
-            State.fromGraphQL(data)
+            CollectionState.fromTrendingGraphQL(data)
         }
     }.transform {
-        return@transform if (it is State.Error) {
+        return@transform if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)
@@ -97,25 +99,5 @@ class TrendingRepository(
             statusVersion = Optional.present(2),
             html = Optional.present(true)
         )
-    }
-
-    sealed interface State {
-        data class Success(
-            val collection: Collection<Medium>
-        ) : State
-
-        data object Error : State
-
-        companion object {
-            fun fromGraphQL(data: TrendingQuery.Data?): State {
-                val mediaList = data?.Page?.mediaFilterNotNull()
-
-                if (mediaList.isNullOrEmpty()) {
-                    return Error
-                }
-
-                return Success(mediaList.map { Medium(it) })
-            }
-        }
     }
 }

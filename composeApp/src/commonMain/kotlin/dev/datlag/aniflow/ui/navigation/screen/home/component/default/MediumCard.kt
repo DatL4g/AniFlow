@@ -1,10 +1,9 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
+package dev.datlag.aniflow.ui.navigation.screen.home.component.default
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,14 +13,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
-import com.mikepenz.markdown.compose.extendedspans.internal.deserializeToColor
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.*
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
-import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.Flow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 @OptIn(ExperimentalStdlibApi::class)

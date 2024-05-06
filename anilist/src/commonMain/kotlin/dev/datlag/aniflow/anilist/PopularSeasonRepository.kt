@@ -2,7 +2,7 @@ package dev.datlag.aniflow.anilist
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
-import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.coroutines.flow.*
@@ -36,12 +36,12 @@ class PopularSeasonRepository(
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                SeasonState.fromGraphQL(data)
+                CollectionState.fromSeasonGraphQL(data)
             } else {
                 null
             }
         } else {
-            SeasonState.fromGraphQL(data)
+            CollectionState.fromSeasonGraphQL(data)
         }
     }
 
@@ -51,15 +51,15 @@ class PopularSeasonRepository(
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                SeasonState.fromGraphQL(data)
+                CollectionState.fromSeasonGraphQL(data)
             } else {
                 null
             }
         } else {
-            SeasonState.fromGraphQL(data)
+            CollectionState.fromSeasonGraphQL(data)
         }
     }.transform {
-        return@transform if (it is SeasonState.Error) {
+        return@transform if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)

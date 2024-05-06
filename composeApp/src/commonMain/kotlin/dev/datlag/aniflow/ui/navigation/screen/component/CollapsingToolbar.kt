@@ -1,5 +1,6 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
+package dev.datlag.aniflow.ui.navigation.screen.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,7 +26,6 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.tooling.compose.ifFalse
-import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import kotlinx.coroutines.flow.Flow
@@ -84,7 +84,55 @@ fun CollapsingToolbar(
                     )
                 }
             },
-            title = { },
+            title = {
+                AnimatedVisibility(
+                    visible = isCollapsed
+                ) {
+                    Text(text = "AniFlow")
+                }
+            },
+            actions = {
+                Row(
+                    modifier = Modifier.ifFalse(isCollapsed) {
+                        background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
+                    },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    IconButton(
+                        onClick = {
+                            onAnimeClick()
+                        },
+                        enabled = isManga
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.PlayCircleFilled,
+                            contentDescription = null,
+                            tint = if (isManga) {
+                                LocalContentColor.current
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            onMangaClick()
+                        },
+                        enabled = !isManga
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.MenuBook,
+                            contentDescription = null,
+                            tint = if (isManga) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                LocalContentColor.current
+                            }
+                        )
+                    }
+                }
+            },
             scrollBehavior = scrollBehavior,
             colors = TopAppBarDefaults.largeTopAppBarColors(
                 containerColor = Color.Transparent,
@@ -97,55 +145,5 @@ fun CollapsingToolbar(
                 )
             ).fillMaxWidth()
         )
-
-        Row(
-            modifier = Modifier.padding(
-                bottom = 6.dp,
-                end = 4.dp
-            ).align(Alignment.BottomEnd),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-            Row(
-                modifier = Modifier.ifFalse(isCollapsed) {
-                    background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
-                },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-            ) {
-                IconButton(
-                    onClick = {
-                        onAnimeClick()
-                    },
-                    enabled = isManga
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PlayCircleFilled,
-                        contentDescription = null,
-                        tint = if (isManga) {
-                            LocalContentColor.current
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        }
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        onMangaClick()
-                    },
-                    enabled = !isManga
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.MenuBook,
-                        contentDescription = null,
-                        tint = if (isManga) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            LocalContentColor.current
-                        }
-                    )
-                }
-            }
-        }
     }
 }

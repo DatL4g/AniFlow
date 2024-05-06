@@ -21,7 +21,6 @@ import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.screen.initial.favorites.FavoritesScreenComponent
-import dev.datlag.aniflow.ui.navigation.screen.initial.home.HomeScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreenComponent
 import kotlinx.coroutines.flow.map
 import org.kodein.di.DI
@@ -90,17 +89,10 @@ class InitialScreenComponent(
         view: View,
         componentContext: ComponentContext
     ): Component {
-        return when (view) {
-            is View.Home -> HomeScreenComponent(
-                componentContext = componentContext,
-                di = di,
-                onMediumDetails = onMediumDetails
-            )
-            is View.Favorites -> FavoritesScreenComponent(
-                componentContext = componentContext,
-                di = di
-            )
-        }
+        return FavoritesScreenComponent(
+            componentContext = componentContext,
+            di = di
+        )
     }
 
     @OptIn(ExperimentalDecomposeApi::class)

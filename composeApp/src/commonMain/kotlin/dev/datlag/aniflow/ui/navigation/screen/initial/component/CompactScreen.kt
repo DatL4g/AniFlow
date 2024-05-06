@@ -4,13 +4,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CameraEnhance
-import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -24,7 +20,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.navigation.screen.initial.InitialComponent
-import dev.datlag.aniflow.ui.navigation.screen.initial.home.component.CollapsingToolbar
+import dev.datlag.aniflow.ui.navigation.screen.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.initial.model.FABConfig
 import dev.icerock.moko.resources.compose.stringResource
 

@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.initial.home.component
+package dev.datlag.aniflow.ui.navigation.screen.home.component.default
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight

@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration.Companion.hours
 
 class AiringTodayRepository(
@@ -85,10 +86,14 @@ class AiringTodayRepository(
     }
 
     sealed interface State {
+        @Serializable
+        data object None : State
+
         data class Success(
             val collection: Collection<AiringQuery.AiringSchedule>
         ) : State
 
+        @Serializable
         data object Error : State
 
         companion object {

@@ -154,8 +154,7 @@ data object NetworkModule {
             PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
+                nsfw = appSettings.adultContent
             )
         }
         bindSingleton<CharacterRepository> {
