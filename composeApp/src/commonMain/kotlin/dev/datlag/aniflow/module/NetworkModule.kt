@@ -32,7 +32,7 @@ import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.Trace
-import dev.datlag.aniflow.trace.TraceStateMachine
+import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.tooling.async.suspendCatching
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.map
@@ -113,12 +113,6 @@ data object NetworkModule {
                 baseUrl("https://api.trace.moe/")
             }.create<Trace>()
         }
-        bindProvider<TraceStateMachine> {
-            TraceStateMachine(
-                trace = instance(),
-                crashlytics = nullableFirebaseInstance()?.crashlytics
-            )
-        }
         bindSingleton<TrendingRepository> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
@@ -167,6 +161,11 @@ data object NetworkModule {
             MediumRepository(
                 client = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT)
+            )
+        }
+        bindSingleton<TraceRepository> {
+            TraceRepository(
+                trace = instance(),
             )
         }
     }

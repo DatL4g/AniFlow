@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.ui.navigation.screen.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,6 +34,8 @@ import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.LocalPadding
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.other.rememberImagePickerState
+import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.screen.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.home.component.AllLoadingView
@@ -46,6 +51,9 @@ fun HomeScreen(component: HomeComponent) {
         state = appBarState
     )
     val listState = rememberLazyListState()
+    val imagePicker = rememberImagePickerState {
+        it?.let(component::trace)
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -60,7 +68,23 @@ fun HomeScreen(component: HomeComponent) {
             )
         },
         floatingActionButton = {
+            val traceState by component.traceState.collectAsStateWithLifecycle(TraceRepository.State.None)
 
+            ExtendedFloatingActionButton(
+                onClick = {
+                    imagePicker.launch()
+                },
+                expanded = listState.isScrollingUp(),
+                icon = {
+                    Icon(
+                        imageVector = Icons.Filled.CameraEnhance,
+                        contentDescription = null
+                    )
+                },
+                text = {
+                    Text(text = "Scan")
+                }
+            )
         },
         bottomBar = {
             HidingNavigationBar(

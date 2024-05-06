@@ -17,6 +17,7 @@ import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -79,6 +80,13 @@ class HomeScreenComponent(
         initialValue = CollectionState.None
     )
 
+    private val traceRepository by instance<TraceRepository>()
+    override val traceState: Flow<TraceRepository.State> = traceRepository.response
+
+    init {
+        traceRepository.clear()
+    }
+
     @Composable
     override fun render() {
         val haze = remember { HazeState() }
@@ -116,5 +124,13 @@ class HomeScreenComponent(
 
     override fun details(medium: Medium) {
         onMediumDetails(medium)
+    }
+
+    override fun trace(byteArray: ByteArray) {
+        traceRepository.search(byteArray)
+    }
+
+    override fun clearTrace() {
+        traceRepository.clear()
     }
 }
