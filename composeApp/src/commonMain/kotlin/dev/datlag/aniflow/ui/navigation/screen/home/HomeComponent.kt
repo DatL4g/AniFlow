@@ -22,6 +22,8 @@ interface HomeComponent : Component {
     fun viewProfile()
     fun viewAnime()
     fun viewManga()
+    fun viewWallpaper()
+    fun viewFavorites()
 
     fun details(medium: Medium)
     fun trace(byteArray: ByteArray)

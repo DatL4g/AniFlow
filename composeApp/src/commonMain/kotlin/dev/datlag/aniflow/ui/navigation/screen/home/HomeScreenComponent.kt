@@ -30,7 +30,9 @@ class HomeScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
     private val onMediumDetails: (Medium) -> Unit,
-    private val onProfile: () -> Unit
+    private val onProfile: () -> Unit,
+    private val onWallpaper: () -> Unit,
+    private val onFavorites: () -> Unit
 ) : HomeComponent, ComponentContext by componentContext {
 
     private val appSettings by instance<Settings.PlatformAppSettings>()
@@ -120,6 +122,14 @@ class HomeScreenComponent(
                 appSettings.setViewManga(true)
             }
         }
+    }
+
+    override fun viewWallpaper() {
+        onWallpaper()
+    }
+
+    override fun viewFavorites() {
+        onFavorites()
     }
 
     override fun details(medium: Medium) {

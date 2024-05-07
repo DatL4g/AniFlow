@@ -1,6 +1,7 @@
 package dev.datlag.aniflow
 
 import android.content.Context
+import android.os.StrictMode
 import androidx.multidex.MultiDexApplication
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -27,6 +28,14 @@ class App : MultiDexApplication(), DIAware {
         super.onCreate()
 
         if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectAll()
+                    .permitDiskReads()
+                    .penaltyLog()
+                    .penaltyDialog()
+                    .build()
+            )
             Napier.base(DebugAntilog())
         }
         StateSaver.sekretLibraryLoaded = NativeLoader.loadLibrary("sekret")

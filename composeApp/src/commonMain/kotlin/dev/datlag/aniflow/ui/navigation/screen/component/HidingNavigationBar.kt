@@ -9,10 +9,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Wallpaper
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.hazeChild
@@ -21,12 +28,19 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.isScrollingUp
+import dev.datlag.aniflow.ui.navigation.RootConfig
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun HidingNavigationBar(
     visible: Boolean,
+    selected: NavigationBarState,
+    onWallpaper: () -> Unit,
+    onHome: () -> Unit,
+    onFavorites: () -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -58,11 +72,32 @@ fun HidingNavigationBar(
             contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)
         ) {
             NavigationBarItem(
-                onClick = { },
-                selected = true,
+                onClick = {
+                    if (selected !is NavigationBarState.Wallpaper) {
+                        onWallpaper()
+                    }
+                },
+                selected = selected is NavigationBarState.Wallpaper,
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.Home,
+                        imageVector = selected.wallpaperIcon,
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(text = "Wallpapers")
+                }
+            )
+            NavigationBarItem(
+                onClick = {
+                    if (selected !is NavigationBarState.Home) {
+                        onHome()
+                    }
+                },
+                selected = selected is NavigationBarState.Home,
+                icon = {
+                    Icon(
+                        imageVector = selected.homeIcon,
                         contentDescription = null
                     )
                 },
@@ -71,11 +106,15 @@ fun HidingNavigationBar(
                 }
             )
             NavigationBarItem(
-                onClick = { },
-                selected = false,
+                onClick = {
+                    if (selected !is NavigationBarState.Favorite) {
+                        onFavorites()
+                    }
+                },
+                selected = selected is NavigationBarState.Favorite,
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
+                        imageVector = selected.favoriteIcon,
                         contentDescription = null
                     )
                 },
@@ -84,5 +123,57 @@ fun HidingNavigationBar(
                 }
             )
         }
+    }
+}
+
+@Serializable
+sealed interface NavigationBarState {
+    @Transient
+    val unselectedIcon: ImageVector
+
+    @Transient
+    val selectedIcon: ImageVector
+        get() = unselectedIcon
+
+    val wallpaperIcon: ImageVector
+        get() = when (this) {
+            is Wallpaper -> selectedIcon
+            else -> Wallpaper.unselectedIcon
+        }
+
+    val homeIcon: ImageVector
+        get() = when (this) {
+            is Home -> selectedIcon
+            else -> Home.unselectedIcon
+        }
+
+    val favoriteIcon: ImageVector
+        get() = when (this) {
+            is Favorite -> selectedIcon
+            else -> Favorite.unselectedIcon
+        }
+
+    @Serializable
+    data object Wallpaper : NavigationBarState {
+        override val unselectedIcon: ImageVector
+            get() = Icons.Rounded.Wallpaper
+    }
+
+    @Serializable
+    data object Home : NavigationBarState {
+        override val unselectedIcon: ImageVector
+            get() = Icons.Outlined.Home
+
+        override val selectedIcon: ImageVector
+            get() = Icons.Rounded.Home
+    }
+
+    @Serializable
+    data object Favorite : NavigationBarState {
+        override val unselectedIcon: ImageVector
+            get() = Icons.Rounded.FavoriteBorder
+
+        override val selectedIcon: ImageVector
+            get() = Icons.Rounded.Favorite
     }
 }

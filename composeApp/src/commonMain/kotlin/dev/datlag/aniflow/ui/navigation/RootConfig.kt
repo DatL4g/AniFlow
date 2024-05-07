@@ -16,4 +16,10 @@ sealed class RootConfig {
 
     @Serializable
     data object Settings : RootConfig()
+
+    @Serializable
+    data object Favorites : RootConfig()
+
+    @Serializable
+    data object Wallpaper : RootConfig()
 }

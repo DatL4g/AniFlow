@@ -8,6 +8,7 @@ import androidx.compose.ui.layout.layout
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
+import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback.predictiveBackAnimation
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
@@ -16,11 +17,12 @@ import com.arkivanov.decompose.router.stack.*
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.ifValueOrNull
 import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.ui.navigation.screen.favorites.FavoritesScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.HomeScreenComponent
-import dev.datlag.aniflow.ui.navigation.screen.initial.InitialScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreen
 import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreenComponent
+import dev.datlag.aniflow.ui.navigation.screen.wallpaper.WallpaperScreenComponent
 import io.github.aakira.napier.Napier
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -52,6 +54,12 @@ class RootComponent(
                 },
                 onProfile = {
                     navigation.push(RootConfig.Settings)
+                },
+                onWallpaper = {
+                    navigation.replaceCurrent(RootConfig.Wallpaper)
+                },
+                onFavorites = {
+                    navigation.replaceCurrent(RootConfig.Favorites)
                 }
             )
             is RootConfig.Details -> MediumScreenComponent(
@@ -64,6 +72,26 @@ class RootComponent(
                 componentContext = componentContext,
                 di = di
             )
+            is RootConfig.Favorites -> FavoritesScreenComponent(
+                componentContext = componentContext,
+                di = di,
+                onWallpaper = {
+                    navigation.replaceCurrent(RootConfig.Wallpaper)
+                },
+                onHome = {
+                    navigation.replaceCurrent(RootConfig.Home)
+                }
+            )
+            is RootConfig.Wallpaper -> WallpaperScreenComponent(
+                componentContext = componentContext,
+                di = di,
+                onHome = {
+                    navigation.replaceCurrent(RootConfig.Home)
+                },
+                onFavorites = {
+                    navigation.replaceCurrent(RootConfig.Favorites)
+                }
+            )
         }
     }
 
@@ -75,40 +103,7 @@ class RootComponent(
                 stack = stack,
                 animation = predictiveBackAnimation(
                     backHandler = this.backHandler,
-                    fallbackAnimation = stackAnimation { child ->
-                        when (child.configuration) {
-                            is RootConfig.Settings -> stackAnimator(tween()) { factor, _, content ->
-                                content(
-                                    Modifier.layout { measurable, constraints ->
-                                        val placeable = measurable.measure(constraints)
-
-                                        layout(placeable.width, placeable.height) {
-                                            placeable.placeRelative(y = -(placeable.height.toFloat() * factor).toInt(), x = 0)
-                                        }
-                                    }
-                                )
-                            }
-                            is RootConfig.Home -> {
-                                val current = stack.value.active
-
-                                when (current.configuration) {
-                                    is RootConfig.Settings -> stackAnimator(tween()) { factor, _, content ->
-                                        content(
-                                            Modifier.layout { measurable, constraints ->
-                                                val placeable = measurable.measure(constraints)
-
-                                                layout(placeable.width, placeable.height) {
-                                                    placeable.placeRelative(y = -(placeable.height.toFloat() * factor).toInt(), x = 0)
-                                                }
-                                            }
-                                        )
-                                    }
-                                    else -> slide()
-                                }
-                            }
-                            else -> slide()
-                        }
-                    },
+                    fallbackAnimation = stackAnimation(fade()),
                     onBack = {
                         navigation.pop()
                     }
