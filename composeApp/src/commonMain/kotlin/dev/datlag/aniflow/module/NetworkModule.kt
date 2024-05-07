@@ -29,6 +29,8 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.model.safeFirstOrNull
+import dev.datlag.aniflow.nekos.Nekos
+import dev.datlag.aniflow.nekos.NekosRepository
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.Trace
@@ -113,6 +115,12 @@ data object NetworkModule {
                 baseUrl("https://api.trace.moe/")
             }.create<Trace>()
         }
+        bindSingleton<Nekos> {
+            val builder = instance<Ktorfit.Builder>()
+            builder.build {
+                baseUrl("https://api.nekosapi.com/v3/")
+            }.create<Nekos>()
+        }
         bindSingleton<TrendingRepository> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
@@ -166,6 +174,14 @@ data object NetworkModule {
         bindSingleton<TraceRepository> {
             TraceRepository(
                 trace = instance(),
+            )
+        }
+        bindSingleton<NekosRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            NekosRepository(
+                nekos = instance(),
+                nsfw = appSettings.adultContent
             )
         }
     }

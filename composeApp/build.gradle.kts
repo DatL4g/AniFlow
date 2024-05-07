@@ -119,6 +119,7 @@ kotlin {
             implementation(project(":firebase"))
             implementation(project(":anilist"))
             implementation(project(":model"))
+            implementation(project(":nekos"))
             implementation(project(":settings"))
             implementation(project(":trace"))
         }

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
@@ -108,6 +110,50 @@ fun Modifier.mergedLocalPadding(other: PaddingValues, additional: Dp) = composed
 
 @Composable
 fun LazyListState.isScrollingUp(): Boolean {
+    var previousIndex by remember(this) {
+        mutableStateOf(firstVisibleItemIndex)
+    }
+    var previousScrollOffset by remember(this) {
+        mutableStateOf(firstVisibleItemScrollOffset)
+    }
+    return remember(this) {
+        derivedStateOf {
+            if (previousIndex != firstVisibleItemIndex) {
+                previousIndex > firstVisibleItemIndex
+            } else {
+                previousScrollOffset >= firstVisibleItemScrollOffset
+            }.also {
+                previousIndex = firstVisibleItemIndex
+                previousScrollOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
+}
+
+@Composable
+fun LazyGridState.isScrollingUp(): Boolean {
+    var previousIndex by remember(this) {
+        mutableStateOf(firstVisibleItemIndex)
+    }
+    var previousScrollOffset by remember(this) {
+        mutableStateOf(firstVisibleItemScrollOffset)
+    }
+    return remember(this) {
+        derivedStateOf {
+            if (previousIndex != firstVisibleItemIndex) {
+                previousIndex > firstVisibleItemIndex
+            } else {
+                previousScrollOffset >= firstVisibleItemScrollOffset
+            }.also {
+                previousIndex = firstVisibleItemIndex
+                previousScrollOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
+}
+
+@Composable
+fun LazyStaggeredGridState.isScrollingUp(): Boolean {
     var previousIndex by remember(this) {
         mutableStateOf(firstVisibleItemIndex)
     }

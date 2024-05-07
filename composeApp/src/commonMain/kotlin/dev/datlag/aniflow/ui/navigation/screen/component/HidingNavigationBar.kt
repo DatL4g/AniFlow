@@ -5,20 +5,21 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Wallpaper
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.ui.navigation.RootConfig
+import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -71,30 +73,48 @@ fun HidingNavigationBar(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)
         ) {
+            val isWallpaper = remember(selected) {
+                selected is NavigationBarState.Wallpaper
+            }
+            val isHome = remember(selected) {
+                selected is NavigationBarState.Home
+            }
+            val isFavorites = remember(selected) {
+                selected is NavigationBarState.Favorite
+            }
+
             NavigationBarItem(
                 onClick = {
-                    if (selected !is NavigationBarState.Wallpaper) {
+                    if (!isWallpaper) {
                         onWallpaper()
                     }
                 },
-                selected = selected is NavigationBarState.Wallpaper,
+                selected = isWallpaper,
                 icon = {
-                    Icon(
-                        imageVector = selected.wallpaperIcon,
-                        contentDescription = null
+                    Image(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(
+                            if (isWallpaper) {
+                                SharedRes.images.cat_filled
+                            } else {
+                                SharedRes.images.cat_rounded
+                            }
+                        ),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(LocalContentColor.current)
                     )
                 },
                 label = {
-                    Text(text = "Wallpapers")
+                    Text(text = "Nekos")
                 }
             )
             NavigationBarItem(
                 onClick = {
-                    if (selected !is NavigationBarState.Home) {
+                    if (!isHome) {
                         onHome()
                     }
                 },
-                selected = selected is NavigationBarState.Home,
+                selected = isHome,
                 icon = {
                     Icon(
                         imageVector = selected.homeIcon,
@@ -107,11 +127,11 @@ fun HidingNavigationBar(
             )
             NavigationBarItem(
                 onClick = {
-                    if (selected !is NavigationBarState.Favorite) {
+                    if (!isFavorites) {
                         onFavorites()
                     }
                 },
-                selected = selected is NavigationBarState.Favorite,
+                selected = isFavorites,
                 icon = {
                     Icon(
                         imageVector = selected.favoriteIcon,
@@ -157,6 +177,9 @@ sealed interface NavigationBarState {
     data object Wallpaper : NavigationBarState {
         override val unselectedIcon: ImageVector
             get() = Icons.Rounded.Wallpaper
+
+        override val selectedIcon: ImageVector
+            get() = Icons.Rounded.Image
     }
 
     @Serializable
