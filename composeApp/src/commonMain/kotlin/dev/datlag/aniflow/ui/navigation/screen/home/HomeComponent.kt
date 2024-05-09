@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.home
 import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.trace.TraceRepository
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface HomeComponent : Component {
     val viewing: Flow<MediaType>
+    val user: Flow<User?>
 
     val airing: Flow<AiringTodayRepository.State>
     val trending: Flow<CollectionState>

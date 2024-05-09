@@ -11,11 +11,13 @@ import dev.datlag.aniflow.anilist.PopularNextSeasonRepository
 import dev.datlag.aniflow.anilist.PopularSeasonRepository
 import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.tooling.decompose.ioScope
@@ -44,8 +46,11 @@ class HomeScreenComponent(
         }
     }
     private val viewTypeExecutor = Executor()
-    private val stateScope = ioScope()
 
+    private val userHelper by instance<UserHelper>()
+    override val user: Flow<User?> = userHelper.user
+
+    private val stateScope = ioScope()
     private val airingTodayRepository by instance<AiringTodayRepository>()
     override val airing: Flow<AiringTodayRepository.State> = airingTodayRepository.airing.map {
         StateSaver.Home.updateAiring(it)

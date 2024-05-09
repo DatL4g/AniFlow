@@ -10,24 +10,28 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.PlayCircleFilled
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.fontFamilyResource
 import dev.icerock.moko.resources.compose.painterResource
+import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
 import kotlin.math.max
 import kotlin.math.min
@@ -37,6 +41,7 @@ import kotlin.math.min
 fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
+    userFlow: Flow<User?>,
     viewTypeFlow: Flow<MediaType>,
     onProfileClick: () -> Unit,
     onAnimeClick: () -> Unit,
@@ -78,9 +83,37 @@ fun CollapsingToolbar(
                         onProfileClick()
                     }
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = null
+                    val user by userFlow.collectAsStateWithLifecycle(null)
+                    var colorFilter by remember(user) { mutableStateOf<ColorFilter?>(null) }
+                    val tintColor = LocalContentColor.current
+
+                    AsyncImage(
+                        model = user?.avatar?.large,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        colorFilter = colorFilter,
+                        placeholder = rememberVectorPainter(Icons.Filled.AccountCircle),
+                        error = rememberAsyncImagePainter(
+                            model = user?.avatar?.medium,
+                            contentScale = ContentScale.Crop,
+                            error = rememberVectorPainter(Icons.Filled.AccountCircle),
+                            placeholder = rememberVectorPainter(Icons.Filled.AccountCircle),
+                            onError = {
+                                colorFilter = ColorFilter.tint(tintColor)
+                            },
+                            onSuccess = {
+                                colorFilter = null
+                            },
+                            onLoading = {
+                                colorFilter = ColorFilter.tint(tintColor)
+                            }
+                        ),
+                        onSuccess = {
+                            colorFilter = null
+                        },
+                        onLoading = {
+                            colorFilter = ColorFilter.tint(tintColor)
+                        }
                     )
                 }
             },
@@ -88,7 +121,10 @@ fun CollapsingToolbar(
                 AnimatedVisibility(
                     visible = isCollapsed
                 ) {
-                    Text(text = "AniFlow")
+                    Text(
+                        text = stringResource(SharedRes.strings.app_name),
+                        fontFamily = fontFamilyResource(SharedRes.fonts.marckscript_regular)
+                    )
                 }
             },
             actions = {

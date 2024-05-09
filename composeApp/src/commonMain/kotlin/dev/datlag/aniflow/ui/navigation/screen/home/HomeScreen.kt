@@ -66,6 +66,7 @@ fun HomeScreen(component: HomeComponent) {
             CollapsingToolbar(
                 state = appBarState,
                 scrollBehavior = scrollBehavior,
+                userFlow = component.user,
                 viewTypeFlow = component.viewing,
                 onProfileClick = component::viewProfile,
                 onAnimeClick = component::viewAnime,
