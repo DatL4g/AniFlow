@@ -84,8 +84,8 @@ fun CollapsingToolbar(
                     }
                 ) {
                     val user by userFlow.collectAsStateWithLifecycle(null)
-                    var colorFilter by remember(user) { mutableStateOf<ColorFilter?>(null) }
                     val tintColor = LocalContentColor.current
+                    var colorFilter by remember(user) { mutableStateOf<ColorFilter?>(ColorFilter.tint(tintColor)) }
 
                     AsyncImage(
                         model = user?.avatar?.large,
