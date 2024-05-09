@@ -22,7 +22,7 @@ interface HomeComponent : Component {
     fun viewProfile()
     fun viewAnime()
     fun viewManga()
-    fun viewWallpaper()
+    fun viewDiscover()
     fun viewFavorites()
 
     fun details(medium: Medium)

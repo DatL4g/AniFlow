@@ -31,7 +31,7 @@ class HomeScreenComponent(
     override val di: DI,
     private val onMediumDetails: (Medium) -> Unit,
     private val onProfile: () -> Unit,
-    private val onWallpaper: () -> Unit,
+    private val onDiscover: () -> Unit,
     private val onFavorites: () -> Unit
 ) : HomeComponent, ComponentContext by componentContext {
 
@@ -124,8 +124,8 @@ class HomeScreenComponent(
         }
     }
 
-    override fun viewWallpaper() {
-        onWallpaper()
+    override fun viewDiscover() {
+        onDiscover()
     }
 
     override fun viewFavorites() {

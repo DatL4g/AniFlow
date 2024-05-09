@@ -22,4 +22,5 @@ interface SettingsComponent : Component {
     fun changeTitleLanguage(value: SettingsTitle?)
     fun changeCharLanguage(value: SettingsChar?)
     fun logout()
+    fun nekos()
 }

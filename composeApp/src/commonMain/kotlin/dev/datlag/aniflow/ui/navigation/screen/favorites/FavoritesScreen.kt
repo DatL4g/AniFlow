@@ -12,7 +12,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
             HidingNavigationBar(
                 visible = true,
                 selected = NavigationBarState.Favorite,
-                onWallpaper = component::viewWallpaper,
+                onDiscover = component::viewDiscover,
                 onHome = component::viewHome,
                 onFavorites = { }
             )

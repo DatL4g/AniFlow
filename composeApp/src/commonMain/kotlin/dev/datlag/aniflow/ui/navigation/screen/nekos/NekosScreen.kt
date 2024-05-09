@@ -1,20 +1,25 @@
-package dev.datlag.aniflow.ui.navigation.screen.wallpaper
+package dev.datlag.aniflow.ui.navigation.screen.nekos
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material.icons.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
@@ -24,7 +29,11 @@ import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.merge
 import dev.datlag.aniflow.nekos.NekosRepository
@@ -32,14 +41,44 @@ import dev.datlag.aniflow.nekos.model.Rating
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
-fun WallpaperScreen(component: WallpaperComponent) {
+fun NekosScreen(component: NekosComponent) {
     val listState = rememberLazyStaggeredGridState()
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            component.back()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                            contentDescription = null
+                        )
+                    }
+                },
+                title = {
+                    Text(text = stringResource(SharedRes.strings.nekos_api))
+                },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                ),
+                modifier = Modifier.hazeChild(
+                    state = LocalHaze.current,
+                    style = HazeMaterials.thin(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    )
+                ).fillMaxWidth()
+            )
+        },
         floatingActionButton = {
             val dialogState = rememberUseCaseState(
                 visible = false
@@ -98,15 +137,6 @@ fun WallpaperScreen(component: WallpaperComponent) {
                     Text(text = "Filter")
                 }
             )
-        },
-        bottomBar = {
-            HidingNavigationBar(
-                visible = listState.isScrollingUp(),
-                selected = NavigationBarState.Wallpaper,
-                onWallpaper = { },
-                onHome = component::viewHome,
-                onFavorites = component::viewFavorites
-            )
         }
     ) { padding ->
         val state by component.state.collectAsStateWithLifecycle(NekosRepository.State.None)
@@ -115,6 +145,8 @@ fun WallpaperScreen(component: WallpaperComponent) {
             is NekosRepository.State.None -> Text(text = "Loading")
             is NekosRepository.State.Error -> Text(text = "Error")
             is NekosRepository.State.Success -> {
+                val uriHandler = LocalUriHandler.current
+
                 LazyVerticalStaggeredGrid(
                     state = listState,
                     modifier = Modifier.haze(state = LocalHaze.current),
@@ -128,7 +160,8 @@ fun WallpaperScreen(component: WallpaperComponent) {
                             modifier = Modifier.animateItemPlacement(),
                             onClick = {
                                 Napier.e(it.toString())
-                            }
+                                uriHandler.openUri(it.imageUrl ?: it.sampleUrl ?: "")
+                            },
                         ) {
                             AsyncImage(
                                 modifier = Modifier.fillMaxSize(),

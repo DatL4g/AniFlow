@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.wallpaper
+package dev.datlag.aniflow.ui.navigation.screen.nekos
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,12 +15,11 @@ import kotlinx.coroutines.flow.StateFlow
 import org.kodein.di.DI
 import org.kodein.di.instance
 
-class WallpaperScreenComponent(
+class NekosScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
-    private val onHome: () -> Unit,
-    private val onFavorites: () -> Unit,
-) : WallpaperComponent, ComponentContext by componentContext {
+    private val onBack: () -> Unit,
+) : NekosComponent, ComponentContext by componentContext {
 
     private val appSettings by instance<Settings.PlatformAppSettings>()
     override val adultContent: Flow<Boolean> = appSettings.adultContent
@@ -37,17 +36,13 @@ class WallpaperScreenComponent(
             LocalHaze provides haze
         ) {
             onRender {
-                WallpaperScreen(this)
+                NekosScreen(this)
             }
         }
     }
 
-    override fun viewHome() {
-        onHome()
-    }
-
-    override fun viewFavorites() {
-        onFavorites()
+    override fun back() {
+        onBack()
     }
 
     override fun filter(rating: Rating) {

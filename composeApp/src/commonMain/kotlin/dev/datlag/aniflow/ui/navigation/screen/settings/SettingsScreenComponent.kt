@@ -17,7 +17,8 @@ import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
 class SettingsScreenComponent(
     componentContext: ComponentContext,
-    override val di: DI
+    override val di: DI,
+    private val onNekos: () -> Unit
 ) : SettingsComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
@@ -67,5 +68,9 @@ class SettingsScreenComponent(
         launchIO {
             userHelper.logout()
         }
+    }
+
+    override fun nekos() {
+        onNekos()
     }
 }

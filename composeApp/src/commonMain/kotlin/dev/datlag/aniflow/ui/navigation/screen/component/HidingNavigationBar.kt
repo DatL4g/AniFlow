@@ -40,7 +40,7 @@ import kotlinx.serialization.Transient
 fun HidingNavigationBar(
     visible: Boolean,
     selected: NavigationBarState,
-    onWallpaper: () -> Unit,
+    onDiscover: () -> Unit,
     onHome: () -> Unit,
     onFavorites: () -> Unit
 ) {
@@ -73,8 +73,8 @@ fun HidingNavigationBar(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)
         ) {
-            val isWallpaper = remember(selected) {
-                selected is NavigationBarState.Wallpaper
+            val isDiscover = remember(selected) {
+                selected is NavigationBarState.Discover
             }
             val isHome = remember(selected) {
                 selected is NavigationBarState.Home
@@ -85,27 +85,19 @@ fun HidingNavigationBar(
 
             NavigationBarItem(
                 onClick = {
-                    if (!isWallpaper) {
-                        onWallpaper()
+                    if (!isDiscover) {
+                        onDiscover()
                     }
                 },
-                selected = isWallpaper,
+                selected = isDiscover,
                 icon = {
-                    Image(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(
-                            if (isWallpaper) {
-                                SharedRes.images.cat_filled
-                            } else {
-                                SharedRes.images.cat_rounded
-                            }
-                        ),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(LocalContentColor.current)
+                    Icon(
+                        imageVector = selected.discoverIcon,
+                        contentDescription = null
                     )
                 },
                 label = {
-                    Text(text = "Nekos")
+                    Text(text = "Discover")
                 }
             )
             NavigationBarItem(
@@ -155,10 +147,10 @@ sealed interface NavigationBarState {
     val selectedIcon: ImageVector
         get() = unselectedIcon
 
-    val wallpaperIcon: ImageVector
+    val discoverIcon: ImageVector
         get() = when (this) {
-            is Wallpaper -> selectedIcon
-            else -> Wallpaper.unselectedIcon
+            is Discover -> selectedIcon
+            else -> Discover.unselectedIcon
         }
 
     val homeIcon: ImageVector
@@ -174,12 +166,9 @@ sealed interface NavigationBarState {
         }
 
     @Serializable
-    data object Wallpaper : NavigationBarState {
+    data object Discover : NavigationBarState {
         override val unselectedIcon: ImageVector
-            get() = Icons.Rounded.Wallpaper
-
-        override val selectedIcon: ImageVector
-            get() = Icons.Rounded.Image
+            get() = Icons.Rounded.Search
     }
 
     @Serializable

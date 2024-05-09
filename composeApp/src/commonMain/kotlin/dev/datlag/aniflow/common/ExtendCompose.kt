@@ -64,16 +64,19 @@ fun PaddingValues.merge(other: PaddingValues): PaddingValues {
     )
 }
 
-fun Modifier.localPadding(additional: PaddingValues = PaddingValues(0.dp)) = composed {
-    this.padding(LocalPaddingValues.current?.plus(additional) ?: additional)
+@Composable
+fun Modifier.localPadding(additional: PaddingValues = PaddingValues(0.dp)): Modifier {
+    return this.padding(LocalPaddingValues.current?.plus(additional) ?: additional)
 }
 
-fun Modifier.localPadding(all: Dp) = composed {
-    this.localPadding(PaddingValues(all))
+@Composable
+fun Modifier.localPadding(all: Dp): Modifier {
+    return this.localPadding(PaddingValues(all))
 }
 
-fun Modifier.localPadding(horizontal: Dp, vertical: Dp = 0.dp) = composed {
-    this.localPadding(PaddingValues(horizontal = horizontal, vertical = vertical))
+@Composable
+fun Modifier.localPadding(horizontal: Dp, vertical: Dp = 0.dp): Modifier {
+    return this.localPadding(PaddingValues(horizontal = horizontal, vertical = vertical))
 }
 
 @Composable
@@ -100,12 +103,14 @@ fun LocalPadding(top: Dp = 0.dp, start: Dp = 0.dp, bottom: Dp = 0.dp, end: Dp = 
     ) ?: PaddingValues(top = top, start = start, bottom = bottom, end = end)
 }
 
-fun Modifier.mergedLocalPadding(other: PaddingValues, additional: PaddingValues = PaddingValues(0.dp)) = composed {
-    this.padding((LocalPaddingValues.current?.merge(other) ?: other).plus(additional))
+@Composable
+fun Modifier.mergedLocalPadding(other: PaddingValues, additional: PaddingValues = PaddingValues(0.dp)): Modifier {
+    return this.padding((LocalPaddingValues.current?.merge(other) ?: other).plus(additional))
 }
 
-fun Modifier.mergedLocalPadding(other: PaddingValues, additional: Dp) = composed {
-    this.mergedLocalPadding(other, PaddingValues(additional))
+@Composable
+fun Modifier.mergedLocalPadding(other: PaddingValues, additional: Dp): Modifier {
+    return this.mergedLocalPadding(other, PaddingValues(additional))
 }
 
 @Composable

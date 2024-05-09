@@ -4,6 +4,6 @@ import dev.datlag.aniflow.ui.navigation.Component
 
 interface FavoritesComponent : Component {
 
-    fun viewWallpaper()
+    fun viewDiscover()
     fun viewHome()
 }

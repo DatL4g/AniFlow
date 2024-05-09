@@ -12,7 +12,7 @@ import org.kodein.di.DI
 class FavoritesScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
-    private val onWallpaper: () -> Unit,
+    private val onDiscover: () -> Unit,
     private val onHome: () -> Unit,
 ) : FavoritesComponent, ComponentContext by componentContext {
 
@@ -29,8 +29,8 @@ class FavoritesScreenComponent(
         }
     }
 
-    override fun viewWallpaper() {
-        onWallpaper()
+    override fun viewDiscover() {
+        onDiscover()
     }
 
     override fun viewHome() {

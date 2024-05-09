@@ -21,5 +21,5 @@ sealed class RootConfig {
     data object Favorites : RootConfig()
 
     @Serializable
-    data object Wallpaper : RootConfig()
+    data object Nekos : RootConfig()
 }

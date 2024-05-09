@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.ui.navigation.screen.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,6 +29,7 @@ import dev.datlag.aniflow.ui.navigation.screen.settings.component.*
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
+import dev.icerock.moko.resources.compose.stringResource
 
 @Composable
 fun SettingsScreen(component: SettingsComponent) {
@@ -161,6 +163,40 @@ fun SettingsScreen(component: SettingsComponent) {
                         contentDescription = null,
                     )
                     Text(text = "Developed by DatLag")
+                }
+            }
+            item {
+                var clicked by remember { mutableStateOf(0) }
+
+                Row(
+                    modifier = Modifier
+                        .fillParentMaxWidth()
+                        .defaultMinSize(minHeight = ButtonDefaults.MinHeight)
+                        .clip(MaterialTheme.shapes.medium)
+                        .onClick {
+                            if (clicked >= 99) {
+                                component.nekos()
+                            } else {
+                                clicked++
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Image(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(SharedRes.images.cat_filled),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(LocalContentColor.current)
+                    )
+                    Text(text = stringResource(SharedRes.strings.nekos_api))
+                    AnimatedVisibility(
+                        visible = clicked >= 1,
+                    ) {
+                        Badge {
+                            Text(text = "$clicked")
+                        }
+                    }
                 }
             }
         }
