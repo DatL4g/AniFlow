@@ -3,6 +3,7 @@ package dev.datlag.aniflow.nekos
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.nekos.model.ImagesResponse
 import dev.datlag.aniflow.nekos.model.Rating
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 
@@ -11,17 +12,16 @@ class NekosRepository(
     private val nsfw: Flow<Boolean> = flowOf(false),
 ) {
 
-    private val offset = MutableStateFlow<Int?>(null)
     val rating = MutableStateFlow<Rating>(Rating.Safe)
 
-    private val result = combine(offset, rating) { o, r ->
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val result = rating.mapLatest {
         CatchResult.repeat(2) {
             nekos.images(
-                rating = r.query,
-                offset = o,
+                rating = it.query
             )
         }
-    }.map {
+    }.mapLatest {
         State.fromResponse(it.asNullableSuccess())
     }
     val response = combine(nsfw.distinctUntilChanged(), result, rating) { n, q, r ->
@@ -46,17 +46,8 @@ class NekosRepository(
         }
     }
 
-    fun offset(value: Int) {
-        offset.update { value }
-    }
-
     fun rating(value: Rating) {
-        rating.update {
-            if (it != value) {
-                offset.update { null }
-            }
-            value
-        }
+        rating.update { value }
     }
 
     @Serializable

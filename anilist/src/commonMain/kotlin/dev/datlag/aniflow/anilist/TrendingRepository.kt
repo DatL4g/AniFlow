@@ -6,6 +6,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 
@@ -17,7 +18,9 @@ class TrendingRepository(
 ) {
 
     private val page = MutableStateFlow(0)
-    private val type = viewManga.distinctUntilChanged().map {
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val type = viewManga.distinctUntilChanged().mapLatest {
         page.update { 0 }
         if (it) {
             MediaType.MANGA
@@ -25,6 +28,7 @@ class TrendingRepository(
             MediaType.ANIME
         }
     }
+
     private val query = combine(page, type, nsfw.distinctUntilChanged()) { p, t, n ->
         Query(
             page = p,
@@ -32,8 +36,10 @@ class TrendingRepository(
             nsfw = n
         )
     }.distinctUntilChanged()
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -47,8 +53,9 @@ class TrendingRepository(
         }
     }
 
-    val trending = query.transform {
-        return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val trending = query.transformLatest {
+        return@transformLatest emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -60,8 +67,8 @@ class TrendingRepository(
         } else {
             CollectionState.fromTrendingGraphQL(data)
         }
-    }.transform {
-        return@transform if (it.isError) {
+    }.transformLatest {
+        return@transformLatest if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)

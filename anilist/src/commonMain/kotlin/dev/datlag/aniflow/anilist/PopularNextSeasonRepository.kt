@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 
@@ -17,6 +18,7 @@ class PopularNextSeasonRepository(
 ) {
 
     private val page = MutableStateFlow(0)
+
     private val query = combine(page, nsfw.distinctUntilChanged()) { p, n ->
         val (season, year) = Clock.System.now().nextSeason
 
@@ -27,8 +29,10 @@ class PopularNextSeasonRepository(
             year = year
         )
     }.distinctUntilChanged()
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -42,8 +46,9 @@ class PopularNextSeasonRepository(
         }
     }
 
-    val popularNextSeason = query.transform {
-        return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val popularNextSeason = query.transformLatest {
+        return@transformLatest emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -55,8 +60,8 @@ class PopularNextSeasonRepository(
         } else {
             CollectionState.fromSeasonGraphQL(data)
         }
-    }.transform {
-        return@transform if (it.isError) {
+    }.transformLatest {
+        return@transformLatest if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)

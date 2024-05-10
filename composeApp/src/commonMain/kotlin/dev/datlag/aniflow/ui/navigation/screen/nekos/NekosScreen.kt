@@ -1,14 +1,12 @@
 package dev.datlag.aniflow.ui.navigation.screen.nekos
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.ArrowBackIos
@@ -16,7 +14,9 @@ import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -142,8 +142,30 @@ fun NekosScreen(component: NekosComponent) {
         val state by component.state.collectAsStateWithLifecycle(NekosRepository.State.None)
 
         when (val current = state) {
-            is NekosRepository.State.None -> Text(text = "Loading")
-            is NekosRepository.State.Error -> Text(text = "Error")
+            is NekosRepository.State.None -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(0.2F).clip(CircleShape)
+                    )
+                }
+            }
+            is NekosRepository.State.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Button(
+                        onClick = {
+                            component.back()
+                        }
+                    ) {
+                        Text(text = stringResource(SharedRes.strings.back))
+                    }
+                }
+            }
             is NekosRepository.State.Success -> {
                 val uriHandler = LocalUriHandler.current
 

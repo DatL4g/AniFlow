@@ -5,6 +5,7 @@ import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 class PopularSeasonRepository(
@@ -15,7 +16,9 @@ class PopularSeasonRepository(
 ) {
 
     private val page = MutableStateFlow(0)
-    private val type = viewManga.distinctUntilChanged().map {
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val type = viewManga.distinctUntilChanged().mapLatest {
         page.update { 0 }
         if (it) {
             MediaType.MANGA
@@ -23,6 +26,7 @@ class PopularSeasonRepository(
             MediaType.ANIME
         }
     }
+
     private val query = combine(page, type, nsfw.distinctUntilChanged()) { p, t, n ->
         Query(
             page = p,
@@ -30,8 +34,10 @@ class PopularSeasonRepository(
             nsfw = n
         )
     }.distinctUntilChanged()
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -45,8 +51,9 @@ class PopularSeasonRepository(
         }
     }
 
-    val popularThisSeason = query.transform {
-        return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val popularThisSeason = query.transformLatest {
+        return@transformLatest emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -58,8 +65,8 @@ class PopularSeasonRepository(
         } else {
             CollectionState.fromSeasonGraphQL(data)
         }
-    }.transform {
-        return@transform if (it.isError) {
+    }.transformLatest {
+        return@transformLatest if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)

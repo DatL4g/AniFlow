@@ -23,6 +23,7 @@ import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
@@ -43,8 +44,8 @@ class UserHelper(
     val isLoggedIn: Flow<Boolean> = userSettings.isAniListLoggedIn.flowOn(ioDispatcher()).distinctUntilChanged()
     val loginUrl: String = "https://anilist.co/api/v2/oauth/authorize?client_id=$clientId&response_type=token"
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private val updatableUser = isLoggedIn.transform { loggedIn ->
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+    private val updatableUser = isLoggedIn.transformLatest { loggedIn ->
         if (loggedIn) {
             emitAll(
                 client.query(ViewerQuery()).fetchPolicy(FetchPolicy.NetworkFirst).toFlow().map {
@@ -59,7 +60,8 @@ class UserHelper(
         initialValue = null
     )
 
-    val user = updatableUser.map { user ->
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val user = updatableUser.mapLatest { user ->
         user?.also {
             appSettings.setData(
                 adultContent = it.displayAdultContent,

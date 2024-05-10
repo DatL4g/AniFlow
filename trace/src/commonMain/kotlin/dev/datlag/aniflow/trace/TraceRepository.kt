@@ -2,6 +2,7 @@ package dev.datlag.aniflow.trace
 
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.trace.model.SearchResponse
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 
@@ -10,8 +11,10 @@ class TraceRepository(
 ) {
 
     private val byteArray = MutableStateFlow<ByteArray?>(null)
-    val response: Flow<State> = byteArray.transform {
-        return@transform if (it == null || it.isEmpty()) {
+    
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val response: Flow<State> = byteArray.transformLatest {
+        return@transformLatest if (it == null || it.isEmpty()) {
             emit(State.None)
         } else {
             emit(
