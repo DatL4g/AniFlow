@@ -10,8 +10,10 @@ import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.api.NormalizedCacheFactory
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
@@ -87,6 +89,7 @@ data object NetworkModule {
                     }
                 })
                 .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
                 .build()
         }
         bindSingleton<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT) {
@@ -94,6 +97,7 @@ data object NetworkModule {
                 .dispatcher(ioDispatcher())
                 .serverUrl(Constants.AniList.SERVER_URL)
                 .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
                 .build()
         }
         bindSingleton<UserHelper> {

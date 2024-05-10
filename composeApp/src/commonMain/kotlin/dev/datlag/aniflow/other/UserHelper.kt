@@ -6,6 +6,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import dev.datlag.aniflow.anilist.ViewerMutation
 import dev.datlag.aniflow.anilist.ViewerQuery
 import dev.datlag.aniflow.anilist.model.User
@@ -19,6 +21,7 @@ import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.compose.withMainContext
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
@@ -44,7 +47,7 @@ class UserHelper(
     private val updatableUser = isLoggedIn.transform { loggedIn ->
         if (loggedIn) {
             emitAll(
-                client.query(ViewerQuery()).toFlow().map {
+                client.query(ViewerQuery()).fetchPolicy(FetchPolicy.NetworkFirst).toFlow().map {
                     it.data?.Viewer?.let(::User)
                 }
             )
@@ -56,17 +59,15 @@ class UserHelper(
         initialValue = null
     )
 
-    val user = updatableUser.transform { user ->
-        emit(
-            user?.also {
-                appSettings.setData(
-                    adultContent = it.displayAdultContent,
-                    color = SettingsColor.fromString(it.profileColor),
-                    titleLanguage = it.titleLanguage.toSettings(),
-                    charLanguage = it.charLanguage.toSettings()
-                )
-            }
-        )
+    val user = updatableUser.map { user ->
+        user?.also {
+            appSettings.setData(
+                adultContent = it.displayAdultContent,
+                color = SettingsColor.fromString(it.profileColor),
+                titleLanguage = it.titleLanguage.toSettings(),
+                charLanguage = it.charLanguage.toSettings()
+            )
+        }
     }.flowOn(ioDispatcher())
 
     suspend fun updateAdultSetting(value: Boolean) {
@@ -76,7 +77,7 @@ class UserHelper(
                 ViewerMutation(
                     adult = Optional.present(value)
                 )
-            ).execute().data?.UpdateUser?.let(::User)
+            ).fetchPolicy(FetchPolicy.NetworkFirst).execute().data?.UpdateUser?.let(::User)
         )
     }
 
@@ -89,7 +90,7 @@ class UserHelper(
                     ViewerMutation(
                         color = Optional.present(value.label)
                     )
-                ).execute().data?.UpdateUser?.let(::User)
+                ).fetchPolicy(FetchPolicy.NetworkFirst).execute().data?.UpdateUser?.let(::User)
             )
         }
     }
@@ -103,7 +104,7 @@ class UserHelper(
                     ViewerMutation(
                         title = Optional.presentIfNotNull(value.toMutation())
                     )
-                ).execute().data?.UpdateUser?.let(::User)
+                ).fetchPolicy(FetchPolicy.NetworkFirst).execute().data?.UpdateUser?.let(::User)
             )
         }
     }
@@ -117,7 +118,7 @@ class UserHelper(
                     ViewerMutation(
                         char = Optional.presentIfNotNull(value.toMutation())
                     )
-                ).execute().data?.UpdateUser?.let(::User)
+                ).fetchPolicy(FetchPolicy.NetworkFirst).execute().data?.UpdateUser?.let(::User)
             )
         }
     }
