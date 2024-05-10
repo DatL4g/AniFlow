@@ -1,9 +1,11 @@
 package dev.datlag.aniflow.common
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Character
@@ -60,6 +62,12 @@ fun Medium.Title.notPreferred(setting: SettingsTitle?): String? {
         notPreferred.trim().equals(preferred, ignoreCase = true) -> null
         else -> notPreferred
     }
+}
+
+fun MediaFormat.icon(): ImageVector = when (this) {
+    MediaFormat.MANGA, MediaFormat.NOVEL, MediaFormat.ONE_SHOT -> Icons.AutoMirrored.Rounded.MenuBook
+    MediaFormat.MUSIC -> Icons.Rounded.MusicNote
+    else -> Icons.Rounded.OndemandVideo
 }
 
 fun MediaFormat.text(): StringResource {

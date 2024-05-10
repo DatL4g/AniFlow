@@ -3,10 +3,14 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.component
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.filled.NoAdultContent
 import androidx.compose.material.icons.filled.OndemandVideo
 import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Timelapse
+import androidx.compose.material.icons.rounded.NoAdultContent
+import androidx.compose.material.icons.rounded.RssFeed
+import androidx.compose.material.icons.rounded.Timelapse
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +26,7 @@ import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.text
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -95,7 +100,7 @@ fun CoverSection(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.OndemandVideo,
+                    imageVector = format.icon(),
                     contentDescription = null
                 )
                 Text(text = stringResource(format.text()))
@@ -107,7 +112,7 @@ fun CoverSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.NoAdultContent,
+                        imageVector = Icons.Rounded.NoAdultContent,
                         contentDescription = null
                     )
                     Text(text = stringResource(SharedRes.strings.explicit))
@@ -120,7 +125,7 @@ fun CoverSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.List,
+                        imageVector = Icons.AutoMirrored.Rounded.List,
                         contentDescription = null
                     )
                     Text(text = "$episodes Episodes")
@@ -133,7 +138,7 @@ fun CoverSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Timelapse,
+                        imageVector = Icons.Rounded.Timelapse,
                         contentDescription = null
                     )
                     Text(text = "${duration}min / Episode")
@@ -145,7 +150,7 @@ fun CoverSection(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.RssFeed,
+                    imageVector = Icons.Rounded.RssFeed,
                     contentDescription = null
                 )
                 Text(text = stringResource(status.text()))
