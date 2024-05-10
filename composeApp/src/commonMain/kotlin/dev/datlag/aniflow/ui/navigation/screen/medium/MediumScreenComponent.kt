@@ -32,6 +32,7 @@ import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -61,51 +62,62 @@ class MediumScreenComponent(
         it.safeCast<MediumRepository.State.Success>()
     }
 
-    override val isAdult: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isAdult: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isAdult
     }
 
     override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
-    private val type: Flow<MediaType> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val type: Flow<MediaType> = mediumSuccessState.mapLatest {
         it.medium.type
     }
 
-    override val bannerImage: Flow<String?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val bannerImage: Flow<String?> = mediumSuccessState.mapLatest {
         it.medium.bannerImage
     }
 
-    override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.mapLatest {
         it.medium.coverImage
     }
 
-    override val title: Flow<Medium.Title> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val title: Flow<Medium.Title> = mediumSuccessState.mapLatest {
         it.medium.title
     }
 
-    override val description: Flow<String?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val description: Flow<String?> = mediumSuccessState.mapLatest {
         it.medium.description?.ifBlank { null }
     }
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    override val genres: Flow<Set<String>> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val genres: Flow<Set<String>> = mediumSuccessState.mapLatest {
         it.medium.genres
     }.mapNotEmpty()
 
-    override val format: Flow<MediaFormat> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val format: Flow<MediaFormat> = mediumSuccessState.mapLatest {
         it.medium.format
     }
 
-    override val episodes: Flow<Int> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val episodes: Flow<Int> = mediumSuccessState.mapLatest {
         it.medium.episodes
     }.distinctUntilChanged()
 
-    override val duration: Flow<Int> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val duration: Flow<Int> = mediumSuccessState.mapLatest {
         it.medium.avgEpisodeDurationInMin
     }.distinctUntilChanged()
 
-    override val status: Flow<MediaStatus> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val status: Flow<MediaStatus> = mediumSuccessState.mapLatest {
         it.medium.status
     }.distinctUntilChanged()
 
@@ -121,13 +133,15 @@ class MediumScreenComponent(
         it.medium.averageScore.asNullIf(-1)
     }.distinctUntilChanged()
 
-    override val characters: Flow<Set<Character>> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val characters: Flow<Set<Character>> = mediumSuccessState.mapLatest {
         it.medium.characters
     }.mapNotEmpty()
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val rating: Flow<Int> = combine(
-        mediumSuccessState.map {
+        mediumSuccessState.mapLatest {
             it.medium.entry?.score?.toInt()
         },
         changedRating
@@ -139,23 +153,28 @@ class MediumScreenComponent(
         }
     }
 
-    override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.mapLatest {
         it.medium.trailer
     }
 
-    override val alreadyAdded: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val alreadyAdded: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.entry != null
     }
 
-    override val isFavorite: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isFavorite: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isFavorite
     }
 
-    override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isFavoriteBlocked
     }
 
-    override val siteUrl: Flow<String> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val siteUrl: Flow<String> = mediumSuccessState.mapLatest {
         it.medium.siteUrl
     }
 
@@ -163,6 +182,11 @@ class MediumScreenComponent(
 
     override val bsAvailable: Boolean
         get() = burningSeriesResolver.isAvailable
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val bsOptions = title.mapLatest {
+        burningSeriesResolver.resolveByName(it.english, it.romaji)
+    }
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(

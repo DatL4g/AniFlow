@@ -32,6 +32,7 @@ class App : MultiDexApplication(), DIAware {
                 StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .permitDiskReads()
+                    .permitDiskWrites()
                     .penaltyLog()
                     .penaltyDialog()
                     .build()

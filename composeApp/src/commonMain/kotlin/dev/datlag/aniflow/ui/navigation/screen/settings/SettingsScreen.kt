@@ -193,7 +193,9 @@ fun SettingsScreen(component: SettingsComponent) {
                     AnimatedVisibility(
                         visible = clicked >= 1,
                     ) {
-                        Badge {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                        ) {
                             Text(text = "$clicked")
                         }
                     }

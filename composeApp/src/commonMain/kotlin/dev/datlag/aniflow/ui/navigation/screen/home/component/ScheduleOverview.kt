@@ -47,16 +47,6 @@ fun ScheduleOverview(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(
-                onClick = onMoreClick,
-                enabled = state is AiringTodayRepository.State.Success
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = null
-                )
-            }
         }
 
         when (val current = state) {

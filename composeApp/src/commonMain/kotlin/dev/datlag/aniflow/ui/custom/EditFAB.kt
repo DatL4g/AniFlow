@@ -19,8 +19,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.tooling.compose.withDefaultContext
+import dev.datlag.tooling.compose.withIOContext
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.delay
 
 @Composable
 fun EditFAB(
@@ -35,25 +38,24 @@ fun EditFAB(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
     ) {
-        var showOtherFABs by remember { mutableStateOf(false) }
+        var showOtherFABs by remember(expanded) { mutableStateOf(expanded) }
 
         AnimatedVisibility(
             visible = showOtherFABs,
-            enter = scaleIn(
+            enter = slideInVertically(
                 animationSpec = bouncySpring(),
-                transformOrigin = TransformOrigin(1F, 0.5F)
+                initialOffsetY = { -(-it / 2) }
             ) + fadeIn(
                 animationSpec = bouncySpring()
             ),
-            exit = scaleOut(
-                transformOrigin = TransformOrigin(1F, 0.5F)
+            exit = slideOutVertically(
+                animationSpec = bouncySpring(),
+                targetOffsetY = { -(-it / 2) }
             ) + fadeOut(
                 animationSpec = bouncySpring()
             )
         ) {
             LabelFAB(
-                label = "Progress",
-                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onProgress()
@@ -67,21 +69,20 @@ fun EditFAB(
         }
         AnimatedVisibility(
             visible = showOtherFABs,
-            enter = scaleIn(
+            enter = slideInVertically(
                 animationSpec = bouncySpring(),
-                transformOrigin = TransformOrigin(1F, 0.5F)
+                initialOffsetY = { -(-it / 2) }
             ) + fadeIn(
                 animationSpec = bouncySpring()
             ),
-            exit = scaleOut(
-                transformOrigin = TransformOrigin(1F, 0.5F)
+            exit = slideOutVertically(
+                animationSpec = bouncySpring(),
+                targetOffsetY = { -(-it / 2) }
             ) + fadeOut(
                 animationSpec = bouncySpring()
             )
         ) {
             LabelFAB(
-                label = "Rating",
-                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onRate()
@@ -95,21 +96,20 @@ fun EditFAB(
         }
         AnimatedVisibility(
             visible = showOtherFABs && bsAvailable,
-            enter = scaleIn(
+            enter = slideInVertically(
                 animationSpec = bouncySpring(),
-                transformOrigin = TransformOrigin(1F, 0.5F)
+                initialOffsetY = { -(-it / 2) }
             ) + fadeIn(
                 animationSpec = bouncySpring()
             ),
-            exit = scaleOut(
-                transformOrigin = TransformOrigin(1F, 0.5F)
+            exit = slideOutVertically(
+                animationSpec = bouncySpring(),
+                targetOffsetY = { -(-it / 2) }
             ) + fadeOut(
                 animationSpec = bouncySpring()
             )
         ) {
             LabelFAB(
-                label = stringResource(SharedRes.strings.bs),
-                expanded = expanded,
                 onClick = {
                     showOtherFABs = false
                     onBS()
@@ -156,39 +156,32 @@ fun EditFAB(
 
 @Composable
 private fun LabelFAB(
-    label: String,
-    expanded: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit
 ) {
+    var showLabel by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showLabel) {
+        if (!showLabel) {
+            showLabel = true
+        }
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        AnimatedVisibility(
-            visible = expanded,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Surface(
-                onClick = onClick,
-                tonalElevation = 8.dp,
-                shadowElevation = 4.dp,
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Text(
-                    modifier = Modifier.padding(4.dp),
-                    text = label,
-                    maxLines = 1
-                )
-            }
-        }
-
         SmallFloatingActionButton(
             modifier = Modifier.padding(end = 4.dp),
             onClick = onClick
         ) {
             icon()
+        }
+    }
+
+    DisposableEffect(showLabel) {
+        onDispose {
+            showLabel = false
         }
     }
 }

@@ -21,6 +21,11 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import com.maxkeppeler.sheets.rating.RatingDialog
 import com.maxkeppeler.sheets.rating.models.RatingBody
 import com.maxkeppeler.sheets.rating.models.RatingConfig
@@ -40,6 +45,8 @@ import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.painterResource
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 
@@ -87,6 +94,9 @@ fun MediumScreen(component: MediumComponent) {
             floatingActionButton = {
                 val userRating by component.rating.collectAsStateWithLifecycle(-1)
                 val ratingState = rememberUseCaseState()
+                val bsState = rememberUseCaseState()
+
+                val bsOptions by component.bsOptions.collectAsStateWithLifecycle(emptySet())
 
                 val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle(
                     component.initialMedium.entry != null
@@ -116,6 +126,29 @@ fun MediumScreen(component: MediumComponent) {
                     )
                 )
 
+                OptionDialog(
+                    state = bsState,
+                    selection = OptionSelection.Single(
+                        options = bsOptions.map {
+                            Option(
+                                titleText = it.title
+                            )
+                        },
+                        onSelectOption = { option, _ ->
+                            Napier.e("Selected: ${bsOptions.toList()[option]}")
+                        }
+                    ),
+                    header = Header.Default(
+                        icon = IconSource(
+                            painter = painterResource(SharedRes.images.bs)
+                        ),
+                        title = "Connect with BS"
+                    ),
+                    config = OptionConfig(
+                        mode = DisplayMode.LIST
+                    )
+                )
+
                 if (!notReleased) {
                     val uriHandler = LocalUriHandler.current
                     val userHelper by LocalDI.current.instance<UserHelper>()
@@ -125,7 +158,7 @@ fun MediumScreen(component: MediumComponent) {
                         bsAvailable = component.bsAvailable,
                         expanded = listState.isScrollingUp(),
                         onBS = {
-
+                            bsState.show()
                         },
                         onRate = {
                             uriHandler.openUri(userHelper.loginUrl)

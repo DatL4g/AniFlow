@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
@@ -50,6 +51,7 @@ interface MediumComponent : ContentHolderComponent {
     val siteUrl: Flow<String>
 
     val bsAvailable: Boolean
+    val bsOptions: Flow<Collection<Series>>
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 

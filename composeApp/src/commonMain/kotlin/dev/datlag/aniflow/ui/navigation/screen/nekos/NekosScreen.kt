@@ -94,20 +94,20 @@ fun NekosScreen(component: NekosComponent) {
                 selection = OptionSelection.Single(
                     options = listOf(
                         Option(
-                            titleText = "Safe",
+                            titleText = stringResource(SharedRes.strings.safe),
                             selected = rating is Rating.Safe,
                         ),
                         Option(
-                            titleText = "Suggestive",
+                            titleText = stringResource(SharedRes.strings.suggestive),
                             selected = rating is Rating.Suggestive,
                         ),
                         Option(
-                            titleText = "Borderline",
+                            titleText = stringResource(SharedRes.strings.borderline),
                             selected = rating is Rating.Borderline,
                             disabled = !adultContent
                         ),
                         Option(
-                            titleText = "Explicit",
+                            titleText = stringResource(SharedRes.strings.explicit),
                             selected = rating is Rating.Explicit,
                             disabled = !adultContent
                         )
@@ -134,7 +134,7 @@ fun NekosScreen(component: NekosComponent) {
                     )
                 },
                 text = {
-                    Text(text = "Filter")
+                    Text(text = stringResource(SharedRes.strings.filter))
                 }
             )
         }
@@ -181,7 +181,6 @@ fun NekosScreen(component: NekosComponent) {
                         Card(
                             modifier = Modifier.animateItemPlacement(),
                             onClick = {
-                                Napier.e(it.toString())
                                 uriHandler.openUri(it.imageUrl ?: it.sampleUrl ?: "")
                             },
                         ) {
