@@ -165,14 +165,14 @@ data object NetworkModule {
         }
         bindSingleton<CharacterRepository> {
             CharacterRepository(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
             )
         }
         bindSingleton<MediumRepository> {
             MediumRepository(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT)
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build()
             )
         }
         bindSingleton<TraceRepository> {

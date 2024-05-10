@@ -10,4 +10,7 @@ sealed class DialogConfig {
     data class Character(
         val initial: Char
     ) : DialogConfig()
+
+    @Serializable
+    data object Edit : DialogConfig()
 }

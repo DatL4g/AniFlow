@@ -6,7 +6,9 @@ import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.navigation.Component
@@ -50,8 +52,8 @@ interface MediumComponent : ContentHolderComponent {
     val isFavoriteBlocked: Flow<Boolean>
     val siteUrl: Flow<String>
 
-    val bsAvailable: Boolean
-    val bsOptions: Flow<Collection<Series>>
+    val type: Flow<MediaType>
+    val listStatus: Flow<MediaListStatus>
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 
@@ -64,4 +66,5 @@ interface MediumComponent : ContentHolderComponent {
     fun descriptionTranslation(text: String?)
     fun showCharacter(character: Character)
     fun toggleFavorite()
+    fun edit()
 }

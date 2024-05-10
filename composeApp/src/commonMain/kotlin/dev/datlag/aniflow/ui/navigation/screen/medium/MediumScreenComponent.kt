@@ -14,6 +14,7 @@ import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
@@ -26,6 +27,7 @@ import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
+import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.EditDialogComponent
 import dev.datlag.tooling.alsoTrue
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
@@ -70,7 +72,7 @@ class MediumScreenComponent(
     override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val type: Flow<MediaType> = mediumSuccessState.mapLatest {
+    override val type: Flow<MediaType> = mediumSuccessState.mapLatest {
         it.medium.type
     }
 
@@ -178,14 +180,9 @@ class MediumScreenComponent(
         it.medium.siteUrl
     }
 
-    private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
-
-    override val bsAvailable: Boolean
-        get() = burningSeriesResolver.isAvailable
-
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val bsOptions = title.mapLatest {
-        burningSeriesResolver.resolveByName(it.english, it.romaji)
+    override val listStatus: Flow<MediaListStatus> = mediumSuccessState.mapLatest {
+        it.medium.entry?.status ?: MediaListStatus.UNKNOWN__
     }
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
@@ -198,6 +195,12 @@ class MediumScreenComponent(
                 componentContext = context,
                 di = di,
                 initialChar = config.initial,
+                onDismiss = dialogNavigation::dismiss
+            )
+            is DialogConfig.Edit -> EditDialogComponent(
+                componentContext = context,
+                di = di,
+                titleFlow = title,
                 onDismiss = dialogNavigation::dismiss
             )
         }
@@ -293,5 +296,9 @@ class MediumScreenComponent(
 
             aniListClient.mutation(mutation).execute()
         }
+    }
+
+    override fun edit() {
+        dialogNavigation.activate(DialogConfig.Edit)
     }
 }

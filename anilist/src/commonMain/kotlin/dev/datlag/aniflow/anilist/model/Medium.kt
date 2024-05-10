@@ -3,10 +3,7 @@ package dev.datlag.aniflow.anilist.model
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.common.lastMonth
-import dev.datlag.aniflow.anilist.type.MediaFormat
-import dev.datlag.aniflow.anilist.type.MediaRankType
-import dev.datlag.aniflow.anilist.type.MediaStatus
-import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.anilist.type.*
 import dev.datlag.aniflow.model.ifValue
 import dev.datlag.aniflow.model.toInt
 import kotlinx.datetime.Clock
@@ -379,22 +376,27 @@ data class Medium(
 
     @Serializable
     data class Entry(
-        val score: Double?
+        val score: Double?,
+        val status: MediaListStatus
     ) {
         constructor(entry: MediumQuery.MediaListEntry) : this(
-            score = entry.score
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__
         )
 
         constructor(entry: TrendingQuery.MediaListEntry) : this(
-            score = entry.score
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__
         )
 
         constructor(entry: AiringQuery.MediaListEntry) : this(
-            score = entry.score
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__
         )
 
         constructor(entry: SeasonQuery.MediaListEntry) : this(
-            score = entry.score
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__
         )
     }
 

@@ -38,6 +38,7 @@ import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
@@ -46,6 +47,7 @@ import dev.datlag.aniflow.ui.custom.EditFAB
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
+import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
@@ -92,79 +94,24 @@ fun MediumScreen(component: MediumComponent) {
                 )
             },
             floatingActionButton = {
-                val userRating by component.rating.collectAsStateWithLifecycle(-1)
-                val ratingState = rememberUseCaseState()
-                val bsState = rememberUseCaseState()
-
-                val bsOptions by component.bsOptions.collectAsStateWithLifecycle(emptySet())
-
-                val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle(
-                    component.initialMedium.entry != null
-                )
                 val notReleased by component.status.mapCollect(component.initialMedium.status) {
                     it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
                 }
 
-                RatingDialog(
-                    state = ratingState,
-                    selection = RatingSelection(
-                        onSelectRating = { rating, _ ->
-                            component.rate(rating)
-                        }
-                    ),
-                    header = Header.Default(
-                        title = "Rate this Anime",
-                        icon = IconSource(Icons.Filled.Star)
-                    ),
-                    body = RatingBody.Default(
-                        bodyText = ""
-                    ),
-                    config = RatingConfig(
-                        ratingOptionsCount = 5,
-                        ratingOptionsSelected = userRating.takeIf { it > 0 },
-                        ratingZeroValid = true
-                    )
-                )
+                if (!notReleased) {
+                    val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
+                    val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
 
-                OptionDialog(
-                    state = bsState,
-                    selection = OptionSelection.Single(
-                        options = bsOptions.map {
-                            Option(
-                                titleText = it.title
+                    ExtendedFloatingActionButton(
+                        onClick = { component.edit() },
+                        icon = {
+                            Icon(
+                                imageVector = status.icon(),
+                                contentDescription = null,
                             )
                         },
-                        onSelectOption = { option, _ ->
-                            Napier.e("Selected: ${bsOptions.toList()[option]}")
-                        }
-                    ),
-                    header = Header.Default(
-                        icon = IconSource(
-                            painter = painterResource(SharedRes.images.bs)
-                        ),
-                        title = "Connect with BS"
-                    ),
-                    config = OptionConfig(
-                        mode = DisplayMode.LIST
-                    )
-                )
-
-                if (!notReleased) {
-                    val uriHandler = LocalUriHandler.current
-                    val userHelper by LocalDI.current.instance<UserHelper>()
-
-                    EditFAB(
-                        displayAdd = !alreadyAdded,
-                        bsAvailable = component.bsAvailable,
-                        expanded = listState.isScrollingUp(),
-                        onBS = {
-                            bsState.show()
-                        },
-                        onRate = {
-                            uriHandler.openUri(userHelper.loginUrl)
-                        },
-                        onProgress = {
-                            // ratingState.show()
+                        text = {
+                            Text(text = stringResource(status.stringRes(type)))
                         }
                     )
                 }

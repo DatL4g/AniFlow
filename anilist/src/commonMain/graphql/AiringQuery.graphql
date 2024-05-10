@@ -79,7 +79,8 @@ query AiringQuery(
                     }
                 },
                 mediaListEntry {
-                    score(format: POINT_5)
+                    score(format: POINT_5),
+                    status
                 },
                 trailer {
                     id,
