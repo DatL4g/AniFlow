@@ -63,4 +63,11 @@
     <string name="suggestive">Suggestive</string>
     <string name="borderline">Borderline</string>
     <string name="explicit">Explicit</string>
+    <string name="watching">Watching</string>
+    <string name="reading">Reading</string>
+    <string name="planning">Planning</string>
+    <string name="completed">Completed</string>
+    <string name="dropped">Dropped</string>
+    <string name="paused">Paused</string>
+    <string name="repeating">Repeating</string>
 </resources>
