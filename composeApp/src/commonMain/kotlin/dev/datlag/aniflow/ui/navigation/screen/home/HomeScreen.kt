@@ -122,7 +122,7 @@ fun HomeScreen(component: HomeComponent) {
                 onClick = {
                     imagePicker.launch()
                 },
-                expanded = listState.isScrollingUp(),
+                expanded = listState.isScrollingUp() && listState.canScrollForward,
                 icon = {
                     Icon(
                         imageVector = Icons.Filled.CameraEnhance,
@@ -167,7 +167,6 @@ fun HomeScreen(component: HomeComponent) {
                         item {
                             ScheduleOverview(
                                 flow = component.airing,
-                                onMoreClick = { },
                                 onMediumClick = component::details
                             )
                         }
@@ -176,7 +175,6 @@ fun HomeScreen(component: HomeComponent) {
                         DefaultOverview(
                             title = "Trending",
                             flow = component.trending,
-                            onMoreClick = { },
                             onMediumClick = component::details
                         )
                     }
@@ -184,7 +182,6 @@ fun HomeScreen(component: HomeComponent) {
                         DefaultOverview(
                             title = "Popular",
                             flow = component.popularNow,
-                            onMoreClick = { },
                             onMediumClick = component::details
                         )
                     }
@@ -193,7 +190,6 @@ fun HomeScreen(component: HomeComponent) {
                             DefaultOverview(
                                 title = "Popular Next",
                                 flow = component.popularNext,
-                                onMoreClick = { },
                                 onMediumClick = component::details
                             )
                         }

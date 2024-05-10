@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun ScheduleOverview(
     flow: Flow<AiringTodayRepository.State>,
-    onMoreClick: () -> Unit,
     onMediumClick: (Medium) -> Unit
 ) {
     Column(

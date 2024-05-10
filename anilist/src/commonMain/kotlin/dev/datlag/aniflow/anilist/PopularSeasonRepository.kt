@@ -88,7 +88,7 @@ class PopularSeasonRepository(
     ) {
         fun toGraphQL() = SeasonQuery(
             page = Optional.present(page),
-            perPage = Optional.present(10),
+            perPage = Optional.present(20),
             adultContent = if (nsfw) {
                 Optional.absent()
             } else {

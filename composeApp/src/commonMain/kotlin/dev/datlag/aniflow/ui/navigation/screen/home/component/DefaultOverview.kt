@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.Flow
 fun DefaultOverview(
     title: String,
     flow: Flow<CollectionState>,
-    onMoreClick: () -> Unit,
     onMediumClick: (Medium) -> Unit,
 ) {
     Column(
@@ -45,16 +44,6 @@ fun DefaultOverview(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(
-                onClick = onMoreClick,
-                enabled = state.isSuccess
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = null
-                )
-            }
         }
 
         when (val current = state) {
