@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
@@ -59,6 +60,10 @@ fun HomeScreen(component: HomeComponent) {
     val imagePicker = rememberImagePickerState {
         it?.let(component::trace)
     }
+
+    val dialogState by component.dialog.subscribeAsState()
+
+    dialogState.child?.instance?.render()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

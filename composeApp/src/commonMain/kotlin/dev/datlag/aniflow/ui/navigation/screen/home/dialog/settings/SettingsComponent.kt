@@ -1,13 +1,14 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings
 
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.ui.navigation.Component
+import dev.datlag.aniflow.ui.navigation.DialogComponent
 import kotlinx.coroutines.flow.Flow
 import dev.datlag.aniflow.settings.model.Color as SettingsColor
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
-interface SettingsComponent : Component {
+interface SettingsComponent : DialogComponent {
     val user: Flow<User?>
     val isLoggedIn: Flow<Boolean>
     val loginUri: String

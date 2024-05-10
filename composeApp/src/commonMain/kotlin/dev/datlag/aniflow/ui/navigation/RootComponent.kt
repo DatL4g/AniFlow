@@ -13,7 +13,7 @@ import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.navigation.screen.favorites.FavoritesScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.HomeScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
-import dev.datlag.aniflow.ui.navigation.screen.settings.SettingsScreenComponent
+import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.nekos.NekosScreenComponent
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -43,14 +43,14 @@ class RootComponent(
                 onMediumDetails = {
                     navigation.push(RootConfig.Details(it))
                 },
-                onProfile = {
-                    navigation.push(RootConfig.Settings)
-                },
                 onDiscover = {
                     // navigation.replaceCurrent(RootConfig.Wallpaper)
                 },
                 onFavorites = {
                     navigation.replaceCurrent(RootConfig.Favorites)
+                },
+                onNekos = {
+                    navigation.bringToFront(RootConfig.Nekos)
                 }
             )
             is RootConfig.Details -> MediumScreenComponent(
@@ -58,13 +58,6 @@ class RootComponent(
                 di = di,
                 initialMedium = rootConfig.medium,
                 onBack = navigation::pop
-            )
-            is RootConfig.Settings -> SettingsScreenComponent(
-                componentContext = componentContext,
-                di = di,
-                onNekos = {
-                    navigation.bringToFront(RootConfig.Nekos)
-                }
             )
             is RootConfig.Favorites -> FavoritesScreenComponent(
                 componentContext = componentContext,

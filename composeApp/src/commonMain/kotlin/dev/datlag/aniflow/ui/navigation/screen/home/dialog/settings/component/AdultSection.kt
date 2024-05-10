@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings.component
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

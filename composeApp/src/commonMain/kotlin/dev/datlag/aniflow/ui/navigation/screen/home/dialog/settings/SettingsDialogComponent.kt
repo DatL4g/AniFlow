@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings
 
 import androidx.compose.runtime.Composable
 import com.arkivanov.decompose.ComponentContext
@@ -7,7 +7,6 @@ import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.tooling.compose.ioDispatcher
-import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -15,10 +14,11 @@ import dev.datlag.aniflow.settings.model.Color as SettingsColor
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 
-class SettingsScreenComponent(
+class SettingsDialogComponent(
     componentContext: ComponentContext,
     override val di: DI,
-    private val onNekos: () -> Unit
+    private val onNekos: () -> Unit,
+    private val onDismiss: () -> Unit
 ) : SettingsComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
@@ -72,5 +72,9 @@ class SettingsScreenComponent(
 
     override fun nekos() {
         onNekos()
+    }
+
+    override fun dismiss() {
+        onDismiss()
     }
 }

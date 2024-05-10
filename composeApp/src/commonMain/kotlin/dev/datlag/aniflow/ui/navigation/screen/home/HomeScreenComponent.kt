@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.router.slot.*
+import com.arkivanov.decompose.value.Value
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.AiringTodayRepository
@@ -20,6 +22,8 @@ import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.TraceRepository
+import dev.datlag.aniflow.ui.navigation.DialogComponent
+import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
 import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,9 +36,9 @@ class HomeScreenComponent(
     componentContext: ComponentContext,
     override val di: DI,
     private val onMediumDetails: (Medium) -> Unit,
-    private val onProfile: () -> Unit,
     private val onDiscover: () -> Unit,
-    private val onFavorites: () -> Unit
+    private val onFavorites: () -> Unit,
+    private val onNekos: () -> Unit
 ) : HomeComponent, ComponentContext by componentContext {
 
     private val appSettings by instance<Settings.PlatformAppSettings>()
@@ -90,6 +94,21 @@ class HomeScreenComponent(
     private val traceRepository by instance<TraceRepository>()
     override val traceState: Flow<TraceRepository.State> = traceRepository.response
 
+    private val dialogNavigation = SlotNavigation<DialogConfig>()
+    override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
+        source = dialogNavigation,
+        serializer = DialogConfig.serializer()
+    ) { config, context ->
+        when (config) {
+            is DialogConfig.Settings -> SettingsDialogComponent(
+                componentContext = context,
+                di = di,
+                onNekos = onNekos,
+                onDismiss = dialogNavigation::dismiss
+            )
+        }
+    }
+
     init {
         traceRepository.clear()
     }
@@ -108,7 +127,7 @@ class HomeScreenComponent(
     }
 
     override fun viewProfile() {
-        onProfile()
+        dialogNavigation.activate(DialogConfig.Settings)
     }
 
     override fun viewAnime() {

@@ -1,11 +1,11 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings.component
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.rounded.Title
+import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,33 +23,33 @@ import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.datlag.aniflow.common.toComposeString
-import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar
 import kotlinx.coroutines.flow.Flow
 import dev.icerock.moko.resources.compose.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TitleSection(
-    titleFlow: Flow<SettingsTitle?>,
+fun CharacterSection(
+    characterFlow: Flow<SettingsChar?>,
     modifier: Modifier = Modifier,
-    onChange: (SettingsTitle?) -> Unit,
+    onChanged: (SettingsChar?) -> Unit
 ) {
-    val selectedTitle by titleFlow.collectAsStateWithLifecycle(null)
+    val selectedChar by characterFlow.collectAsStateWithLifecycle(null)
     val useCase = rememberUseCaseState()
-    val languages = remember { SettingsTitle.all.toList() }
+    val languages = remember { SettingsChar.all.toList() }
 
     OptionDialog(
         state = useCase,
         selection = OptionSelection.Single(
             options = languages.map {
                 Option(
-                    selected = it == selectedTitle,
+                    selected = it == selectedChar,
                     titleText = stringResource(it.toComposeString())
                 )
             },
             onSelectOption = { option, _ ->
-                onChange(languages[option])
+                onChanged(languages[option])
             }
         ),
         config = OptionConfig(
@@ -63,11 +63,11 @@ fun TitleSection(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
-            imageVector = Icons.Rounded.Title,
+            imageVector = Icons.Filled.PersonPin,
             contentDescription = null
         )
         Text(
-            text = "Title Language"
+            text = "Character Language"
         )
         Spacer(modifier = Modifier.weight(1F))
         IconButton(

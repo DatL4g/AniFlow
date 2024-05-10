@@ -1,6 +1,8 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,8 +10,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material3.*
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,24 +20,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import dev.chrisbanes.haze.haze
-import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.common.isFullyExpandedOrTargeted
 import dev.datlag.aniflow.common.merge
-import dev.datlag.aniflow.common.plus
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
-import dev.datlag.aniflow.ui.navigation.screen.settings.component.*
+import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.component.*
 import dev.datlag.tooling.compose.onClick
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(component: SettingsComponent) {
-    Scaffold {
-        val padding = it.merge(PaddingValues(16.dp))
+    val sheetState = rememberModalBottomSheetState()
+    val (insets, bottomPadding) = if (LocalEdgeToEdge.current) {
+        WindowInsets(
+            left = 0,
+            top = 0,
+            right = 0,
+            bottom = 0
+        ) to BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom).asPaddingValues()
+    } else {
+        BottomSheetDefaults.windowInsets to PaddingValues()
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = component::dismiss,
+        windowInsets = insets,
+        sheetState = sheetState
+    ) {
         val listState = rememberLazyListState(
             initialFirstVisibleItemIndex = StateSaver.List.settingsOverview,
             initialFirstVisibleItemScrollOffset = StateSaver.List.settingsOverviewOffset
@@ -43,14 +60,16 @@ fun SettingsScreen(component: SettingsComponent) {
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = padding,
+            contentPadding = bottomPadding.merge(PaddingValues(16.dp)),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 UserSection(
                     userFlow = component.user,
                     loginUri = component.loginUri,
-                    modifier = Modifier.fillParentMaxWidth()
+                    dismissVisible = sheetState.isFullyExpandedOrTargeted(forceFullExpand = true),
+                    modifier = Modifier.fillParentMaxWidth(),
+                    onDismiss = component::dismiss
                 )
             }
             item {
@@ -159,7 +178,7 @@ fun SettingsScreen(component: SettingsComponent) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Code,
+                        imageVector = Icons.Rounded.Code,
                         contentDescription = null,
                     )
                     Text(text = "Developed by DatLag")

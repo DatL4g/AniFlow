@@ -1,10 +1,14 @@
-package dev.datlag.aniflow.ui.navigation.screen.settings.component
+package dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.component
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,7 +38,9 @@ import org.kodein.di.instance
 fun UserSection(
     userFlow: Flow<User?>,
     loginUri: String,
+    dismissVisible: Boolean,
     modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
 ) {
     val user by userFlow.collectAsStateWithLifecycle(null)
 
@@ -45,22 +51,43 @@ fun UserSection(
     ) {
         val uriHandler = LocalUriHandler.current
 
-        AsyncImage(
-            modifier = Modifier.size(96.dp).clip(CircleShape).onClick(
-                enabled = user == null,
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            this@Column.AnimatedVisibility(
+                modifier = Modifier.align(Alignment.CenterStart),
+                visible = dismissVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                uriHandler.openUri(loginUri)
-            },
-            model = user?.avatar?.large,
-            contentDescription = null,
-            error = rememberAsyncImagePainter(
-                model = user?.avatar?.medium,
+                IconButton(
+                    onClick = onDismiss
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBackIosNew,
+                        contentDescription = stringResource(SharedRes.strings.close)
+                    )
+                }
+            }
+
+            AsyncImage(
+                modifier = Modifier.size(96.dp).clip(CircleShape).onClick(
+                    enabled = user == null,
+                ) {
+                    uriHandler.openUri(loginUri)
+                },
+                model = user?.avatar?.large,
+                contentDescription = null,
+                error = rememberAsyncImagePainter(
+                    model = user?.avatar?.medium,
+                    contentScale = ContentScale.Crop,
+                    error = painterResource(SharedRes.images.anilist)
+                ),
                 contentScale = ContentScale.Crop,
-                error = painterResource(SharedRes.images.anilist)
-            ),
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center
-        )
+                alignment = Alignment.Center
+            )
+        }
         Text(
             text = user?.name ?: stringResource(SharedRes.strings.settings),
             style = MaterialTheme.typography.headlineMedium,
