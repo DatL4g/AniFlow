@@ -58,4 +58,9 @@
     <string name="profile">Profile</string>
     <string name="favorites">Favorites</string>
     <string name="nekos_api">Nekos API</string>
+    <string name="filter">Filter</string>
+    <string name="safe">Safe</string>
+    <string name="suggestive">Suggestive</string>
+    <string name="borderline">Borderline</string>
+    <string name="explicit">Explicit</string>
 </resources>
