@@ -8,9 +8,7 @@ import androidx.compose.material.icons.filled.NoAdultContent
 import androidx.compose.material.icons.filled.OndemandVideo
 import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Timelapse
-import androidx.compose.material.icons.rounded.NoAdultContent
-import androidx.compose.material.icons.rounded.RssFeed
-import androidx.compose.material.icons.rounded.Timelapse
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,8 +26,10 @@ import dev.datlag.aniflow.anilist.type.MediaFormat
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.text
+import dev.datlag.aniflow.ui.navigation.screen.medium.MediumComponent
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.pluralStringResource
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,12 +37,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun CoverSection(
     coverImage: Medium.CoverImage,
-    initialMedium: Medium,
-    formatFlow: Flow<MediaFormat>,
-    episodesFlow: Flow<Int>,
-    durationFlow: Flow<Int>,
-    statusFlow: Flow<MediaStatus>,
-    isAdultFlow: Flow<Boolean>,
+    component: MediumComponent,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -88,11 +83,13 @@ fun CoverSection(
             modifier = Modifier.weight(1F).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
         ) {
-            val format by formatFlow.collectAsStateWithLifecycle(initialMedium.format)
-            val episodes by episodesFlow.collectAsStateWithLifecycle(initialMedium.episodes)
-            val duration by durationFlow.collectAsStateWithLifecycle(initialMedium.avgEpisodeDurationInMin)
-            val status by statusFlow.collectAsStateWithLifecycle(initialMedium.status)
-            val isAdult by isAdultFlow.collectAsStateWithLifecycle(initialMedium.isAdult)
+            val format by component.format.collectAsStateWithLifecycle(component.initialMedium.format)
+            val episodes by component.episodes.collectAsStateWithLifecycle(component.initialMedium.episodes)
+            val duration by component.duration.collectAsStateWithLifecycle(component.initialMedium.avgEpisodeDurationInMin)
+            val status by component.status.collectAsStateWithLifecycle(component.initialMedium.status)
+            val isAdult by component.isAdult.collectAsStateWithLifecycle(component.initialMedium.isAdult)
+            val chapters by component.chapters.collectAsStateWithLifecycle(component.initialMedium.chapters)
+            val volumes by component.volumes.collectAsStateWithLifecycle(component.initialMedium.volumes)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -128,7 +125,21 @@ fun CoverSection(
                         imageVector = Icons.AutoMirrored.Rounded.List,
                         contentDescription = null
                     )
-                    Text(text = "$episodes Episodes")
+                    Text(text = pluralStringResource(SharedRes.plurals.episodes, episodes, episodes))
+                }
+            } else {
+                if (chapters > -1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.AutoStories,
+                            contentDescription = null
+                        )
+                        Text(text = pluralStringResource(SharedRes.plurals.chapters, chapters, chapters))
+                    }
                 }
             }
             if (duration > -1) {
@@ -141,7 +152,21 @@ fun CoverSection(
                         imageVector = Icons.Rounded.Timelapse,
                         contentDescription = null
                     )
-                    Text(text = "${duration}min / Episode")
+                    Text(text = stringResource(SharedRes.strings.duration_per_episode, duration))
+                }
+            } else {
+                if (volumes > -1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Book,
+                            contentDescription = null
+                        )
+                        Text(text = pluralStringResource(SharedRes.plurals.volumes, volumes, volumes))
+                    }
                 }
             }
             Row(

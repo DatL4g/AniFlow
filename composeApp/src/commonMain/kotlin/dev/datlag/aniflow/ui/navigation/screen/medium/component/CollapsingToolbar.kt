@@ -39,6 +39,7 @@ import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.other.rememberInstantAppHelper
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.custom.shareHandler
+import dev.datlag.aniflow.ui.navigation.screen.medium.MediumComponent
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -53,25 +54,14 @@ import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 fun CollapsingToolbar(
     state: TopAppBarState,
     scrollBehavior: TopAppBarScrollBehavior,
-    initialMedium: Medium,
-    titleLanguageFlow: Flow<SettingsTitle?>,
-    mediumFlow: Flow<MediumRepository.State>,
-    bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
-    titleFlow: Flow<Medium.Title>,
-    isLoggedIn: Flow<Boolean>,
-    loginUri: String,
-    isFavoriteFlow: Flow<Boolean>,
-    isFavoriteBlockedFlow: Flow<Boolean>,
-    siteUrlFlow: Flow<String>,
     showShare: Boolean,
-    onBack: () -> Unit,
-    onToggleFavorite: () -> Unit
+    component: MediumComponent
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
-        val bannerImage by bannerImageFlow.collectAsStateWithLifecycle(initialMedium.bannerImage)
+        val bannerImage by component.bannerImage.collectAsStateWithLifecycle(component.initialMedium.bannerImage)
         val isCollapsed by remember(state) {
             derivedStateOf { state.collapsedFraction >= 0.99F }
         }
@@ -107,7 +97,7 @@ fun CollapsingToolbar(
                         Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
                     },
                     onClick = {
-                        onBack()
+                        component.back()
                     }
                 ) {
                     Icon(
@@ -121,8 +111,8 @@ fun CollapsingToolbar(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
                 ) {
-                    val title by titleFlow.collectAsStateWithLifecycle(initialMedium.title)
-                    val titleLanguage by titleLanguageFlow.collectAsStateWithLifecycle(null)
+                    val title by component.title.collectAsStateWithLifecycle(component.initialMedium.title)
+                    val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
                     Text(
                         text = title.preferred(titleLanguage),
@@ -172,8 +162,8 @@ fun CollapsingToolbar(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    val mediumState by mediumFlow.collectAsStateWithLifecycle(null)
-                    val siteUrl by siteUrlFlow.collectAsStateWithLifecycle(initialMedium.siteUrl)
+                    val mediumState by component.mediumState.collectAsStateWithLifecycle(null)
+                    val siteUrl by component.siteUrl.collectAsStateWithLifecycle(component.initialMedium.siteUrl)
                     val shareHandler = shareHandler()
                     val instantAppHelper = rememberInstantAppHelper()
 
@@ -182,19 +172,19 @@ fun CollapsingToolbar(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        val loggedIn by isLoggedIn.collectAsStateWithLifecycle(false)
-                        val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle(initialMedium.isFavoriteBlocked)
-                        val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle(initialMedium.isFavorite)
+                        val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
+                        val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle(component.initialMedium.isFavoriteBlocked)
+                        val isFavorite by component.isFavorite.collectAsStateWithLifecycle(component.initialMedium.isFavorite)
                         var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
                         val uriHandler = LocalUriHandler.current
 
                         IconButton(
                             onClick = {
                                 if (!loggedIn) {
-                                    uriHandler.openUri(loginUri)
+                                    uriHandler.openUri(component.loginUri)
                                 } else {
                                     favoriteChanged = !(favoriteChanged ?: isFavorite)
-                                    onToggleFavorite()
+                                    component.toggleFavorite()
                                 }
                             },
                             enabled = !loggedIn || !isFavoriteBlocked

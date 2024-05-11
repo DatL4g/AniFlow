@@ -88,7 +88,9 @@ query SeasonQuery(
                 site,
                 thumbnail
             },
-            siteUrl
+            siteUrl,
+            chapters,
+            volumes
         }
     }
 }

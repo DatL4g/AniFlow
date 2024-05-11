@@ -41,6 +41,8 @@ interface MediumComponent : ContentHolderComponent {
     val episodes: Flow<Int>
     val duration: Flow<Int>
     val status: Flow<MediaStatus>
+    val chapters: Flow<Int>
+    val volumes: Flow<Int>
 
     val rated: Flow<Medium.Ranking?>
     val popular: Flow<Medium.Ranking?>

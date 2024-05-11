@@ -46,7 +46,9 @@ data class Medium(
     val trailer: Trailer? = null,
     val isFavorite: Boolean = false,
     private val _isFavoriteBlocked: Boolean = true,
-    val siteUrl: String = "$SITE_URL$id"
+    val siteUrl: String = "$SITE_URL$id",
+    val chapters: Int = -1,
+    val volumes: Int = -1,
 ) {
     constructor(trending: TrendingQuery.Medium) : this(
         id = trending.id,
@@ -94,7 +96,9 @@ data class Medium(
         },
         isFavorite = trending.isFavourite,
         _isFavoriteBlocked = trending.isFavouriteBlocked,
-        siteUrl = trending.siteUrl?.ifBlank { null } ?: "$SITE_URL${trending.id}"
+        siteUrl = trending.siteUrl?.ifBlank { null } ?: "$SITE_URL${trending.id}",
+        chapters = trending.chapters ?: -1,
+        volumes = trending.volumes ?: -1
     )
 
     constructor(airing: AiringQuery.Media) : this(
@@ -143,7 +147,9 @@ data class Medium(
         },
         isFavorite = airing.isFavourite,
         _isFavoriteBlocked = airing.isFavouriteBlocked,
-        siteUrl = airing.siteUrl?.ifBlank { null } ?: "$SITE_URL${airing.id}"
+        siteUrl = airing.siteUrl?.ifBlank { null } ?: "$SITE_URL${airing.id}",
+        chapters = airing.chapters ?: -1,
+        volumes = airing.volumes ?: -1
     )
 
     constructor(season: SeasonQuery.Medium) : this(
@@ -192,7 +198,9 @@ data class Medium(
         },
         isFavorite = season.isFavourite,
         _isFavoriteBlocked = season.isFavouriteBlocked,
-        siteUrl = season.siteUrl?.ifBlank { null } ?: "$SITE_URL${season.id}"
+        siteUrl = season.siteUrl?.ifBlank { null } ?: "$SITE_URL${season.id}",
+        chapters = season.chapters ?: -1,
+        volumes = season.volumes ?: -1
     )
 
     constructor(query: MediumQuery.Media) : this(
@@ -241,7 +249,9 @@ data class Medium(
         },
         isFavorite = query.isFavourite,
         _isFavoriteBlocked = query.isFavouriteBlocked,
-        siteUrl = query.siteUrl?.ifBlank { null } ?: "$SITE_URL${query.id}"
+        siteUrl = query.siteUrl?.ifBlank { null } ?: "$SITE_URL${query.id}",
+        chapters = query.chapters ?: -1,
+        volumes = query.volumes ?: -1
     )
 
     @Transient

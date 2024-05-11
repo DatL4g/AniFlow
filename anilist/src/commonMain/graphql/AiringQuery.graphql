@@ -87,7 +87,9 @@ query AiringQuery(
                     site,
                     thumbnail
                 },
-                siteUrl
+                siteUrl,
+                chapters,
+                volumes
             }
         }
     }

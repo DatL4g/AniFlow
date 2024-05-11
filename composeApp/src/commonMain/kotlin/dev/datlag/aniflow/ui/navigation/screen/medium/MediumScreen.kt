@@ -80,20 +80,9 @@ fun MediumScreen(component: MediumComponent) {
                 CollapsingToolbar(
                     state = appBarState,
                     scrollBehavior = scrollState,
-                    initialMedium = component.initialMedium,
-                    titleLanguageFlow = component.titleLanguage,
-                    mediumFlow = component.mediumState,
-                    bannerImageFlow = component.bannerImage,
                     coverImage = coverImage,
-                    titleFlow = component.title,
-                    isLoggedIn = component.isLoggedIn,
-                    loginUri = component.loginUri,
-                    isFavoriteFlow = component.isFavorite,
-                    isFavoriteBlockedFlow = component.isFavoriteBlocked,
-                    siteUrlFlow = component.siteUrl,
                     showShare = listState.isScrollingUp(),
-                    onBack = { component.back() },
-                    onToggleFavorite = { component.toggleFavorite() }
+                    component = component
                 )
             },
             floatingActionButton = {
@@ -159,12 +148,7 @@ fun MediumScreen(component: MediumComponent) {
                     item {
                         CoverSection(
                             coverImage = coverImage,
-                            initialMedium = component.initialMedium,
-                            formatFlow = component.format,
-                            episodesFlow = component.episodes,
-                            durationFlow = component.duration,
-                            statusFlow = component.status,
-                            isAdultFlow = component.isAdult,
+                            component = component,
                             modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp)
                         )
                     }

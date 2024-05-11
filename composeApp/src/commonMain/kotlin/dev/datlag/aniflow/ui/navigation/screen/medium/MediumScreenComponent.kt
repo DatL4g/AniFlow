@@ -188,6 +188,16 @@ class MediumScreenComponent(
         it.medium.entry?.status ?: MediaListStatus.UNKNOWN__
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val chapters: Flow<Int> = mediumSuccessState.mapLatest {
+        it.medium.chapters
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val volumes: Flow<Int> = mediumSuccessState.mapLatest {
+        it.medium.volumes
+    }
+
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
         source = dialogNavigation,

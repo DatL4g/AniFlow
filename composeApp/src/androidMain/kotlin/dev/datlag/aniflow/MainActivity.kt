@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val accessToken = uri.getFragmentOrQueryParameter("access_token")
-        if (accessToken.isNullOrBlank() || !::root.isInitialized) {
+        if (accessToken.isNullOrBlank()) {
             return
         }
 
