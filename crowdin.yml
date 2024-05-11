@@ -1,6 +1,14 @@
 files:
-  - source: /composeApp/src/commonMain/moko-resources/base/*.xml
-    translation: /composeApp/src/commonMain/moko-resources/%locale%/%original_file_name%
+  - source: /composeApp/src/commonMain/moko-resources/base/strings.xml
+    translation: /composeApp/src/commonMain/moko-resources/%locale%/strings.xml
+    ignore:
+      - /composeApp/src/commonMain/moko-resources/fonts/
+      - /composeApp/src/commonMain/moko-resources/images/
+    translate_attributes: 0
+    content_segmentation: 0
+
+  - source: /composeApp/src/commonMain/moko-resources/base/plurals.xml
+    translation: /composeApp/src/commonMain/moko-resources/%locale%/plurals.xml
     ignore:
       - /composeApp/src/commonMain/moko-resources/fonts/
       - /composeApp/src/commonMain/moko-resources/images/
