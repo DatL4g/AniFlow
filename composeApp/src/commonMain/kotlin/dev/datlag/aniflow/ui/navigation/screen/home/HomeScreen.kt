@@ -185,6 +185,7 @@ fun HomeScreen(component: HomeComponent) {
                 val isManga = remember(viewType) {
                     viewType == MediaType.MANGA
                 }
+                val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
                 LazyColumn(
                     state = listState,
@@ -196,6 +197,7 @@ fun HomeScreen(component: HomeComponent) {
                         item {
                             ScheduleOverview(
                                 flow = component.airing,
+                                titleLanguage = titleLanguage,
                                 onMediumClick = component::details
                             )
                         }
@@ -204,6 +206,7 @@ fun HomeScreen(component: HomeComponent) {
                         DefaultOverview(
                             title = "Trending",
                             flow = component.trending,
+                            titleLanguage = titleLanguage,
                             onMediumClick = component::details
                         )
                     }
@@ -211,6 +214,7 @@ fun HomeScreen(component: HomeComponent) {
                         DefaultOverview(
                             title = "Popular",
                             flow = component.popularNow,
+                            titleLanguage = titleLanguage,
                             onMediumClick = component::details
                         )
                     }
@@ -219,6 +223,7 @@ fun HomeScreen(component: HomeComponent) {
                             DefaultOverview(
                                 title = "Popular Next",
                                 flow = component.popularNext,
+                                titleLanguage = titleLanguage,
                                 onMediumClick = component::details
                             )
                         }

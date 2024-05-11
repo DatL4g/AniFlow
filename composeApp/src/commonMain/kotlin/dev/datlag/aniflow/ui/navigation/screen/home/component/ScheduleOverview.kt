@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.other.StateSaver
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.navigation.screen.home.component.airing.AiringCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun ScheduleOverview(
     flow: Flow<AiringTodayRepository.State>,
+    titleLanguage: TitleLanguage?,
     onMediumClick: (Medium) -> Unit
 ) {
     Column(
@@ -69,7 +71,7 @@ fun ScheduleOverview(
                     items(current.collection.toList()) {
                         AiringCard(
                             airing = it,
-                            titleLanguage = null,
+                            titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .height(150.dp)
                                 .fillParentMaxWidth(fraction = 0.9F)

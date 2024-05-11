@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.navigation.screen.home.component.default.MediumCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.Flow
 fun DefaultOverview(
     title: String,
     flow: Flow<CollectionState>,
+    titleLanguage: TitleLanguage?,
     onMediumClick: (Medium) -> Unit,
 ) {
     Column(
@@ -60,7 +62,7 @@ fun DefaultOverview(
                     items(current.collection.toList(), key = { it.id }) {
                         MediumCard(
                             medium = it,
-                            titleLanguage = null,
+                            titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .width(200.dp)
                                 .height(280.dp)

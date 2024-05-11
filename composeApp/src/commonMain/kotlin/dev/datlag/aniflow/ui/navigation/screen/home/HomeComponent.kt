@@ -8,6 +8,7 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.DialogComponent
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 interface HomeComponent : Component {
     val viewing: Flow<MediaType>
     val user: Flow<User?>
+    val titleLanguage: Flow<TitleLanguage?>
 
     val airing: Flow<AiringTodayRepository.State>
     val trending: Flow<CollectionState>

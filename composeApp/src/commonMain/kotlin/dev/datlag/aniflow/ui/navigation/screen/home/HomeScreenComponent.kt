@@ -21,6 +21,7 @@ import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
@@ -49,6 +50,8 @@ class HomeScreenComponent(
             MediaType.ANIME
         }
     }
+    override val titleLanguage: Flow<TitleLanguage?> = appSettings.titleLanguage
+
     private val viewTypeExecutor = Executor()
 
     private val userHelper by instance<UserHelper>()
