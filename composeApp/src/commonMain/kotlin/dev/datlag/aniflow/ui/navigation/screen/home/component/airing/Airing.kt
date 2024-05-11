@@ -3,6 +3,7 @@ package dev.datlag.aniflow.ui.navigation.screen.home.component.airing
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +29,7 @@ fun Airing(airingAt: Int, color: Color = LocalContentColor.current) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.Schedule,
+            imageVector = Icons.Rounded.Schedule,
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = color

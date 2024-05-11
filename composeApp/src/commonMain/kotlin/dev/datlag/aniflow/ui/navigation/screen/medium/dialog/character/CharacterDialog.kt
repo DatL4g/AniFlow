@@ -10,9 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -185,7 +183,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Bloodtype,
+                            imageVector = Icons.Rounded.Bloodtype,
                             contentDescription = null
                         )
                         Text(
@@ -206,7 +204,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Man4,
+                            imageVector = Icons.Rounded.Man4,
                             contentDescription = null
                         )
                         Text(
@@ -227,7 +225,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Cake,
+                            imageVector = Icons.Rounded.Cake,
                             contentDescription = null
                         )
                         Text(

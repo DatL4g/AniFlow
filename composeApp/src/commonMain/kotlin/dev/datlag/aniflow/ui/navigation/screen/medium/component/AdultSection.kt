@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -60,7 +61,7 @@ fun AdultSection(
                 ) {
                     Icon(
                         modifier = Modifier.size(ButtonDefaults.IconSize),
-                        imageVector = Icons.Default.ArrowBackIosNew,
+                        imageVector = Icons.Rounded.ArrowBackIosNew,
                         contentDescription = null
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))

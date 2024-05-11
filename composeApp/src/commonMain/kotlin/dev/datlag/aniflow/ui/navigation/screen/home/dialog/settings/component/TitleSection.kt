@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import com.maxkeppeler.sheets.option.models.DisplayMode
 import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -67,14 +69,14 @@ fun TitleSection(
             contentDescription = null
         )
         Text(
-            text = "Title Language"
+            text = stringResource(SharedRes.strings.title_language)
         )
         Spacer(modifier = Modifier.weight(1F))
         IconButton(
             onClick = { useCase.show() }
         ) {
             Icon(
-                imageVector = Icons.Default.ExpandMore,
+                imageVector = Icons.Rounded.ExpandMore,
                 contentDescription = null
             )
         }

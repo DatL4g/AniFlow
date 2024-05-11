@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.NoAdultContent
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.NoAdultContent
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,7 +37,7 @@ fun AdultSection(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.NoAdultContent,
+            imageVector = Icons.Rounded.NoAdultContent,
             contentDescription = null,
         )
         Text(
@@ -49,7 +51,7 @@ fun AdultSection(
                 if (adultContent) {
                     Icon(
                         modifier = Modifier.size(SwitchDefaults.IconSize),
-                        imageVector = Icons.Default.Check,
+                        imageVector = Icons.Rounded.Check,
                         contentDescription = null
                     )
                 }

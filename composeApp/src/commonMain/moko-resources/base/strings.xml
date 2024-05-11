@@ -72,4 +72,10 @@
     <string name="repeating">Repeating</string>
     <string name="install">Install</string>
     <string name="duration_per_episode">%dmin / Episode</string>
+    <string name="episode_number">Episode %d</string>
+    <string name="title_language">Title Language</string>
+    <string name="char_language">Character Language</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="open_links">Open Links</string>
 </resources>

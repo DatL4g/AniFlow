@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.NotInterested
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -120,17 +121,17 @@ fun SettingsScreen(component: SettingsComponent) {
                 ) {
                     if (isLoggedIn) {
                         Icon(
-                            imageVector = Icons.Default.NotInterested,
+                            imageVector = Icons.Rounded.NotInterested,
                             contentDescription = null,
                         )
-                        Text(text = "Logout")
+                        Text(text = stringResource(SharedRes.strings.logout))
                     } else {
                         Image(
                             modifier = Modifier.size(24.dp).clip(CircleShape),
                             painter = painterResource(SharedRes.images.anilist),
                             contentDescription = null,
                         )
-                        Text(text = "Login")
+                        Text(text = stringResource(SharedRes.strings.login))
                     }
                 }
             }
