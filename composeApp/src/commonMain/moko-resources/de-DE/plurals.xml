@@ -9,7 +9,7 @@
         <item quantity="other">%d Kapitel</item>
     </plural>
     <plural name="volumes">
-        <item quantity="one">%d Band</item>
+        <item quantity="one">%d Volume</item>
         <item quantity="other">%d Bände</item>
     </plural>
 </resources>
