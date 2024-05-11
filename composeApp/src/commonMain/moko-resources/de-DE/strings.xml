@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explizit</string>
+    <string name="explicit">Explicit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -71,4 +71,9 @@
     <string name="install">Installieren</string>
     <string name="duration_per_episode">%dmin / Folge</string>
     <string name="episode_number">Folge %d</string>
+    <string name="title_language">Title Language</string>
+    <string name="char_language">Character Language</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="open_links">Open Links</string>
 </resources>
