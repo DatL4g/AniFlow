@@ -70,4 +70,5 @@
     <string name="dropped">Dropped</string>
     <string name="paused">Paused</string>
     <string name="repeating">Repeating</string>
+    <string name="install">Install</string>
 </resources>
