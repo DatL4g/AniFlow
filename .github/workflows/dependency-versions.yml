@@ -1,6 +1,9 @@
 name: Check Dependency Versions
 on:
   push:
+    branches-ignore:
+      - l10n
+      - translate
 
 jobs:
   dependency-versions:
