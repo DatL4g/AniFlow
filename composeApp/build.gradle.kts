@@ -148,6 +148,8 @@ kotlin {
 
                 implementation(libs.translate)
                 implementation(libs.instantapps)
+                implementation(libs.appupdate)
+                implementation(libs.appupdate.kotlin)
             }
         }
     }
