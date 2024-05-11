@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface CharacterComponent : DialogComponent {
     val initialChar: Character
+    val isLoggedIn: Flow<Boolean>
+    val loginUri: String
 
     val state: Flow<CharacterRepository.State>
     val charLanguage: Flow<CharLanguage?>

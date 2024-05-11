@@ -23,6 +23,8 @@ interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
     val titleLanguage: Flow<SettingsTitle?>
     val charLanguage: Flow<SettingsChar?>
+    val isLoggedIn: Flow<Boolean>
+    val loginUri: String
 
     val mediumState: Flow<MediumRepository.State>
     val isAdult: Flow<Boolean>

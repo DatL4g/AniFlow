@@ -12,6 +12,9 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,6 +59,8 @@ fun CollapsingToolbar(
     bannerImageFlow: Flow<String?>,
     coverImage: Medium.CoverImage,
     titleFlow: Flow<Medium.Title>,
+    isLoggedIn: Flow<Boolean>,
+    loginUri: String,
     isFavoriteFlow: Flow<Boolean>,
     isFavoriteBlockedFlow: Flow<Boolean>,
     siteUrlFlow: Flow<String>,
@@ -106,7 +111,7 @@ fun CollapsingToolbar(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
+                        imageVector = Icons.Rounded.ArrowBackIosNew,
                         contentDescription = null
                     )
                 }
@@ -177,22 +182,28 @@ fun CollapsingToolbar(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
+                        val loggedIn by isLoggedIn.collectAsStateWithLifecycle(false)
                         val isFavoriteBlocked by isFavoriteBlockedFlow.collectAsStateWithLifecycle(initialMedium.isFavoriteBlocked)
                         val isFavorite by isFavoriteFlow.collectAsStateWithLifecycle(initialMedium.isFavorite)
                         var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+                        val uriHandler = LocalUriHandler.current
 
                         IconButton(
                             onClick = {
-                                favoriteChanged = !(favoriteChanged ?: isFavorite)
-                                onToggleFavorite()
+                                if (!loggedIn) {
+                                    uriHandler.openUri(loginUri)
+                                } else {
+                                    favoriteChanged = !(favoriteChanged ?: isFavorite)
+                                    onToggleFavorite()
+                                }
                             },
-                            enabled = !isFavoriteBlocked
+                            enabled = !loggedIn || !isFavoriteBlocked
                         ) {
                             Icon(
                                 imageVector = if (favoriteChanged ?: isFavorite) {
-                                    Icons.Default.Favorite
+                                    Icons.Rounded.Favorite
                                 } else {
-                                    Icons.Default.FavoriteBorder
+                                    Icons.Rounded.FavoriteBorder
                                 },
                                 contentDescription = null
                             )

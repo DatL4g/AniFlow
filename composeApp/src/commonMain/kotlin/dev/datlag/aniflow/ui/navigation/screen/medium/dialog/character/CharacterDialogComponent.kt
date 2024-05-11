@@ -11,6 +11,7 @@ import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.safeFirstOrNull
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.settings.model.TitleLanguage
@@ -28,11 +29,15 @@ class CharacterDialogComponent(
     private val onDismiss: () -> Unit
 ) : CharacterComponent, ComponentContext by componentContext {
 
-    private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
-    private val characterRepository by di.instance<CharacterRepository>()
+    private val aniListClient by instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
+    private val characterRepository by instance<CharacterRepository>()
 
-    private val appSettings by di.instance<Settings.PlatformAppSettings>()
+    private val appSettings by instance<Settings.PlatformAppSettings>()
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
+
+    private val userHelper by instance<UserHelper>()
+    override val isLoggedIn: Flow<Boolean> = userHelper.isLoggedIn
+    override val loginUri: String = userHelper.loginUrl
 
     override val state = characterRepository.character
     private val characterSuccessState = state.mapNotNull {

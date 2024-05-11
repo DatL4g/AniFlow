@@ -86,6 +86,8 @@ fun MediumScreen(component: MediumComponent) {
                     bannerImageFlow = component.bannerImage,
                     coverImage = coverImage,
                     titleFlow = component.title,
+                    isLoggedIn = component.isLoggedIn,
+                    loginUri = component.loginUri,
                     isFavoriteFlow = component.isFavorite,
                     isFavoriteBlockedFlow = component.isFavoriteBlocked,
                     siteUrlFlow = component.siteUrl,
@@ -117,11 +119,19 @@ fun MediumScreen(component: MediumComponent) {
                     }
 
                     if (!notReleased) {
+                        val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
                         val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
                         val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
+                        val uriHandler = LocalUriHandler.current
 
                         ExtendedFloatingActionButton(
-                            onClick = { component.edit() },
+                            onClick = {
+                                if (!loggedIn) {
+                                    uriHandler.openUri(component.loginUri)
+                                } else {
+                                    component.edit()
+                                }
+                            },
                             expanded = listState.isScrollingUp() && listState.canScrollForward,
                             icon = {
                                 Icon(

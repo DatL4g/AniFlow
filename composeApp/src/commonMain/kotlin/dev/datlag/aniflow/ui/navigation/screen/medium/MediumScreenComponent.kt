@@ -52,7 +52,10 @@ class MediumScreenComponent(
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
+
     private val userHelper by di.instance<UserHelper>()
+    override val isLoggedIn: Flow<Boolean> = userHelper.isLoggedIn
+    override val loginUri: String = userHelper.loginUrl
 
     override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
