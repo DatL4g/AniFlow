@@ -71,9 +71,9 @@
     <string name="install">Installieren</string>
     <string name="duration_per_episode">%dmin / Folge</string>
     <string name="episode_number">Folge %d</string>
-    <string name="title_language">Title Language</string>
-    <string name="char_language">Character Language</string>
-    <string name="login">Login</string>
-    <string name="logout">Logout</string>
-    <string name="open_links">Open Links</string>
+    <string name="title_language">Titelsprache</string>
+    <string name="char_language">Charaktersprache</string>
+    <string name="login">Einloggen</string>
+    <string name="logout">Ausloggen</string>
+    <string name="open_links">Links öffnen</string>
 </resources>
