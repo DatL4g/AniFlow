@@ -32,9 +32,6 @@ data object StateSaver {
             mediumOverview[id] = index to offset
         }
 
-        var settingsOverview: Int = 0
-        var settingsOverviewOffset: Int = 0
-
         data object Home {
             var airingOverview: Int = 0
             var airingOverviewOffset: Int = 0

@@ -147,6 +147,7 @@ kotlin {
                 implementation(libs.android.credentials.play.services)
 
                 implementation(libs.translate)
+                implementation(libs.instantapps)
             }
         }
     }

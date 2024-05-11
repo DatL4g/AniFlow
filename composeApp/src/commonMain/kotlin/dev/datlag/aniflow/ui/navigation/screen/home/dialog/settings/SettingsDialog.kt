@@ -52,13 +52,7 @@ fun SettingsScreen(component: SettingsComponent) {
         windowInsets = insets,
         sheetState = sheetState
     ) {
-        val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = StateSaver.List.settingsOverview,
-            initialFirstVisibleItemScrollOffset = StateSaver.List.settingsOverviewOffset
-        )
-
         LazyColumn(
-            state = listState,
             modifier = Modifier.fillMaxWidth(),
             contentPadding = bottomPadding.merge(PaddingValues(16.dp)),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -219,13 +213,6 @@ fun SettingsScreen(component: SettingsComponent) {
                         }
                     }
                 }
-            }
-        }
-
-        DisposableEffect(listState) {
-            onDispose {
-                StateSaver.List.settingsOverview = listState.firstVisibleItemIndex
-                StateSaver.List.settingsOverviewOffset = listState.firstVisibleItemScrollOffset
             }
         }
     }

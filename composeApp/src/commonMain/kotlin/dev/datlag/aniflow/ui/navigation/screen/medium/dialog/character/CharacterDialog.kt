@@ -27,6 +27,7 @@ import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.CharacterRepository
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.other.rememberInstantAppHelper
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
@@ -62,6 +63,7 @@ fun CharacterDialog(component: CharacterComponent) {
         ) {
             val image by component.image.collectAsStateWithLifecycle(component.initialChar.image)
             val state by component.state.collectAsStateWithLifecycle(null)
+            val instantAppHelper = rememberInstantAppHelper()
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -106,7 +108,7 @@ fun CharacterDialog(component: CharacterComponent) {
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterEnd),
-                visible = state is CharacterRepository.State.Success,
+                visible = state is CharacterRepository.State.Success && !instantAppHelper.isInstantApp,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {

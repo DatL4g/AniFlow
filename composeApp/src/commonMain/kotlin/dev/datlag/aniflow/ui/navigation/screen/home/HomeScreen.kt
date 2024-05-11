@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraEnhance
+import androidx.compose.material.icons.rounded.GetApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,11 +36,13 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.rememberImagePickerState
 import dev.datlag.aniflow.trace.TraceRepository
+import dev.datlag.aniflow.ui.custom.InstantAppContent
 import dev.datlag.aniflow.ui.navigation.screen.component.CollapsingToolbar
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
@@ -47,6 +50,7 @@ import dev.datlag.aniflow.ui.navigation.screen.home.component.AllLoadingView
 import dev.datlag.aniflow.ui.navigation.screen.home.component.DefaultOverview
 import dev.datlag.aniflow.ui.navigation.screen.home.component.ScheduleOverview
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,65 +83,85 @@ fun HomeScreen(component: HomeComponent) {
             )
         },
         floatingActionButton = {
-            val traceState by component.traceState.collectAsStateWithLifecycle(TraceRepository.State.None)
-            val results = remember(traceState) {
-                (traceState as? TraceRepository.State.Success)?.response?.combinedResults.orEmpty().toList()
-            }
-
-            val dialogState = rememberUseCaseState(
-                visible = results.isNotEmpty(),
-                onCloseRequest = { component.clearTrace() },
-                onDismissRequest = { component.clearTrace() },
-                onFinishedRequest = { component.clearTrace() }
-            )
-
-            LaunchedEffect(results) {
-                if (results.isNotEmpty()) {
-                    dialogState.show()
-                }
-            }
-
-            OptionDialog(
-                state = dialogState,
-                config = OptionConfig(
-                    mode = DisplayMode.LIST
-                ),
-                header = Header.Custom { padding ->
-                    Text(
-                        modifier = Modifier.padding(padding.merge(PaddingValues(16.dp))).fillMaxWidth(),
-                        text = "Matching Anime",
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.SemiBold,
-                        style = MaterialTheme.typography.titleLarge
+            InstantAppContent(
+                onInstantApp = { helper ->
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            helper.showInstallPrompt()
+                        },
+                        expanded = listState.isScrollingUp() && listState.canScrollForward,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Rounded.GetApp,
+                                contentDescription = null
+                            )
+                        },
+                        text = {
+                            Text(text = stringResource(SharedRes.strings.install))
+                        }
                     )
-                },
-                selection = OptionSelection.Single(
-                    options = results.map {
-                        Option(
-                            titleText = it.aniList.asMedium().preferred(null)
+                }
+            ) {
+                val traceState by component.traceState.collectAsStateWithLifecycle(TraceRepository.State.None)
+                val results = remember(traceState) {
+                    (traceState as? TraceRepository.State.Success)?.response?.combinedResults.orEmpty().toList()
+                }
+
+                val optionState = rememberUseCaseState(
+                    visible = results.isNotEmpty(),
+                    onCloseRequest = { component.clearTrace() },
+                    onDismissRequest = { component.clearTrace() },
+                    onFinishedRequest = { component.clearTrace() }
+                )
+
+                LaunchedEffect(results) {
+                    if (results.isNotEmpty()) {
+                        optionState.show()
+                    }
+                }
+
+                OptionDialog(
+                    state = optionState,
+                    config = OptionConfig(
+                        mode = DisplayMode.LIST
+                    ),
+                    header = Header.Custom { padding ->
+                        Text(
+                            modifier = Modifier.padding(padding.merge(PaddingValues(16.dp))).fillMaxWidth(),
+                            text = "Matching Anime",
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleLarge
                         )
                     },
-                    onSelectOption = { option, _ ->
-                        component.details(results[option].aniList.asMedium())
+                    selection = OptionSelection.Single(
+                        options = results.map {
+                            Option(
+                                titleText = it.aniList.asMedium().preferred(null)
+                            )
+                        },
+                        onSelectOption = { option, _ ->
+                            component.details(results[option].aniList.asMedium())
+                        }
+                    )
+                )
+
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        imagePicker.launch()
+                    },
+                    expanded = listState.isScrollingUp() && listState.canScrollForward,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.CameraEnhance,
+                            contentDescription = null
+                        )
+                    },
+                    text = {
+                        Text(text = "Scan")
                     }
                 )
-            )
-
-            ExtendedFloatingActionButton(
-                onClick = {
-                    imagePicker.launch()
-                },
-                expanded = listState.isScrollingUp() && listState.canScrollForward,
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.CameraEnhance,
-                        contentDescription = null
-                    )
-                },
-                text = {
-                    Text(text = "Scan")
-                }
-            )
+            }
         },
         bottomBar = {
             HidingNavigationBar(

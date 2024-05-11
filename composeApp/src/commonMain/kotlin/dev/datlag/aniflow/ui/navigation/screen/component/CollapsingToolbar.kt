@@ -28,6 +28,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.other.rememberInstantAppHelper
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.fontFamilyResource
@@ -76,17 +77,23 @@ fun CollapsingToolbar(
 
         LargeTopAppBar(
             navigationIcon = {
+                val helper = rememberInstantAppHelper()
+
                 IconButton(
                     modifier = Modifier.ifFalse(isCollapsed) {
                         background(MaterialTheme.colorScheme.surface.copy(alpha = 0.75F), CircleShape)
                     },
                     onClick = {
-                        onProfileClick()
+                        if (helper.isInstantApp) {
+                            helper.showInstallPrompt()
+                        } else {
+                            onProfileClick()
+                        }
                     }
                 ) {
                     val user by userFlow.collectAsStateWithLifecycle(null)
                     val tintColor = LocalContentColor.current
-                    var colorFilter by remember(user) { mutableStateOf<ColorFilter?>(ColorFilter.tint(tintColor)) }
+                    var colorFilter by remember(user) { mutableStateOf<ColorFilter?>(null) }
 
                     AsyncImage(
                         model = user?.avatar?.large,

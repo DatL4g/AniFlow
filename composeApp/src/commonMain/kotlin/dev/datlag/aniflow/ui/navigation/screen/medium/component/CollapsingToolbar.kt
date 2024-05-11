@@ -33,6 +33,7 @@ import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
 import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.other.rememberInstantAppHelper
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.custom.shareHandler
 import dev.datlag.tooling.compose.ifFalse
@@ -169,9 +170,10 @@ fun CollapsingToolbar(
                     val mediumState by mediumFlow.collectAsStateWithLifecycle(null)
                     val siteUrl by siteUrlFlow.collectAsStateWithLifecycle(initialMedium.siteUrl)
                     val shareHandler = shareHandler()
+                    val instantAppHelper = rememberInstantAppHelper()
 
                     AnimatedVisibility(
-                        visible = mediumState is MediumRepository.State.Success,
+                        visible = mediumState is MediumRepository.State.Success && !instantAppHelper.isInstantApp,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {

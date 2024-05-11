@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.GetApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,7 +44,7 @@ import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
-import dev.datlag.aniflow.ui.custom.EditFAB
+import dev.datlag.aniflow.ui.custom.InstantAppContent
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
@@ -94,26 +95,45 @@ fun MediumScreen(component: MediumComponent) {
                 )
             },
             floatingActionButton = {
-                val notReleased by component.status.mapCollect(component.initialMedium.status) {
-                    it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
-                }
+                InstantAppContent(
+                    onInstantApp = { helper ->
+                        ExtendedFloatingActionButton(
+                            onClick = { helper.showInstallPrompt() },
+                            expanded = listState.isScrollingUp() && listState.canScrollForward,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.GetApp,
+                                    contentDescription = null,
+                                )
+                            },
+                            text = {
+                                Text(text = stringResource(SharedRes.strings.install))
+                            }
+                        )
+                    }
+                ) {
+                    val notReleased by component.status.mapCollect(component.initialMedium.status) {
+                        it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
+                    }
 
-                if (!notReleased) {
-                    val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
-                    val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
+                    if (!notReleased) {
+                        val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
+                        val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
 
-                    ExtendedFloatingActionButton(
-                        onClick = { component.edit() },
-                        icon = {
-                            Icon(
-                                imageVector = status.icon(),
-                                contentDescription = null,
-                            )
-                        },
-                        text = {
-                            Text(text = stringResource(status.stringRes(type)))
-                        }
-                    )
+                        ExtendedFloatingActionButton(
+                            onClick = { component.edit() },
+                            expanded = listState.isScrollingUp() && listState.canScrollForward,
+                            icon = {
+                                Icon(
+                                    imageVector = status.icon(),
+                                    contentDescription = null,
+                                )
+                            },
+                            text = {
+                                Text(text = stringResource(status.stringRes(type)))
+                            }
+                        )
+                    }
                 }
             }
         ) {
