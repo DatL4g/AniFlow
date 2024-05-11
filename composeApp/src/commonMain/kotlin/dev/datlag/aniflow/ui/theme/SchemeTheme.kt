@@ -30,7 +30,6 @@ import kotlin.coroutines.CoroutineContext
 data object SchemeTheme {
 
     internal val executor = Executor()
-    internal val commonSchemeKey = MutableStateFlow<Any?>(null)
     private val kache = InMemoryKache<Any, DominantColorState<Painter>>(
         maxSize = 25L * 1024 * 1024
     ) {
@@ -48,10 +47,6 @@ data object SchemeTheme {
     }.getOrNull() ?: suspendCatching {
         kache.getOrPut(key) { fallback }
     }.getOrNull()
-
-    fun setCommon(key: Any?) {
-        commonSchemeKey.update { key }
-    }
 
     @Composable
     fun create(key: Any?): Updater? {
@@ -197,19 +192,6 @@ fun SchemeTheme(
     ) {
         content(updater)
     }
-}
-
-@Composable
-fun CommonSchemeTheme(animate: Boolean = false, content: @Composable (SchemeTheme.Updater?) -> Unit) {
-    val key by SchemeTheme.commonSchemeKey.collectAsStateWithLifecycle()
-
-    SchemeTheme(
-        key = key,
-        animate = animate,
-        defaultColor = null,
-        defaultOnColor = null,
-        content = content
-    )
 }
 
 private fun Color.contrastAgainst(background: Color): Float {

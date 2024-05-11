@@ -6,7 +6,10 @@ import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
@@ -20,6 +23,8 @@ interface MediumComponent : ContentHolderComponent {
     val initialMedium: Medium
     val titleLanguage: Flow<SettingsTitle?>
     val charLanguage: Flow<SettingsChar?>
+    val isLoggedIn: Flow<Boolean>
+    val loginUri: String
 
     val mediumState: Flow<MediumRepository.State>
     val isAdult: Flow<Boolean>
@@ -36,6 +41,8 @@ interface MediumComponent : ContentHolderComponent {
     val episodes: Flow<Int>
     val duration: Flow<Int>
     val status: Flow<MediaStatus>
+    val chapters: Flow<Int>
+    val volumes: Flow<Int>
 
     val rated: Flow<Medium.Ranking?>
     val popular: Flow<Medium.Ranking?>
@@ -49,7 +56,8 @@ interface MediumComponent : ContentHolderComponent {
     val isFavoriteBlocked: Flow<Boolean>
     val siteUrl: Flow<String>
 
-    val bsAvailable: Boolean
+    val type: Flow<MediaType>
+    val listStatus: Flow<MediaListStatus>
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 
@@ -62,4 +70,5 @@ interface MediumComponent : ContentHolderComponent {
     fun descriptionTranslation(text: String?)
     fun showCharacter(character: Character)
     fun toggleFavorite()
+    fun edit()
 }

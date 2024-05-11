@@ -4,8 +4,10 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.AiringSort
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration.Companion.hours
 
 class AiringTodayRepository(
@@ -22,12 +24,16 @@ class AiringTodayRepository(
         )
     }.distinctUntilChanged()
 
-    private val airingPreFilter = query.transform {
-        return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val airingPreFilter = query.transformLatest {
+        return@transformLatest emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }
-    private val fallbackPreFilter = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackPreFilter = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }
+
     private val fallbackQuery = combine(fallbackPreFilter, nsfw.distinctUntilChanged()) { q, n ->
         val data = q.data
         if (data == null) {
@@ -41,6 +47,7 @@ class AiringTodayRepository(
         }
     }.filterNotNull()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val airing = combine(airingPreFilter, nsfw.distinctUntilChanged()) { q, n ->
         val data = q.data
         if (data == null) {
@@ -52,8 +59,8 @@ class AiringTodayRepository(
         } else {
             State.fromGraphQL(data, n)
         }
-    }.filterNotNull().transform {
-        return@transform if (it is State.Error) {
+    }.filterNotNull().transformLatest {
+        return@transformLatest if (it is State.Error) {
             emitAll(fallbackQuery)
         } else {
             emit(it)
@@ -85,10 +92,14 @@ class AiringTodayRepository(
     }
 
     sealed interface State {
+        @Serializable
+        data object None : State
+
         data class Success(
             val collection: Collection<AiringQuery.AiringSchedule>
         ) : State
 
+        @Serializable
         data object Error : State
 
         companion object {

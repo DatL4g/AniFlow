@@ -80,14 +80,17 @@ query SeasonQuery(
                 }
             },
             mediaListEntry {
-                score(format: POINT_5)
+                score(format: POINT_5),
+                status
             },
             trailer {
                 id,
                 site,
                 thumbnail
             },
-            siteUrl
+            siteUrl,
+            chapters,
+            volumes
         }
     }
 }

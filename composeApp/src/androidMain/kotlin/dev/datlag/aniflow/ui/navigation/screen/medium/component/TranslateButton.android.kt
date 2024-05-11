@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -102,7 +103,7 @@ actual fun TranslateButton(
         } else {
             Icon(
                 modifier = Modifier.size(ButtonDefaults.IconSize),
-                imageVector = Icons.Default.Translate,
+                imageVector = Icons.Rounded.Translate,
                 contentDescription = null
             )
         }

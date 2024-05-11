@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.GetApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,11 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import com.maxkeppeler.sheets.rating.RatingDialog
 import com.maxkeppeler.sheets.rating.models.RatingBody
 import com.maxkeppeler.sheets.rating.models.RatingConfig
@@ -33,13 +39,17 @@ import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
-import dev.datlag.aniflow.ui.custom.EditFAB
+import dev.datlag.aniflow.ui.custom.InstantAppContent
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.*
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.painterResource
+import dev.icerock.moko.resources.compose.stringResource
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 
@@ -70,70 +80,59 @@ fun MediumScreen(component: MediumComponent) {
                 CollapsingToolbar(
                     state = appBarState,
                     scrollBehavior = scrollState,
-                    initialMedium = component.initialMedium,
-                    titleLanguageFlow = component.titleLanguage,
-                    mediumFlow = component.mediumState,
-                    bannerImageFlow = component.bannerImage,
                     coverImage = coverImage,
-                    titleFlow = component.title,
-                    isFavoriteFlow = component.isFavorite,
-                    isFavoriteBlockedFlow = component.isFavoriteBlocked,
-                    siteUrlFlow = component.siteUrl,
                     showShare = listState.isScrollingUp(),
-                    onBack = { component.back() },
-                    onToggleFavorite = { component.toggleFavorite() }
+                    component = component
                 )
             },
             floatingActionButton = {
-                val userRating by component.rating.collectAsStateWithLifecycle(-1)
-                val ratingState = rememberUseCaseState()
+                InstantAppContent(
+                    onInstantApp = { helper ->
+                        ExtendedFloatingActionButton(
+                            onClick = { helper.showInstallPrompt() },
+                            expanded = listState.isScrollingUp() && listState.canScrollForward,
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.GetApp,
+                                    contentDescription = null,
+                                )
+                            },
+                            text = {
+                                Text(text = stringResource(SharedRes.strings.install))
+                            }
+                        )
+                    }
+                ) {
+                    val notReleased by component.status.mapCollect(component.initialMedium.status) {
+                        it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
+                    }
 
-                val alreadyAdded by component.alreadyAdded.collectAsStateWithLifecycle(
-                    component.initialMedium.entry != null
-                )
-                val notReleased by component.status.mapCollect(component.initialMedium.status) {
-                    it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
-                }
+                    if (!notReleased) {
+                        val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
+                        val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
+                        val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
+                        val uriHandler = LocalUriHandler.current
 
-                RatingDialog(
-                    state = ratingState,
-                    selection = RatingSelection(
-                        onSelectRating = { rating, _ ->
-                            component.rate(rating)
-                        }
-                    ),
-                    header = Header.Default(
-                        title = "Rate this Anime",
-                        icon = IconSource(Icons.Filled.Star)
-                    ),
-                    body = RatingBody.Default(
-                        bodyText = ""
-                    ),
-                    config = RatingConfig(
-                        ratingOptionsCount = 5,
-                        ratingOptionsSelected = userRating.takeIf { it > 0 },
-                        ratingZeroValid = true
-                    )
-                )
-
-                if (!notReleased) {
-                    val uriHandler = LocalUriHandler.current
-                    val userHelper by LocalDI.current.instance<UserHelper>()
-
-                    EditFAB(
-                        displayAdd = !alreadyAdded,
-                        bsAvailable = component.bsAvailable,
-                        expanded = listState.isScrollingUp(),
-                        onBS = {
-
-                        },
-                        onRate = {
-                            uriHandler.openUri(userHelper.loginUrl)
-                        },
-                        onProgress = {
-                            // ratingState.show()
-                        }
-                    )
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                if (!loggedIn) {
+                                    uriHandler.openUri(component.loginUri)
+                                } else {
+                                    component.edit()
+                                }
+                            },
+                            expanded = listState.isScrollingUp() && listState.canScrollForward,
+                            icon = {
+                                Icon(
+                                    imageVector = status.icon(),
+                                    contentDescription = null,
+                                )
+                            },
+                            text = {
+                                Text(text = stringResource(status.stringRes(type)))
+                            }
+                        )
+                    }
                 }
             }
         ) {
@@ -149,12 +148,7 @@ fun MediumScreen(component: MediumComponent) {
                     item {
                         CoverSection(
                             coverImage = coverImage,
-                            initialMedium = component.initialMedium,
-                            formatFlow = component.format,
-                            episodesFlow = component.episodes,
-                            durationFlow = component.duration,
-                            statusFlow = component.status,
-                            isAdultFlow = component.isAdult,
+                            component = component,
                             modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp)
                         )
                     }

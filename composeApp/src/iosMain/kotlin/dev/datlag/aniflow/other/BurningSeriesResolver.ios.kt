@@ -10,7 +10,9 @@ actual class BurningSeriesResolver {
         return emptySet()
     }
 
-    actual fun resolveByName(english: String?, romaji: String?) { }
+    actual fun resolveByName(english: String?, romaji: String?): Set<Series> {
+        return emptySet()
+    }
 
     actual fun close() { }
 }

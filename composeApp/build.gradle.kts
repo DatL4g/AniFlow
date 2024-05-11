@@ -119,6 +119,7 @@ kotlin {
             implementation(project(":firebase"))
             implementation(project(":anilist"))
             implementation(project(":model"))
+            implementation(project(":nekos"))
             implementation(project(":settings"))
             implementation(project(":trace"))
         }
@@ -146,6 +147,9 @@ kotlin {
                 implementation(libs.android.credentials.play.services)
 
                 implementation(libs.translate)
+                implementation(libs.instantapps)
+                implementation(libs.appupdate)
+                implementation(libs.appupdate.kotlin)
             }
         }
     }

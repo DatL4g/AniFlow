@@ -3,10 +3,11 @@ package dev.datlag.aniflow.anilist
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.common.nextSeason
-import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 
@@ -14,59 +15,53 @@ class PopularNextSeasonRepository(
     private val apolloClient: ApolloClient,
     private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
-    private val viewManga: Flow<Boolean> = flowOf(false),
 ) {
 
     private val page = MutableStateFlow(0)
-    private val type = viewManga.distinctUntilChanged().map {
-        page.update { 0 }
-        if (it) {
-            MediaType.MANGA
-        } else {
-            MediaType.ANIME
-        }
-    }
-    private val query = combine(page, type, nsfw.distinctUntilChanged()) { p, t, n ->
+
+    private val query = combine(page, nsfw.distinctUntilChanged()) { p, n ->
         val (season, year) = Clock.System.now().nextSeason
 
         Query(
             page = p,
-            type = t,
             nsfw = n,
             season = season,
             year = year
         )
     }.distinctUntilChanged()
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                SeasonState.fromGraphQL(data)
+                CollectionState.fromSeasonGraphQL(data)
             } else {
                 null
             }
         } else {
-            SeasonState.fromGraphQL(data)
+            CollectionState.fromSeasonGraphQL(data)
         }
     }
 
-    val popularNextSeason = query.transform {
-        return@transform emitAll(apolloClient.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val popularNextSeason = query.transformLatest {
+        return@transformLatest emitAll(apolloClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
             if (it.hasErrors()) {
-                SeasonState.fromGraphQL(data)
+                CollectionState.fromSeasonGraphQL(data)
             } else {
                 null
             }
         } else {
-            SeasonState.fromGraphQL(data)
+            CollectionState.fromSeasonGraphQL(data)
         }
-    }.transform {
-        return@transform if (it is SeasonState.Error) {
+    }.transformLatest {
+        return@transformLatest if (it.isError) {
             emitAll(fallbackQuery)
         } else {
             emit(it)
@@ -83,20 +78,19 @@ class PopularNextSeasonRepository(
 
     private data class Query(
         val page: Int,
-        val type: MediaType,
         val nsfw: Boolean,
         val season: MediaSeason,
         val year: Int
     ) {
         fun toGraphQL() = SeasonQuery(
             page = Optional.present(page),
-            perPage = Optional.present(10),
+            perPage = Optional.present(20),
             adultContent = if (nsfw) {
                 Optional.absent()
             } else {
                 Optional.present(nsfw)
             },
-            type = Optional.present(type),
+            type = Optional.present(MediaType.ANIME),
             sort = Optional.present(listOf(MediaSort.POPULARITY_DESC)),
             preventGenres = if (nsfw) {
                 Optional.absent()

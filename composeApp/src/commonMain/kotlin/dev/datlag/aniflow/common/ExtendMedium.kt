@@ -1,14 +1,16 @@
 package dev.datlag.aniflow.common
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.type.MediaFormat
-import dev.datlag.aniflow.anilist.type.MediaRankType
-import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.*
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.trace.model.SearchResponse
@@ -60,6 +62,12 @@ fun Medium.Title.notPreferred(setting: SettingsTitle?): String? {
         notPreferred.trim().equals(preferred, ignoreCase = true) -> null
         else -> notPreferred
     }
+}
+
+fun MediaFormat.icon(): ImageVector = when (this) {
+    MediaFormat.MANGA, MediaFormat.NOVEL, MediaFormat.ONE_SHOT -> Icons.AutoMirrored.Rounded.MenuBook
+    MediaFormat.MUSIC -> Icons.Rounded.MusicNote
+    else -> Icons.Rounded.OndemandVideo
 }
 
 fun MediaFormat.text(): StringResource {
@@ -150,3 +158,25 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
         title = this.title.asMediumTitle()
     )
 }
+
+fun MediaListStatus.icon() = when (this) {
+    MediaListStatus.CURRENT -> Icons.Rounded.Edit
+    MediaListStatus.COMPLETED -> Icons.Rounded.Check
+    MediaListStatus.PAUSED -> Icons.Rounded.Pause
+    MediaListStatus.DROPPED -> Icons.Rounded.Close
+    MediaListStatus.PLANNING -> Icons.Rounded.WatchLater
+    MediaListStatus.REPEATING -> Icons.Rounded.Replay
+    else -> Icons.Rounded.Add
+}
+
+fun MediaListStatus.stringRes(isManga: Boolean) = when (this) {
+    MediaListStatus.CURRENT -> if (isManga) SharedRes.strings.reading else SharedRes.strings.watching
+    MediaListStatus.COMPLETED -> SharedRes.strings.completed
+    MediaListStatus.PAUSED -> SharedRes.strings.paused
+    MediaListStatus.DROPPED -> SharedRes.strings.dropped
+    MediaListStatus.PLANNING -> SharedRes.strings.planning
+    MediaListStatus.REPEATING -> SharedRes.strings.repeating
+    else -> SharedRes.strings.add
+}
+
+fun MediaListStatus.stringRes(type: MediaType) = this.stringRes(type == MediaType.MANGA)

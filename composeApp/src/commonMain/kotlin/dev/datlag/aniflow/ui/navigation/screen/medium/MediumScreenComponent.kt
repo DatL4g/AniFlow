@@ -2,6 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
@@ -13,12 +14,10 @@ import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.model.Character
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaFormat
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
-import dev.datlag.aniflow.common.nullableFirebaseInstance
-import dev.datlag.aniflow.common.onRenderApplyCommonScheme
-import dev.datlag.aniflow.common.popular
-import dev.datlag.aniflow.common.rated
+import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
@@ -28,12 +27,14 @@ import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
+import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.EditDialogComponent
 import dev.datlag.tooling.alsoTrue
 import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -51,7 +52,10 @@ class MediumScreenComponent(
 
     private val aniListClient by di.instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
+
     private val userHelper by di.instance<UserHelper>()
+    override val isLoggedIn: Flow<Boolean> = userHelper.isLoggedIn
+    override val loginUri: String = userHelper.loginUrl
 
     override val titleLanguage: Flow<SettingsTitle?> = appSettings.titleLanguage.flowOn(ioDispatcher())
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
@@ -63,51 +67,62 @@ class MediumScreenComponent(
         it.safeCast<MediumRepository.State.Success>()
     }
 
-    override val isAdult: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isAdult: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isAdult
     }
 
     override val isAdultAllowed: Flow<Boolean> = appSettings.adultContent
 
-    private val type: Flow<MediaType> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val type: Flow<MediaType> = mediumSuccessState.mapLatest {
         it.medium.type
     }
 
-    override val bannerImage: Flow<String?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val bannerImage: Flow<String?> = mediumSuccessState.mapLatest {
         it.medium.bannerImage
     }
 
-    override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val coverImage: Flow<Medium.CoverImage> = mediumSuccessState.mapLatest {
         it.medium.coverImage
     }
 
-    override val title: Flow<Medium.Title> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val title: Flow<Medium.Title> = mediumSuccessState.mapLatest {
         it.medium.title
     }
 
-    override val description: Flow<String?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val description: Flow<String?> = mediumSuccessState.mapLatest {
         it.medium.description?.ifBlank { null }
     }
 
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    override val genres: Flow<Set<String>> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val genres: Flow<Set<String>> = mediumSuccessState.mapLatest {
         it.medium.genres
     }.mapNotEmpty()
 
-    override val format: Flow<MediaFormat> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val format: Flow<MediaFormat> = mediumSuccessState.mapLatest {
         it.medium.format
     }
 
-    override val episodes: Flow<Int> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val episodes: Flow<Int> = mediumSuccessState.mapLatest {
         it.medium.episodes
     }.distinctUntilChanged()
 
-    override val duration: Flow<Int> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val duration: Flow<Int> = mediumSuccessState.mapLatest {
         it.medium.avgEpisodeDurationInMin
     }.distinctUntilChanged()
 
-    override val status: Flow<MediaStatus> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val status: Flow<MediaStatus> = mediumSuccessState.mapLatest {
         it.medium.status
     }.distinctUntilChanged()
 
@@ -123,13 +138,15 @@ class MediumScreenComponent(
         it.medium.averageScore.asNullIf(-1)
     }.distinctUntilChanged()
 
-    override val characters: Flow<Set<Character>> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val characters: Flow<Set<Character>> = mediumSuccessState.mapLatest {
         it.medium.characters
     }.mapNotEmpty()
 
     private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val rating: Flow<Int> = combine(
-        mediumSuccessState.map {
+        mediumSuccessState.mapLatest {
             it.medium.entry?.score?.toInt()
         },
         changedRating
@@ -141,30 +158,45 @@ class MediumScreenComponent(
         }
     }
 
-    override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.mapLatest {
         it.medium.trailer
     }
 
-    override val alreadyAdded: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val alreadyAdded: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.entry != null
     }
 
-    override val isFavorite: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isFavorite: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isFavorite
     }
 
-    override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val isFavoriteBlocked: Flow<Boolean> = mediumSuccessState.mapLatest {
         it.medium.isFavoriteBlocked
     }
 
-    override val siteUrl: Flow<String> = mediumSuccessState.map {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val siteUrl: Flow<String> = mediumSuccessState.mapLatest {
         it.medium.siteUrl
     }
 
-    private val burningSeriesResolver by di.instance<BurningSeriesResolver>()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val listStatus: Flow<MediaListStatus> = mediumSuccessState.mapLatest {
+        it.medium.entry?.status ?: MediaListStatus.UNKNOWN__
+    }
 
-    override val bsAvailable: Boolean
-        get() = burningSeriesResolver.isAvailable
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val chapters: Flow<Int> = mediumSuccessState.mapLatest {
+        it.medium.chapters
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val volumes: Flow<Int> = mediumSuccessState.mapLatest {
+        it.medium.volumes
+    }
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
@@ -178,6 +210,12 @@ class MediumScreenComponent(
                 initialChar = config.initial,
                 onDismiss = dialogNavigation::dismiss
             )
+            is DialogConfig.Edit -> EditDialogComponent(
+                componentContext = context,
+                di = di,
+                titleFlow = title,
+                onDismiss = dialogNavigation::dismiss
+            )
         }
     }
 
@@ -187,12 +225,12 @@ class MediumScreenComponent(
 
     @Composable
     override fun render() {
-        val state = HazeState()
+        val state = remember { HazeState() }
 
         CompositionLocalProvider(
             LocalHaze provides state
         ) {
-            onRenderApplyCommonScheme(initialMedium.id) {
+            onRenderWithScheme(initialMedium.id) {
                 MediumScreen(this)
             }
         }
@@ -271,5 +309,9 @@ class MediumScreenComponent(
 
             aniListClient.mutation(mutation).execute()
         }
+    }
+
+    override fun edit() {
+        dialogNavigation.activate(DialogConfig.Edit)
     }
 }

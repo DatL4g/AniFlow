@@ -19,7 +19,12 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.arkivanov.essenty.lifecycle.essentyLifecycle
 import com.arkivanov.essenty.statekeeper.stateKeeper
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.ktx.requestAppUpdateInfo
 import dev.datlag.aniflow.other.DomainVerifier
+import dev.datlag.aniflow.other.UpdateManager
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.navigation.RootComponent
 import dev.datlag.tooling.compose.launchIO
@@ -54,6 +59,9 @@ class MainActivity : AppCompatActivity() {
         )
 
         DomainVerifier.verify(this)
+        UpdateManager.checkForUpdates(this) { manager, info, type ->
+            manager.startUpdateFlow(info, this, AppUpdateOptions.defaultOptions(type))
+        }
 
         setContent {
             CompositionLocalProvider(
@@ -107,6 +115,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         DomainVerifier.verify(this)
+        UpdateManager.checkResume(this) { manager, info ->
+            manager.startUpdateFlow(info, this, AppUpdateOptions.defaultOptions(AppUpdateType.IMMEDIATE))
+        }
     }
 
     override fun onPause() {

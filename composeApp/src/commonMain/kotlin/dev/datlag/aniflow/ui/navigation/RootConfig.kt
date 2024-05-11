@@ -15,5 +15,8 @@ sealed class RootConfig {
     }
 
     @Serializable
-    data object Settings : RootConfig()
+    data object Favorites : RootConfig()
+
+    @Serializable
+    data object Nekos : RootConfig()
 }

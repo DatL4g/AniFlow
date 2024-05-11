@@ -1,12 +1,13 @@
 [versions]
 app = "1.1.1"
-aboutlibraries = "11.1.3"
+aboutlibraries = "11.1.4"
 activity = "1.9.0"
 android = "8.2.2"
 android-core = "1.13.1"
 android-credentials = "1.3.0-alpha02"
 apollo = "4.0.0-beta.6"
 appcompat = "1.6.1"
+appupdate = "2.1.0"
 atomicfu = "0.24.0"
 coil = "3.0.0-alpha06"
 compose = "1.6.2"
@@ -24,8 +25,9 @@ firebase-android-auth = "22.3.1"
 firebase-android-crashlytics = "18.6.4"
 flowredux = "1.2.1"
 google-identity = "1.1.0"
-haze = "0.7.0"
+haze = "0.7.1"
 html-converter = "0.9.5"
+instantapps = "18.0.1"
 kache = "2.1.0"
 kasechange = "1.4.1"
 kmpalette = "3.1.0"
@@ -40,7 +42,6 @@ markdown-renderer = "0.16.0"
 moko-resources = "0.24.0-beta-3"
 multidex = "2.0.1"
 napier = "2.7.1"
-oidc = "0.9.2"
 sekret = "2.0.0-alpha-04"
 serialization = "1.6.3"
 splashscreen = "1.0.1"
@@ -60,6 +61,8 @@ apollo = { group = "com.apollographql.apollo3", name = "apollo-runtime", version
 apollo-cache = { group = "com.apollographql.apollo3", name = "apollo-normalized-cache", version.ref = "apollo" }
 apollo-cache-sql = { group = "com.apollographql.apollo3", name = "apollo-normalized-cache-sqlite", version.ref = "apollo" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+appupdate = { group = "com.google.android.play", name = "app-update", version.ref = "appupdate" }
+appupdate-kotlin = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appupdate" }
 atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu-gradle-plugin", version.ref = "atomicfu" }
 coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-ktor", version.ref = "coil" }
@@ -84,6 +87,7 @@ google-identity = { group = "com.google.android.libraries.identity.googleid", na
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 haze-materials = { group = "dev.chrisbanes.haze", name = "haze-materials", version.ref = "haze" }
 html-converter = { group = "be.digitalia.compose.htmlconverter", name = "htmlconverter", version.ref = "html-converter" }
+instantapps = { group = "com.google.android.gms", name = "play-services-instantapps", version.ref = "instantapps" }
 kache = { group = "com.mayakapps.kache", name = "kache", version.ref = "kache" }
 kasechange = { group = "net.pearx.kasechange", name = "kasechange", version.ref = "kasechange" }
 kmpalette = { group = "com.kmpalette", name = "kmpalette-core", version.ref = "kmpalette" }
@@ -103,7 +107,6 @@ moko-resources-compose = { group = "dev.icerock.moko", name = "resources-compose
 moko-resources-generator = { group = "dev.icerock.moko", name = "resources-generator", version.ref = "moko-resources" }
 multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napier" }
-oidc = { group = "io.github.kalinjul.kotlin.multiplatform", name = "oidc-appsupport", version.ref = "oidc" }
 sekret = { group = "dev.datlag.sekret", name = "annotations", version.ref = "sekret" }
 serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "serialization" }
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }

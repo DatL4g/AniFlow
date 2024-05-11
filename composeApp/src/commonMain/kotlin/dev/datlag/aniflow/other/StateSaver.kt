@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
-import dev.datlag.aniflow.anilist.state.SeasonState
+import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
@@ -31,9 +31,6 @@ data object StateSaver {
         fun mediumOverview(id: Int, index: Int, offset: Int) {
             mediumOverview[id] = index to offset
         }
-
-        var settingsOverview: Int = 0
-        var settingsOverviewOffset: Int = 0
 
         data object Home {
             var airingOverview: Int = 0
@@ -76,17 +73,17 @@ data object StateSaver {
             return state
         }
 
-        fun updateTrending(state: TrendingRepository.State): TrendingRepository.State {
+        fun updateTrending(state: CollectionState): CollectionState {
             trendingLoading.update { false }
             return state
         }
 
-        fun updatePopularCurrent(state: SeasonState): SeasonState {
+        fun updatePopularCurrent(state: CollectionState): CollectionState {
             popularCurrentLoading.update { false }
             return state
         }
 
-        fun updatePopularNext(state: SeasonState): SeasonState {
+        fun updatePopularNext(state: CollectionState): CollectionState {
             popularNextLoading.update { false }
             return state
         }

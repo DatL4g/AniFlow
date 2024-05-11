@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,6 +28,7 @@ import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.CharacterRepository
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.other.rememberInstantAppHelper
 import dev.datlag.aniflow.ui.navigation.screen.medium.component.TranslateButton
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
@@ -61,6 +64,7 @@ fun CharacterDialog(component: CharacterComponent) {
         ) {
             val image by component.image.collectAsStateWithLifecycle(component.initialChar.image)
             val state by component.state.collectAsStateWithLifecycle(null)
+            val instantAppHelper = rememberInstantAppHelper()
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -72,7 +76,7 @@ fun CharacterDialog(component: CharacterComponent) {
                     onClick = component::dismiss
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
+                        imageVector = Icons.Rounded.ArrowBackIosNew,
                         contentDescription = stringResource(SharedRes.strings.close)
                     )
                 }
@@ -105,26 +109,32 @@ fun CharacterDialog(component: CharacterComponent) {
 
             this@ModalBottomSheet.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.CenterEnd),
-                visible = state is CharacterRepository.State.Success,
+                visible = state is CharacterRepository.State.Success && !instantAppHelper.isInstantApp,
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
+                val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
                 val isFavoriteBlocked by component.isFavoriteBlocked.collectAsStateWithLifecycle(component.initialChar.isFavoriteBlocked)
                 val isFavorite by component.isFavorite.collectAsStateWithLifecycle(component.initialChar.isFavorite)
                 var favoriteChanged by remember(isFavorite) { mutableStateOf<Boolean?>(null) }
+                val uriHandler = LocalUriHandler.current
 
                 IconButton(
                     onClick = {
-                        favoriteChanged = !(favoriteChanged ?: isFavorite)
-                        component.toggleFavorite()
+                        if (!loggedIn) {
+                            uriHandler.openUri(component.loginUri)
+                        } else {
+                            favoriteChanged = !(favoriteChanged ?: isFavorite)
+                            component.toggleFavorite()
+                        }
                     },
-                    enabled = !isFavoriteBlocked
+                    enabled = !loggedIn || !isFavoriteBlocked
                 ) {
                     Icon(
                         imageVector = if (favoriteChanged ?: isFavorite) {
-                            Icons.Default.Favorite
+                            Icons.Rounded.Favorite
                         } else {
-                            Icons.Default.FavoriteBorder
+                            Icons.Rounded.FavoriteBorder
                         },
                         contentDescription = null,
                     )
@@ -173,7 +183,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Bloodtype,
+                            imageVector = Icons.Rounded.Bloodtype,
                             contentDescription = null
                         )
                         Text(
@@ -194,7 +204,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Man4,
+                            imageVector = Icons.Rounded.Man4,
                             contentDescription = null
                         )
                         Text(
@@ -215,7 +225,7 @@ fun CharacterDialog(component: CharacterComponent) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Cake,
+                            imageVector = Icons.Rounded.Cake,
                             contentDescription = null
                         )
                         Text(

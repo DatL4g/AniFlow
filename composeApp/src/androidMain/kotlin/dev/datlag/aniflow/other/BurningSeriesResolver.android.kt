@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import androidx.core.database.getStringOrNull
 import dev.datlag.tooling.scopeCatching
 import io.github.aakira.napier.Napier
 
@@ -69,8 +70,9 @@ actual class BurningSeriesResolver(
                         progress = progress,
                         length = length,
                         number = number,
-                        series = Episode.Series(
-                            title = seriesHref
+                        series = Series(
+                            title = seriesHref,
+                            href = seriesHref
                         )
                     )
                 )
@@ -83,12 +85,12 @@ actual class BurningSeriesResolver(
         return episodes
     }
 
-    actual fun resolveByName(english: String?, romaji: String?) {
+    actual fun resolveByName(english: String?, romaji: String?): Set<Series> {
         val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")
         val romajiTrimmed = romaji?.trim()?.ifBlank { null }?.replace("'", "")
 
         if (seriesClient == null || (englishTrimmed == null && romajiTrimmed == null)) {
-            return
+            return emptySet()
         }
 
         val selection = if (englishTrimmed != null && romajiTrimmed != null) {
@@ -104,26 +106,36 @@ actual class BurningSeriesResolver(
             selection,
             null,
             null
-        ) ?: return
+        ) ?: return emptySet()
+
+        val series = mutableSetOf<Series>()
 
         if (seriesCursor.moveToFirst()) {
             while (!seriesCursor.isAfterLast) {
                 val titleIndex = seriesCursor.getColumnIndex("title")
+                val hrefIndex = seriesCursor.getColumnIndex("hrefPrimary")
 
-                if (titleIndex == -1) {
+                if (hrefIndex == -1) {
                     seriesCursor.moveToNext()
                     continue
                 }
 
-                val title = seriesCursor.getString(titleIndex)
-                Napier.e("Series matching name: $title")
+                val title = seriesCursor.getStringOrNull(titleIndex)
+                val href = seriesCursor.getString(hrefIndex)
+
+                series.add(
+                    Series(
+                        title = title ?: href,
+                        href = href
+                    )
+                )
 
                 seriesCursor.moveToNext()
             }
         }
 
         seriesCursor.close()
-        return
+        return series
     }
 
     actual fun close() {

@@ -10,8 +10,10 @@ import coil3.svg.SvgDecoder
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.http.HttpRequest
 import com.apollographql.apollo3.api.http.HttpResponse
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.api.NormalizedCacheFactory
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.apollographql.apollo3.network.http.HttpInterceptor
 import com.apollographql.apollo3.network.http.HttpInterceptorChain
@@ -29,10 +31,12 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import dev.datlag.aniflow.common.nullableFirebaseInstance
 import dev.datlag.aniflow.model.safeFirstOrNull
+import dev.datlag.aniflow.nekos.Nekos
+import dev.datlag.aniflow.nekos.NekosRepository
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.trace.Trace
-import dev.datlag.aniflow.trace.TraceStateMachine
+import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.tooling.async.suspendCatching
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.map
@@ -85,6 +89,7 @@ data object NetworkModule {
                     }
                 })
                 .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
                 .build()
         }
         bindSingleton<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT) {
@@ -92,6 +97,7 @@ data object NetworkModule {
                 .dispatcher(ioDispatcher())
                 .serverUrl(Constants.AniList.SERVER_URL)
                 .normalizedCache(instance(Constants.AniList.CACHE_FACTORY))
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
                 .build()
         }
         bindSingleton<UserHelper> {
@@ -113,11 +119,11 @@ data object NetworkModule {
                 baseUrl("https://api.trace.moe/")
             }.create<Trace>()
         }
-        bindProvider<TraceStateMachine> {
-            TraceStateMachine(
-                trace = instance(),
-                crashlytics = nullableFirebaseInstance()?.crashlytics
-            )
+        bindSingleton<Nekos> {
+            val builder = instance<Ktorfit.Builder>()
+            builder.build {
+                baseUrl("https://api.nekosapi.com/v3/")
+            }.create<Nekos>()
         }
         bindSingleton<TrendingRepository> {
             val appSettings = instance<Settings.PlatformAppSettings>()
@@ -154,20 +160,32 @@ data object NetworkModule {
             PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
+                nsfw = appSettings.adultContent
             )
         }
         bindSingleton<CharacterRepository> {
             CharacterRepository(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
             )
         }
         bindSingleton<MediumRepository> {
             MediumRepository(
-                client = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT)
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build()
+            )
+        }
+        bindSingleton<TraceRepository> {
+            TraceRepository(
+                trace = instance(),
+            )
+        }
+        bindSingleton<NekosRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            NekosRepository(
+                nekos = instance(),
+                nsfw = appSettings.adultContent
             )
         }
     }

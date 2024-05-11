@@ -3,9 +3,12 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.component
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -68,20 +71,20 @@ fun DescriptionSection(
                 animationSpec = tween()
             )
 
-            Text(
-                modifier = Modifier.padding(horizontal = 16.dp).onClick {
-                    descriptionExpanded = !descriptionExpanded
-                },
-                text = (translatedDescription ?: description)!!.htmlToAnnotatedString(),
-                maxLines = max(animatedLines, 1),
-                softWrap = true,
-                overflow = TextOverflow.Ellipsis,
-                onTextLayout = { result ->
-                    if (!descriptionExpanded) {
-                        descriptionExpandable = result.hasVisualOverflow
+            SelectionContainer {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = (translatedDescription ?: description)!!.htmlToAnnotatedString(),
+                    maxLines = max(animatedLines, 1),
+                    softWrap = true,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { result ->
+                        if (!descriptionExpanded) {
+                            descriptionExpandable = result.hasVisualOverflow
+                        }
                     }
-                }
-            )
+                )
+            }
             if (descriptionExpandable) {
                 IconButton(
                     modifier = Modifier.fillMaxWidth(),
@@ -90,9 +93,9 @@ fun DescriptionSection(
                     }
                 ) {
                     val icon = if (descriptionExpanded) {
-                        Icons.Default.ExpandLess
+                        Icons.Rounded.ExpandLess
                     } else {
-                        Icons.Default.ExpandMore
+                        Icons.Rounded.ExpandMore
                     }
 
                     Icon(
