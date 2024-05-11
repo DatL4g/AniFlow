@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <plural name="episodes">
+        <item quantity="one">%d Folge</item>
+        <item quantity="other">%d Folgen</item>
+    </plural>
+    <plural name="chapters">
+        <item quantity="one">%d Kapitel</item>
+        <item quantity="other">%d Kapitel</item>
+    </plural>
+    <plural name="volumes">
+        <item quantity="one">%d Band</item>
+        <item quantity="other">%d Bände</item>
+    </plural>
+</resources>
