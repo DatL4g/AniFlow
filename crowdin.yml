@@ -1,14 +1,16 @@
+base_path: composeApp/src/commonMain/moko-resources
+preserve_hierarchy: true
 files:
-  - source: composeApp/src/commonMain/moko-resources/base/strings.xml
-    translation: composeApp/src/commonMain/moko-resources/%locale%/strings.xml
+  - source: /base/strings.xml
+    translation: /%locale%/strings.xml
     update_option: update_as_unapproved
     ignore:
-      - composeApp/src/commonMain/moko-resources/images/
-      - composeApp/src/commonMain/moko-resources/fonts/
+      - /images/
+      - /fonts/
 
-  - source: composeApp/src/commonMain/moko-resources/base/plurals.xml
-    translation: composeApp/src/commonMain/moko-resources/%locale%/plurals.xml
+  - source: /base/plurals.xml
+    translation: /%locale%/plurals.xml
     update_option: update_as_unapproved
     ignore:
-      - composeApp/src/commonMain/moko-resources/images/
-      - composeApp/src/commonMain/moko-resources/fonts/
+      - /images/
+      - /fonts/
