@@ -1,8 +1,8 @@
 files:
   - source: /composeApp/src/commonMain/moko-resources/base/*.xml
+    translation: /composeApp/src/commonMain/moko-resources/%locale%/%original_file_name%
     ignore:
       - /composeApp/src/commonMain/moko-resources/fonts/
       - /composeApp/src/commonMain/moko-resources/images/
-    translation: /composeApp/src/commonMain/moko-resources/%locale%/%original_file_name%
     translate_attributes: 0
     content_segmentation: 0
