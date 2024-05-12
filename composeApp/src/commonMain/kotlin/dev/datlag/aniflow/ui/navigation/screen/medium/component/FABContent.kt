@@ -85,6 +85,7 @@ fun FABContent(
                 RatingDialog(
                     state = ratingState,
                     initialValue = rating,
+                    type = type,
                     onRating = {
                         component.rate(it)
                     }

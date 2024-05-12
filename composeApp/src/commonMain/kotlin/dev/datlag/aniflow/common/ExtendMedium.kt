@@ -180,3 +180,8 @@ fun MediaListStatus.stringRes(isManga: Boolean) = when (this) {
 }
 
 fun MediaListStatus.stringRes(type: MediaType) = this.stringRes(type == MediaType.MANGA)
+
+fun MediaType.stringRes() = when (this) {
+    MediaType.MANGA -> SharedRes.strings.manga
+    else -> SharedRes.strings.anime
+}

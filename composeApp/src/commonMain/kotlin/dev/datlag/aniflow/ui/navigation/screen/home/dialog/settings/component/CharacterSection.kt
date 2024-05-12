@@ -17,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
 import com.maxkeppeler.sheets.option.models.DisplayMode
@@ -56,6 +58,10 @@ fun CharacterSection(
         ),
         config = OptionConfig(
             mode = DisplayMode.LIST,
+        ),
+        header = Header.Default(
+            icon = IconSource(imageVector = Icons.Filled.PersonPin),
+            title = stringResource(SharedRes.strings.char_language)
         )
     )
 

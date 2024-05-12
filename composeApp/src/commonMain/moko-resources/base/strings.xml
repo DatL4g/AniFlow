@@ -84,4 +84,8 @@
     <string name="polar">Polar</string>
     <string name="patreon">Patreon</string>
     <string name="sponsor">Sponsor</string>
+    <string name="rating">Rating</string>
+    <string name="rating_text">Rate this %s between 0-5</string>
+    <string name="anime">Anime</string>
+    <string name="manga">Manga</string>
 </resources>

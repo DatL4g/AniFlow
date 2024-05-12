@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
@@ -79,6 +80,13 @@ fun ColorSection(
         config = OptionConfig(
             mode = DisplayMode.GRID_VERTICAL,
             gridColumns = 4
+        ),
+        header = Header.Default(
+            icon = IconSource(
+                imageVector = Icons.Filled.Circle,
+                tint = MaterialTheme.colorScheme.primary
+            ),
+            title = stringResource(SharedRes.strings.profile_color)
         )
     )
 

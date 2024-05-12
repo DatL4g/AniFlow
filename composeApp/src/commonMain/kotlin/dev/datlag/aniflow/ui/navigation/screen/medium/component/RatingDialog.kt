@@ -10,6 +10,10 @@ import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeler.sheets.rating.models.RatingBody
 import com.maxkeppeler.sheets.rating.models.RatingConfig
 import com.maxkeppeler.sheets.rating.models.RatingSelection
+import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.common.stringRes
+import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -17,6 +21,7 @@ import io.github.aakira.napier.Napier
 fun RatingDialog(
     state: UseCaseState,
     initialValue: Int,
+    type: MediaType,
     onRating: (Int) -> Unit,
 ) {
     com.maxkeppeler.sheets.rating.RatingDialog(
@@ -31,10 +36,12 @@ fun RatingDialog(
                 onRating(rating)
             }
         ),
-        body = RatingBody.Custom(body = { }),
+        body = RatingBody.Default(
+            bodyText = stringResource(SharedRes.strings.rating_text, stringResource(type.stringRes()))
+        ),
         header = Header.Default(
             icon = IconSource(imageVector = Icons.Rounded.Star),
-            title = "Rating"
+            title = stringResource(SharedRes.strings.rating)
         )
     )
 }
