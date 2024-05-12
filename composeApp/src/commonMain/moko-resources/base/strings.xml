@@ -80,4 +80,8 @@
     <string name="developed_by_datlag">Developed by DatLag</string>
     <string name="profile_color">Profile Color</string>
     <string name="login_markdown">Login with [AniList](%s)</string>
+    <string name="github">GitHub</string>
+    <string name="polar">Polar</string>
+    <string name="patreon">Patreon</string>
+    <string name="sponsor">Sponsor</string>
 </resources>

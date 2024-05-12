@@ -136,84 +136,19 @@ fun SettingsScreen(component: SettingsComponent) {
                 }
             }
             item {
-                val uriHandler = LocalUriHandler.current
-
-                Row(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .defaultMinSize(minHeight = ButtonDefaults.MinHeight)
-                        .clip(MaterialTheme.shapes.small)
-                        .onClick {
-                            uriHandler.openUri(Constants.GITHUB_REPO)
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Image(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(SharedRes.images.github),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(LocalContentColor.current)
-                    )
-                    Text(text = stringResource(SharedRes.strings.github_repository))
-                }
+                GitHubRepoSection(modifier = Modifier.fillParentMaxWidth())
             }
             item {
-                val uriHandler = LocalUriHandler.current
-
-                Row(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .defaultMinSize(minHeight = ButtonDefaults.MinHeight)
-                        .clip(MaterialTheme.shapes.medium)
-                        .onClick {
-                            uriHandler.openUri(Constants.GITHUB_OWNER)
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Code,
-                        contentDescription = null,
-                    )
-                    Text(text = stringResource(SharedRes.strings.developed_by_datlag))
-                }
+                GitHubOwnerSection(modifier = Modifier.fillParentMaxWidth())
             }
             item {
-                var clicked by remember { mutableStateOf(0) }
-
-                Row(
-                    modifier = Modifier
-                        .fillParentMaxWidth()
-                        .defaultMinSize(minHeight = ButtonDefaults.MinHeight)
-                        .clip(MaterialTheme.shapes.medium)
-                        .onClick {
-                            if (clicked >= 99) {
-                                component.nekos()
-                            } else {
-                                clicked++
-                            }
-                        },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Image(
-                        modifier = Modifier.size(24.dp),
-                        painter = painterResource(SharedRes.images.cat_filled),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(LocalContentColor.current)
-                    )
-                    Text(text = stringResource(SharedRes.strings.nekos_api))
-                    AnimatedVisibility(
-                        visible = clicked >= 1,
-                    ) {
-                        Badge(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                        ) {
-                            Text(text = "$clicked")
-                        }
-                    }
-                }
+                NekosSection(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    onClick = component::nekos
+                )
+            }
+            item {
+                SponsorSection(modifier = Modifier.fillParentMaxWidth())
             }
         }
     }
