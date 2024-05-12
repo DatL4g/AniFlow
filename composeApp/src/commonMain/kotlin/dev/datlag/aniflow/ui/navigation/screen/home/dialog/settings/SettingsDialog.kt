@@ -155,7 +155,7 @@ fun SettingsScreen(component: SettingsComponent) {
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(LocalContentColor.current)
                     )
-                    Text(text = "GitHub Repository")
+                    Text(text = stringResource(SharedRes.strings.github_repository))
                 }
             }
             item {
@@ -176,7 +176,7 @@ fun SettingsScreen(component: SettingsComponent) {
                         imageVector = Icons.Rounded.Code,
                         contentDescription = null,
                     )
-                    Text(text = "Developed by DatLag")
+                    Text(text = stringResource(SharedRes.strings.developed_by_datlag))
                 }
             }
             item {

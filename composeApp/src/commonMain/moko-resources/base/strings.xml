@@ -76,4 +76,8 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="open_links">Open Links</string>
+    <string name="github_repository">GitHub Repository</string>
+    <string name="developed_by_datlag">Developed by DatLag</string>
+    <string name="profile_color">Profile Color</string>
+    <string name="login_markdown">Login with [AniList](%s)</string>
 </resources>

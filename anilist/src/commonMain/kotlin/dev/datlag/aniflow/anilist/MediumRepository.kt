@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.anilist
 
+import com.apollographql.apollo3.ApolloCall
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
@@ -54,6 +55,15 @@ class MediumRepository(
 
     fun load(id: Int) = this.id.update { id }
 
+    fun updateRatingCall(value: Int): ApolloCall<RatingMutation.Data> {
+        val mutation = RatingMutation(
+            mediaId = Optional.present(id.value),
+            rating = Optional.present(value)
+        )
+
+        return client.mutation(mutation)
+    }
+
     private data class Query(
         val id: Int,
     ) {
@@ -65,6 +75,7 @@ class MediumRepository(
     }
 
     sealed interface State {
+        data object None : State
         data class Success(val medium: Medium) : State
         data object Error : State
 

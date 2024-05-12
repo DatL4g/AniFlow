@@ -5,6 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
@@ -21,6 +23,7 @@ import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.AppSettings
@@ -34,6 +37,7 @@ import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
@@ -61,7 +65,11 @@ class MediumScreenComponent(
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     private val mediumRepository by di.instance<MediumRepository>()
-    override val mediumState = mediumRepository.medium
+    override val mediumState = mediumRepository.medium.stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = MediumRepository.State.None
+    )
 
     private val mediumSuccessState = mediumState.mapNotNull {
         it.safeCast<MediumRepository.State.Success>()
@@ -143,20 +151,13 @@ class MediumScreenComponent(
         it.medium.characters
     }.mapNotEmpty()
 
-    private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val rating: Flow<Int> = combine(
-        mediumSuccessState.mapLatest {
-            it.medium.entry?.score?.toInt()
-        },
-        changedRating
-    ) { t1, t2 ->
-        if (t2 > -1) {
-            t2
-        } else {
-            t1 ?: t2
-        }
-    }
+    override val rating: MutableStateFlow<Int> = mediumSuccessState.mapNotNull {
+        it.medium.entry?.score?.toInt()
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.score?.toInt() ?: -1
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.mapLatest {
@@ -198,6 +199,20 @@ class MediumScreenComponent(
         it.medium.volumes
     }
 
+    private val burningSeriesResolver by instance<BurningSeriesResolver>()
+
+    override val bsAvailable: Boolean
+        get() = burningSeriesResolver.isAvailable
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val bsOptions = title.mapLatest {
+        burningSeriesResolver.resolveByName(it.english, it.romaji)
+    }.flowOn(ioDispatcher()).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = emptySet()
+    )
+
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
         source = dialogNavigation,
@@ -213,8 +228,7 @@ class MediumScreenComponent(
             is DialogConfig.Edit -> EditDialogComponent(
                 componentContext = context,
                 di = di,
-                titleFlow = title,
-                onDismiss = dialogNavigation::dismiss
+                onDismiss = dialogNavigation::dismiss,
             )
         }
     }
@@ -240,41 +254,17 @@ class MediumScreenComponent(
         onBack()
     }
 
-    private suspend fun requestMediaListEntry() {
-        val query = MediaListEntryQuery(
-            id = Optional.present(initialMedium.id)
-        )
-        val execution = CatchResult.timeout(5.seconds) {
-            aniListClient.query(query).execute()
-        }.asNullableSuccess()
-
-        execution?.data?.MediaList?.let { entry ->
-            changedRating.update { entry.score?.toInt() ?: it }
-        }
-    }
-
-    override fun rate(onLoggedIn: () -> Unit) {
-        launchIO {
-            val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
-            if (currentRating <= -1) {
-                requestMediaListEntry()
-            }
-
-            withMainContext {
-                onLoggedIn()
-            }
-        }
-    }
-
     override fun rate(value: Int) {
-        val mutation = RatingMutation(
-            mediaId = Optional.present(initialMedium.id),
-            rating = Optional.present(value * 20)
-        )
-        launchIO {
-            aniListClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
-                changedRating.emit(it.toInt())
+        val newRating = mediumRepository
+            .updateRatingCall(value * 20)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .toFlow()
+            .mapNotNull {
+                it.data?.SaveMediaListEntry?.score?.toInt()
             }
+
+        launchIO {
+            rating.emitAll(newRating)
         }
     }
 

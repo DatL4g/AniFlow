@@ -21,6 +21,7 @@ import com.maxkeppeler.sheets.option.models.DisplayMode
 import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.toComposeColor
 import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.other.StateSaver
@@ -91,7 +92,7 @@ fun ColorSection(
             contentDescription = null,
         )
         Text(
-            text = "Profile Color"
+            text = stringResource(SharedRes.strings.profile_color)
         )
         Spacer(modifier = Modifier.weight(1F))
         IconButton(

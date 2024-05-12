@@ -61,11 +61,13 @@ interface MediumComponent : ContentHolderComponent {
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 
+    val bsAvailable: Boolean
+    val bsOptions: Flow<Collection<Series>>
+
     fun back()
     override fun dismissContent() {
         back()
     }
-    fun rate(onLoggedIn: () -> Unit)
     fun rate(value: Int)
     fun descriptionTranslation(text: String?)
     fun showCharacter(character: Character)

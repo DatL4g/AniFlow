@@ -6,6 +6,4 @@ import kotlinx.coroutines.flow.Flow
 
 interface EditComponent : DialogComponent {
 
-    val bsAvailable: Boolean
-    val bsOptions: Flow<Collection<Series>>
 }
