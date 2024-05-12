@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explizit</string>
+    <string name="explicit">Explicit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -84,4 +84,8 @@
     <string name="polar">Polar</string>
     <string name="patreon">Patreon</string>
     <string name="sponsor">Sponsor</string>
+    <string name="rating">Rating</string>
+    <string name="rating_text">Rate this %s between 0-5</string>
+    <string name="anime">Anime</string>
+    <string name="manga">Manga</string>
 </resources>
