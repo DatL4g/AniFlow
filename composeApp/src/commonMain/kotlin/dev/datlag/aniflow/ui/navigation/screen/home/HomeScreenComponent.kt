@@ -25,11 +25,9 @@ import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
+import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -61,7 +59,9 @@ class HomeScreenComponent(
     private val airingTodayRepository by instance<AiringTodayRepository>()
     override val airing: Flow<AiringTodayRepository.State> = airingTodayRepository.airing.map {
         StateSaver.Home.updateAiring(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = AiringTodayRepository.State.None
@@ -70,7 +70,9 @@ class HomeScreenComponent(
     private val trendingRepository by instance<TrendingRepository>()
     override val trending: Flow<CollectionState> = trendingRepository.trending.map {
         StateSaver.Home.updateTrending(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
@@ -79,7 +81,9 @@ class HomeScreenComponent(
     private val popularSeasonRepository by instance<PopularSeasonRepository>()
     override val popularNow: Flow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
         StateSaver.Home.updatePopularCurrent(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
@@ -88,14 +92,16 @@ class HomeScreenComponent(
     private val popularNextSeasonRepository by instance<PopularNextSeasonRepository>()
     override val popularNext: Flow<CollectionState> = popularNextSeasonRepository.popularNextSeason.map {
         StateSaver.Home.updatePopularNext(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
     private val traceRepository by instance<TraceRepository>()
-    override val traceState: Flow<TraceRepository.State> = traceRepository.response
+    override val traceState: Flow<TraceRepository.State> = traceRepository.response.flowOn(context = ioDispatcher())
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(

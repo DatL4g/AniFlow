@@ -65,7 +65,9 @@ class MediumScreenComponent(
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     private val mediumRepository by di.instance<MediumRepository>()
-    override val mediumState = mediumRepository.medium.stateIn(
+    override val mediumState = mediumRepository.medium.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = MediumRepository.State.None
