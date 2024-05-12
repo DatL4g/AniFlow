@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explizit</string>
+    <string name="explicit">Explicit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -76,4 +76,8 @@
     <string name="login">Einloggen</string>
     <string name="logout">Ausloggen</string>
     <string name="open_links">Links öffnen</string>
+    <string name="github_repository">GitHub Repository</string>
+    <string name="developed_by_datlag">Developed by DatLag</string>
+    <string name="profile_color">Profile Color</string>
+    <string name="login_markdown">Login with [AniList](%s)</string>
 </resources>
