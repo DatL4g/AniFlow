@@ -167,12 +167,14 @@ data object NetworkModule {
             CharacterRepository(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
                 fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                isLoggedIn = instance<UserHelper>().isLoggedIn
             )
         }
         bindSingleton<MediumRepository> {
             MediumRepository(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
-                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build()
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                isLoggedIn = instance<UserHelper>().isLoggedIn
             )
         }
         bindSingleton<TraceRepository> {

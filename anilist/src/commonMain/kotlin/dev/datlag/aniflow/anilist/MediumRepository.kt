@@ -8,12 +8,16 @@ import kotlinx.coroutines.flow.*
 
 class MediumRepository(
     private val client: ApolloClient,
-    private val fallbackClient: ApolloClient
+    private val fallbackClient: ApolloClient,
+    private val isLoggedIn: Flow<Boolean>
 ) {
 
     private val id = MutableStateFlow<Int?>(null)
-    private val query = id.filterNotNull().map {
-        Query(it)
+    private val query = combine(
+        id.filterNotNull(),
+        isLoggedIn.distinctUntilChanged()
+    ) { t1, _ ->
+        Query(t1)
     }
     private val fallbackQuery = query.transform {
         return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
