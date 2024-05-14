@@ -23,6 +23,7 @@ import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.CharLanguage
@@ -198,13 +199,27 @@ class MediumScreenComponent(
         get() = burningSeriesResolver.isAvailable
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val bsOptions = title.mapLatest {
+    private val bsDefaultOptions = title.mapLatest {
         burningSeriesResolver.resolveByName(it.english, it.romaji)
     }.flowOn(ioDispatcher()).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
         initialValue = emptySet()
     )
+
+    private val bsSearch = MutableStateFlow<String?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val bsSearchOptions = bsSearch.mapLatest {
+        it?.ifBlank { null }?.let(burningSeriesResolver::resolveByName).orEmpty()
+    }.flowOn(ioDispatcher())
+
+    override val bsOptions: Flow<Collection<Series>> = combine(
+        bsSearchOptions,
+        bsDefaultOptions
+    ) { search, default ->
+        search.ifEmpty { default }
+    }
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -308,5 +323,9 @@ class MediumScreenComponent(
 
     override fun edit() {
         dialogNavigation.activate(DialogConfig.Edit)
+    }
+
+    override suspend fun searchBS(value: String) {
+        bsSearch.update { value }
     }
 }

@@ -1,19 +1,18 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium.component
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.*
 import com.maxkeppeler.sheets.option.models.DisplayMode
-import com.maxkeppeler.sheets.option.models.Option
-import com.maxkeppeler.sheets.option.models.OptionConfig
-import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.other.Series
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -25,7 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun BSDialog(
     state: UseCaseState,
-    bsOptions: Collection<Series>
+    bsOptions: Collection<Series>,
+    onSearch: suspend (String) -> Unit
 ) {
     OptionDialog(
         state = state,
@@ -48,6 +48,23 @@ fun BSDialog(
                 tint = LocalContentColor.current
             ),
             title = stringResource(SharedRes.strings.bs)
-        )
+        ),
+        body = OptionBody.Custom {
+            var value by remember { mutableStateOf("") }
+
+            LaunchedEffect(value) {
+                onSearch(value)
+            }
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                value = value,
+                onValueChange = { value = it },
+                placeholder = {
+                    Text(text = "Search")
+                },
+                shape = MaterialTheme.shapes.medium
+            )
+        }
     )
 }

@@ -86,8 +86,8 @@ actual class BurningSeriesResolver(
     }
 
     actual fun resolveByName(english: String?, romaji: String?): Set<Series> {
-        val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")
-        val romajiTrimmed = romaji?.trim()?.ifBlank { null }?.replace("'", "")
+        val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")?.trim()
+        val romajiTrimmed = romaji?.trim()?.ifBlank { null }?.replace("'", "")?.trim()
 
         if (seriesClient == null || (englishTrimmed == null && romajiTrimmed == null)) {
             return emptySet()
@@ -100,6 +100,25 @@ actual class BurningSeriesResolver(
         } else {
             "title LIKE '%$romajiTrimmed%'"
         }
+
+        return seriesBySelection(selection)
+    }
+
+    actual fun resolveByName(value: String): Set<Series> {
+        val trimmed = value.trim().replace("'", "").trim()
+
+        return if (trimmed.length >= 3) {
+            seriesBySelection("title LIKE '%$trimmed%'")
+        } else {
+            emptySet()
+        }
+    }
+
+    private fun seriesBySelection(selection: String): Set<Series> {
+        if (seriesClient == null) {
+            return emptySet()
+        }
+
         val seriesCursor = seriesClient.query(
             seriesContentUri,
             null,

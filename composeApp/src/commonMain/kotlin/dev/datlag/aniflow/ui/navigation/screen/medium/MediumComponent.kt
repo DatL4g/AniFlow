@@ -73,4 +73,6 @@ interface MediumComponent : ContentHolderComponent {
     fun showCharacter(character: Character)
     fun toggleFavorite()
     fun edit()
+
+    suspend fun searchBS(value: String)
 }

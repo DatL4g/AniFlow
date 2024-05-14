@@ -80,6 +80,7 @@ fun FABContent(
                 BSDialog(
                     state = bsState,
                     bsOptions = bsOptions,
+                    onSearch = component::searchBS
                 )
 
                 RatingDialog(
