@@ -4,6 +4,7 @@ import com.apollographql.apollo3.ApolloCall
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import kotlinx.coroutines.flow.*
 
 class MediumRepository(
@@ -63,6 +64,29 @@ class MediumRepository(
         val mutation = RatingMutation(
             mediaId = Optional.present(id.value),
             rating = Optional.present(value)
+        )
+
+        return client.mutation(mutation)
+    }
+
+    fun updateEditCall(progress: Int, status: MediaListStatus, repeat: Int): ApolloCall<EditMutation.Data> {
+        val mutation = EditMutation(
+            mediaId = Optional.present(id.value),
+            progress = if (progress >= 1) {
+                Optional.present(progress)
+            } else {
+                Optional.absent()
+            },
+            status = if (status != MediaListStatus.UNKNOWN__) {
+                Optional.present(status)
+            } else {
+                Optional.absent()
+            },
+            repeat = if (repeat >= 1) {
+                Optional.present(repeat)
+            } else {
+                Optional.absent()
+            }
         )
 
         return client.mutation(mutation)

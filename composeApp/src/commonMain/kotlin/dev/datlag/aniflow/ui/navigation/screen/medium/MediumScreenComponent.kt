@@ -249,6 +249,19 @@ class MediumScreenComponent(
                     it.medium.startDate
                 },
                 onDismiss = dialogNavigation::dismiss,
+                onSave = { status, progress, repeat ->
+                    dialogNavigation.dismiss {
+                        val call = mediumRepository.updateEditCall(
+                            status = status,
+                            progress = progress,
+                            repeat = repeat
+                        ).fetchPolicy(FetchPolicy.NetworkOnly)
+
+                        launchIO {
+                            call.execute()
+                        }
+                    }
+                }
             )
         }
     }

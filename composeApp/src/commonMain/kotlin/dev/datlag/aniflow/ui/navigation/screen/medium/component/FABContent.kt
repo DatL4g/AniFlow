@@ -19,6 +19,7 @@ import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.mapCollect
@@ -111,7 +112,7 @@ fun FABContent(
                                 ratingState.show()
                             }
                         ),
-                        if (bsAvailable && bsOptions.isNotEmpty()) {
+                        if (bsAvailable && type == MediaType.ANIME) {
                             FABItem(
                                 painter = painterResource(SharedRes.images.bs),
                                 label = stringResource(SharedRes.strings.bs),

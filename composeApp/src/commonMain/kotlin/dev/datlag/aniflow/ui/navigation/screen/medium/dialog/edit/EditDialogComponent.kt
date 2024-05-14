@@ -1,11 +1,13 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit
 
 import androidx.compose.runtime.Composable
+import com.apollographql.apollo3.ApolloClient
 import com.arkivanov.decompose.ComponentContext
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.BurningSeriesResolver
+import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.Series
 import dev.datlag.tooling.compose.ioDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,10 +26,9 @@ class EditDialogComponent(
     override val listStatus: Flow<MediaListStatus>,
     override val repeatCount: Flow<Int?>,
     override val episodeStartDate: Flow<LocalDate?>,
-    private val onDismiss: () -> Unit
+    private val onDismiss: () -> Unit,
+    private val onSave: (MediaListStatus, Int, Int) -> Unit
 ) : EditComponent, ComponentContext by componentContext {
-
-
 
     @Composable
     override fun render() {
@@ -38,5 +39,13 @@ class EditDialogComponent(
 
     override fun dismiss() {
         onDismiss()
+    }
+
+    override fun save(editState: EditState) {
+        val status = editState.listStatus.value
+        val progress = editState.episode.value
+        val repeat = editState.repeat.value
+
+        onSave(status, progress, repeat)
     }
 }

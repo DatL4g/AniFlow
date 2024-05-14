@@ -58,7 +58,14 @@ fun EditDialog(component: EditComponent) {
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = bottomPadding.merge(PaddingValues(16.dp)),
+            contentPadding = bottomPadding.merge(
+                PaddingValues(
+                    top = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 48.dp
+                )
+            ),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
@@ -66,7 +73,9 @@ fun EditDialog(component: EditComponent) {
                     state = sheetState,
                     modifier = Modifier.fillParentMaxWidth(),
                     onBack = component::dismiss,
-                    onSave = { }
+                    onSave = {
+                        component.save(editState)
+                    }
                 )
             }
             item {

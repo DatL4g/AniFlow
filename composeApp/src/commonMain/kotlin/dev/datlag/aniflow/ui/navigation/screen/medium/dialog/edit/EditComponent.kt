@@ -11,4 +11,6 @@ interface EditComponent : DialogComponent {
     val listStatus: Flow<MediaListStatus>
     val repeatCount: Flow<Int?>
     val episodeStartDate: Flow<LocalDate?>
+
+    fun save(editState: EditState)
 }
