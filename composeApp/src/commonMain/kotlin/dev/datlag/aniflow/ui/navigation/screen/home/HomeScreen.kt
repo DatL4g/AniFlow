@@ -52,8 +52,11 @@ import dev.datlag.aniflow.ui.navigation.screen.home.component.ScheduleOverview
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.mapNotNull
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun HomeScreen(component: HomeComponent) {
     val appBarState = rememberTopAppBarState()
@@ -167,6 +170,7 @@ fun HomeScreen(component: HomeComponent) {
             HidingNavigationBar(
                 visible = listState.isScrollingUp() && listState.canScrollForward,
                 selected = NavigationBarState.Home,
+                loggedIn = component.user.mapLatest { it != null },
                 onDiscover = component::viewDiscover,
                 onHome = { },
                 onFavorites = component::viewFavorites

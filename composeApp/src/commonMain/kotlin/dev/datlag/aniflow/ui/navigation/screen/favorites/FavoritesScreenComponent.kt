@@ -7,7 +7,11 @@ import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.tooling.compose.withMainContext
+import kotlinx.coroutines.flow.collectLatest
 import org.kodein.di.DI
+import org.kodein.di.instance
 
 class FavoritesScreenComponent(
     componentContext: ComponentContext,
@@ -15,6 +19,9 @@ class FavoritesScreenComponent(
     private val onDiscover: () -> Unit,
     private val onHome: () -> Unit,
 ) : FavoritesComponent, ComponentContext by componentContext {
+
+    private val userHelper by instance<UserHelper>()
+    val user = userHelper.user
 
     @Composable
     override fun render() {

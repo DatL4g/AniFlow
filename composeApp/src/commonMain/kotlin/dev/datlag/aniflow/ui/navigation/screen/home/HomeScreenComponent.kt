@@ -18,6 +18,7 @@ import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
+import dev.datlag.aniflow.model.mutableStateIn
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
@@ -68,24 +69,22 @@ class HomeScreenComponent(
     )
 
     private val trendingRepository by instance<TrendingRepository>()
-    override val trending: Flow<CollectionState> = trendingRepository.trending.map {
+    override val trending: MutableStateFlow<CollectionState> = trendingRepository.trending.map {
         StateSaver.Home.updateTrending(it)
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
+    ).mutableStateIn(
         scope = stateScope,
-        started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
     private val popularSeasonRepository by instance<PopularSeasonRepository>()
-    override val popularNow: Flow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
+    override val popularNow: MutableStateFlow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
         StateSaver.Home.updatePopularCurrent(it)
     }.flowOn(
         context = ioDispatcher()
-    ).stateIn(
+    ).mutableStateIn(
         scope = stateScope,
-        started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
@@ -143,6 +142,8 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
+                clearForTypeChange()
+
                 appSettings.setViewManga(false)
             }
         }
@@ -152,6 +153,8 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
+                clearForTypeChange()
+
                 appSettings.setViewManga(true)
             }
         }
@@ -175,5 +178,10 @@ class HomeScreenComponent(
 
     override fun clearTrace() {
         traceRepository.clear()
+    }
+
+    private suspend fun clearForTypeChange() {
+        trending.emit(CollectionState.None)
+        popularNow.emit(CollectionState.None)
     }
 }

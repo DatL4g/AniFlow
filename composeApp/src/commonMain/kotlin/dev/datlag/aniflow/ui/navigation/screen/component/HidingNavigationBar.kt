@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +30,12 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.isScrollingUp
+import dev.datlag.aniflow.other.MaterialSymbols
 import dev.datlag.aniflow.ui.navigation.RootConfig
+import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -40,6 +44,7 @@ import kotlinx.serialization.Transient
 fun HidingNavigationBar(
     visible: Boolean,
     selected: NavigationBarState,
+    loggedIn: Flow<Boolean>,
     onDiscover: () -> Unit,
     onHome: () -> Unit,
     onFavorites: () -> Unit
@@ -82,6 +87,7 @@ fun HidingNavigationBar(
             val isFavorites = remember(selected) {
                 selected is NavigationBarState.Favorite
             }
+            val isLoggedIn by loggedIn.collectAsStateWithLifecycle(false)
 
             NavigationBarItem(
                 onClick = {
@@ -124,6 +130,7 @@ fun HidingNavigationBar(
                     }
                 },
                 selected = isFavorites,
+                enabled = isLoggedIn,
                 icon = {
                     Icon(
                         imageVector = selected.favoriteIcon,
@@ -131,7 +138,7 @@ fun HidingNavigationBar(
                     )
                 },
                 label = {
-                    Text(text = stringResource(SharedRes.strings.favorites))
+                    Text(text = "List")
                 }
             )
         }
@@ -174,18 +181,15 @@ sealed interface NavigationBarState {
     @Serializable
     data object Home : NavigationBarState {
         override val unselectedIcon: ImageVector
-            get() = Icons.Outlined.Home
+            get() = MaterialSymbols.Rounded.Home
 
         override val selectedIcon: ImageVector
-            get() = Icons.Rounded.Home
+            get() = MaterialSymbols.Filled.Home
     }
 
     @Serializable
     data object Favorite : NavigationBarState {
         override val unselectedIcon: ImageVector
-            get() = Icons.Rounded.FavoriteBorder
-
-        override val selectedIcon: ImageVector
-            get() = Icons.Rounded.Favorite
+            get() = Icons.Rounded.Checklist
     }
 }
