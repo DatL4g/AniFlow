@@ -326,13 +326,11 @@ class MediumScreenComponent(
             }
 
         launchIO {
-            listStatus.emitAll(newData.mapNotNull { it.status })
-        }
-        launchIO {
-            watchProgress.emitAll(newData.mapNotNull { it.progress })
-        }
-        launchIO {
-            watchRepeat.emitAll(newData.mapNotNull { it.repeat })
+            newData.collect { data ->
+                data.status?.let { listStatus.emit(it) }
+                data.progress?.let { watchProgress.emit(it) }
+                data.repeat?.let { watchRepeat.emit(it) }
+            }
         }
     }
 
