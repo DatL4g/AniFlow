@@ -74,8 +74,7 @@ fun ScheduleOverview(
                             titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .height(150.dp)
-                                .fillParentMaxWidth(fraction = 0.9F)
-                                .animateItemPlacement(),
+                                .fillParentMaxWidth(fraction = 0.9F),
                             onClick = onMediumClick
                         )
                     }

@@ -23,28 +23,19 @@ import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
-import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.EditDialogComponent
-import dev.datlag.tooling.alsoTrue
-import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
-import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
-import kotlin.time.Duration.Companion.seconds
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 class MediumScreenComponent(
@@ -216,6 +207,7 @@ class MediumScreenComponent(
     )
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
         source = dialogNavigation,
         serializer = DialogConfig.serializer()
@@ -230,6 +222,17 @@ class MediumScreenComponent(
             is DialogConfig.Edit -> EditDialogComponent(
                 componentContext = context,
                 di = di,
+                episodes = episodes,
+                progress = mediumSuccessState.mapLatest {
+                    it.medium.entry?.progress
+                },
+                listStatus = listStatus,
+                repeatCount = mediumSuccessState.mapLatest {
+                    it.medium.entry?.repeatCount
+                },
+                episodeStartDate = mediumSuccessState.mapLatest {
+                    it.medium.startDate
+                },
                 onDismiss = dialogNavigation::dismiss,
             )
         }

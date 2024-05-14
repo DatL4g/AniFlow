@@ -160,7 +160,7 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
 }
 
 fun MediaListStatus.icon() = when (this) {
-    MediaListStatus.CURRENT -> Icons.Rounded.Edit
+    MediaListStatus.CURRENT -> Icons.Rounded.PlayArrow
     MediaListStatus.COMPLETED -> Icons.Rounded.Check
     MediaListStatus.PAUSED -> Icons.Rounded.Pause
     MediaListStatus.DROPPED -> Icons.Rounded.Close

@@ -65,8 +65,7 @@ fun DefaultOverview(
                             titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .width(200.dp)
-                                .height(280.dp)
-                                .animateItemPlacement(),
+                                .height(280.dp),
                             onClick = onMediumClick,
                         )
                     }

@@ -115,6 +115,7 @@ kotlin {
 
             implementation("dev.datlag.sheets-compose-dialogs:rating:2.0.0-SNAPSHOT")
             implementation("dev.datlag.sheets-compose-dialogs:option:2.0.0-SNAPSHOT")
+            implementation("dev.datlag.sheets-compose-dialogs:calendar:2.0.0-SNAPSHOT")
 
             implementation(project(":firebase"))
             implementation(project(":anilist"))
