@@ -57,7 +57,7 @@ interface MediumComponent : ContentHolderComponent {
     val siteUrl: Flow<String>
 
     val type: Flow<MediaType>
-    val listStatus: Flow<MediaListStatus>
+    val listStatus: StateFlow<MediaListStatus>
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 

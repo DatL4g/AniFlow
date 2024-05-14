@@ -179,9 +179,12 @@ class MediumScreenComponent(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val listStatus: Flow<MediaListStatus> = mediumSuccessState.mapLatest {
+    override val listStatus: MutableStateFlow<MediaListStatus> = mediumSuccessState.mapLatest {
         it.medium.entry?.status ?: MediaListStatus.UNKNOWN__
-    }
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val chapters: Flow<Int> = mediumSuccessState.mapLatest {
@@ -221,6 +224,22 @@ class MediumScreenComponent(
         search.ifEmpty { default }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val watchProgress = mediumSuccessState.mapLatest {
+        it.medium.entry?.progress
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.progress
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val watchRepeat = mediumSuccessState.mapLatest {
+        it.medium.entry?.repeatCount
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.repeatCount
+    )
+
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     @OptIn(ExperimentalCoroutinesApi::class)
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
@@ -238,28 +257,16 @@ class MediumScreenComponent(
                 componentContext = context,
                 di = di,
                 episodes = episodes,
-                progress = mediumSuccessState.mapLatest {
-                    it.medium.entry?.progress
-                },
+                progress = watchProgress,
                 listStatus = listStatus,
-                repeatCount = mediumSuccessState.mapLatest {
-                    it.medium.entry?.repeatCount
-                },
+                repeatCount = watchRepeat,
                 episodeStartDate = mediumSuccessState.mapLatest {
                     it.medium.startDate
                 },
                 onDismiss = dialogNavigation::dismiss,
                 onSave = { status, progress, repeat ->
                     dialogNavigation.dismiss {
-                        val call = mediumRepository.updateEditCall(
-                            status = status,
-                            progress = progress,
-                            repeat = repeat
-                        ).fetchPolicy(FetchPolicy.NetworkOnly)
-
-                        launchIO {
-                            call.execute()
-                        }
+                        editSave(status, progress, repeat)
                     }
                 }
             )
@@ -298,6 +305,34 @@ class MediumScreenComponent(
 
         launchIO {
             rating.emitAll(newRating)
+        }
+    }
+
+    private fun editSave(
+        state: MediaListStatus,
+        progress: Int,
+        repeat: Int,
+    ) {
+        val newData = mediumRepository
+            .updateEditCall(
+                status = state,
+                progress = progress,
+                repeat = repeat
+            )
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .toFlow()
+            .mapNotNull {
+                it.data?.SaveMediaListEntry
+            }
+
+        launchIO {
+            listStatus.emitAll(newData.mapNotNull { it.status })
+        }
+        launchIO {
+            watchProgress.emitAll(newData.mapNotNull { it.progress })
+        }
+        launchIO {
+            watchRepeat.emitAll(newData.mapNotNull { it.repeat })
         }
     }
 

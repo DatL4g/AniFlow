@@ -62,7 +62,7 @@ fun FABContent(
 
         if (!notReleased) {
             val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
-            val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
+            val status by component.listStatus.collectAsStateWithLifecycle()
             val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
             val uriHandler = LocalUriHandler.current
             val speedDialFABState = rememberSpeedDialState()

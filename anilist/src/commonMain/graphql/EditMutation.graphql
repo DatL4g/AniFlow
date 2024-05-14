@@ -12,6 +12,7 @@ mutation EditMutation(
     ) {
         progress,
         progressVolumes,
+        repeat,
         status,
         startedAt {
             year,

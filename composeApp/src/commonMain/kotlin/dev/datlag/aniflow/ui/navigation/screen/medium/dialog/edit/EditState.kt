@@ -112,7 +112,7 @@ class EditState(
                     MediaListStatus.CURRENT
                 }
             } else {
-                if (it == MediaListStatus.COMPLETED) {
+                if (it == MediaListStatus.COMPLETED || it == MediaListStatus.UNKNOWN__) {
                     MediaListStatus.CURRENT
                 } else {
                     it
