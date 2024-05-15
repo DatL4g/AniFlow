@@ -1,9 +1,6 @@
 package dev.datlag.aniflow.anilist.common
 
-import dev.datlag.aniflow.anilist.AiringQuery
-import dev.datlag.aniflow.anilist.MediumQuery
-import dev.datlag.aniflow.anilist.SeasonQuery
-import dev.datlag.aniflow.anilist.TrendingQuery
+import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.type.FuzzyDate
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import kotlinx.datetime.*
@@ -63,6 +60,14 @@ internal fun MediumQuery.StartDate.toLocalDate(): LocalDate? {
     )
 }
 
+internal fun ListQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
 internal fun AiringQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
@@ -88,6 +93,14 @@ internal fun MediumQuery.StartedAt.toLocalDate(): LocalDate? {
 }
 
 internal fun SeasonQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun ListQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,

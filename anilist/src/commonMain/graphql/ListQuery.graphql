@@ -1,0 +1,108 @@
+query ListQuery(
+    $type: MediaType,
+    $userId: Int,
+    $page: Int,
+    $html: Boolean,
+    $statusVersion: Int,
+    $sort: [MediaListSort]
+) {
+    Page(page: $page) {
+        pageInfo {
+            hasNextPage
+        },
+        mediaList(type: $type, userId: $userId, sort: $sort) {
+            status,
+            score(format: POINT_5),
+            progress,
+            progressVolumes,
+            repeat,
+            startedAt {
+                year,
+                month,
+                day
+            },
+            media {
+                id,
+                idMal,
+                type,
+                status(version: $statusVersion),
+                description(asHtml: $html),
+                episodes,
+                duration,
+                chapters,
+                countryOfOrigin,
+                popularity,
+                isFavourite,
+                isFavouriteBlocked,
+                isAdult,
+                format,
+                bannerImage,
+                coverImage {
+                    extraLarge,
+                    large,
+                    medium,
+                    color
+                },
+                averageScore,
+                title {
+                    english,
+                    native,
+                    romaji,
+                    userPreferred
+                },
+                nextAiringEpisode {
+                    episode,
+                    airingAt
+                },
+                rankings {
+                    rank,
+                    allTime,
+                    year,
+                    season,
+                    type
+                },
+                genres,
+                characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
+                    nodes {
+                        id,
+                        name {
+                            first
+                            middle
+                            last
+                            full
+                            native
+                            userPreferred
+                        },
+                        image {
+                            large
+                            medium
+                        },
+                        description(asHtml:$html)
+                        gender,
+                        dateOfBirth {
+                            year
+                            month
+                            day
+                        },
+                        bloodType,
+                        isFavourite,
+                        isFavouriteBlocked,
+                    }
+                },
+                trailer {
+                    id,
+                    site,
+                    thumbnail
+                },
+                siteUrl,
+                chapters,
+                volumes,
+                startDate {
+                    year,
+                    month,
+                    day
+                }
+            }
+        }
+    }
+}

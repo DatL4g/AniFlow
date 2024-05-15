@@ -261,6 +261,58 @@ data class Medium(
         startDate = query.startDate?.toLocalDate()
     )
 
+    constructor(media: ListQuery.Media, list: ListQuery.MediaList?) : this(
+        id = media.id,
+        idMal = media.idMal,
+        type = media.type ?: MediaType.UNKNOWN__,
+        status = media.status ?: MediaStatus.UNKNOWN__,
+        description = media.description?.ifBlank { null },
+        _episodes = media.episodes ?: -1,
+        avgEpisodeDurationInMin = media.duration ?: -1,
+        format = media.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = media.isAdult ?: false,
+        genres = media.genresFilterNotNull()?.toSet() ?: emptySet(),
+        countryOfOrigin = media.countryOfOrigin?.toString()?.ifBlank { null },
+        averageScore = media.averageScore ?: -1,
+        title = Title(
+            english = media.title?.english?.ifBlank { null },
+            native = media.title?.native?.ifBlank { null },
+            romaji = media.title?.romaji?.ifBlank { null },
+            userPreferred = media.title?.userPreferred?.ifBlank { null }
+        ),
+        bannerImage = media.bannerImage?.ifBlank { null },
+        coverImage = CoverImage(
+            color = media.coverImage?.color?.ifBlank { null },
+            medium = media.coverImage?.medium?.ifBlank { null },
+            large = media.coverImage?.large?.ifBlank { null },
+            extraLarge = media.coverImage?.extraLarge?.ifBlank { null }
+        ),
+        nextAiringEpisode = media.nextAiringEpisode?.let(::NextAiring),
+        ranking = media.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = media.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = list?.let(::Entry),
+        trailer = media.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail
+                )
+            }
+        },
+        isFavorite = media.isFavourite,
+        _isFavoriteBlocked = media.isFavouriteBlocked,
+        siteUrl = media.siteUrl?.ifBlank { null } ?: "$SITE_URL${media.id}",
+        chapters = media.chapters ?: -1,
+        volumes = media.volumes ?: -1,
+        startDate = media.startDate?.toLocalDate()
+    )
+
     @Transient
     val isAdult: Boolean = _isAdult || genres.any {
         AdultContent.Genre.exists(it)
@@ -389,6 +441,14 @@ data class Medium(
             season = ranking.season?.lastMonth(),
             type = ranking.type
         )
+
+        constructor(ranking: ListQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
+        )
     }
 
     @Serializable
@@ -424,6 +484,14 @@ data class Medium(
         )
 
         constructor(entry: SeasonQuery.MediaListEntry) : this(
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__,
+            progress = entry.progress,
+            repeatCount = entry.repeat,
+            startDate = entry.startedAt?.toLocalDate()
+        )
+
+        constructor(entry: ListQuery.MediaList) : this(
             score = entry.score,
             status = entry.status ?: MediaListStatus.UNKNOWN__,
             progress = entry.progress,
@@ -512,6 +580,11 @@ data class Medium(
         )
 
         constructor(nextAiringEpisode: SeasonQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
+
+        constructor(nextAiringEpisode: ListQuery.NextAiringEpisode) : this(
             episodes = nextAiringEpisode.episode,
             airingAt = nextAiringEpisode.airingAt
         )
