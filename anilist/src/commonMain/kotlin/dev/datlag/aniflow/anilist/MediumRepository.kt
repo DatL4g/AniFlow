@@ -5,23 +5,22 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaListStatus
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 class MediumRepository(
     private val client: ApolloClient,
-    private val fallbackClient: ApolloClient,
-    private val isLoggedIn: Flow<Boolean>
+    private val fallbackClient: ApolloClient
 ) {
 
     private val id = MutableStateFlow<Int?>(null)
-    private val query = combine(
-        id.filterNotNull(),
-        isLoggedIn.distinctUntilChanged()
-    ) { t1, _ ->
-        Query(t1)
-    }
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val query = id.filterNotNull().mapLatest { Query(it) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -35,8 +34,9 @@ class MediumRepository(
         }
     }
 
-    val medium = query.transform {
-        return@transform emitAll(client.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val medium = query.transformLatest {
+        return@transformLatest emitAll(client.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -48,8 +48,8 @@ class MediumRepository(
         } else {
             State.fromGraphQL(data)
         }
-    }.transform {
-        return@transform if (it is State.Error) {
+    }.transformLatest {
+        return@transformLatest if (it is State.Error) {
             emitAll(fallbackQuery)
         } else {
             emit(it)

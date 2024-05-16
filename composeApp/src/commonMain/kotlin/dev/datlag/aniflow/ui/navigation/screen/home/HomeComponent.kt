@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 interface HomeComponent : Component {
     val viewing: Flow<MediaType>
     val user: Flow<User?>
+    val loggedIn: Flow<Boolean>
     val titleLanguage: Flow<TitleLanguage?>
 
     val airing: Flow<AiringTodayRepository.State>

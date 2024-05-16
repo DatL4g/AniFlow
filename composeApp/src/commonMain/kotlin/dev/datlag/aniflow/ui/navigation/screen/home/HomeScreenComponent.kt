@@ -55,6 +55,7 @@ class HomeScreenComponent(
 
     private val userHelper by instance<UserHelper>()
     override val user: Flow<User?> = userHelper.user
+    override val loggedIn: Flow<Boolean> = userHelper.isLoggedIn
 
     private val stateScope = ioScope()
     private val airingTodayRepository by instance<AiringTodayRepository>()

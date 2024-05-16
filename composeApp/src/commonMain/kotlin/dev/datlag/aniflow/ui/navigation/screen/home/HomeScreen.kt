@@ -170,7 +170,7 @@ fun HomeScreen(component: HomeComponent) {
             HidingNavigationBar(
                 visible = listState.isScrollingUp() && listState.canScrollForward,
                 selected = NavigationBarState.Home,
-                loggedIn = component.user.mapLatest { it != null },
+                loggedIn = component.loggedIn,
                 onDiscover = component::viewDiscover,
                 onHome = { },
                 onFavorites = component::viewFavorites

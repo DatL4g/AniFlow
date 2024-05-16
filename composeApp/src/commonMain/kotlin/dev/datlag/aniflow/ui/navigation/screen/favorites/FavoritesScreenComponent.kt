@@ -6,10 +6,15 @@ import androidx.compose.runtime.remember
 import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.ListRepository
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.TitleLanguage
+import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
-import kotlinx.coroutines.flow.collectLatest
+import dev.datlag.tooling.decompose.ioScope
+import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -20,8 +25,17 @@ class FavoritesScreenComponent(
     private val onHome: () -> Unit,
 ) : FavoritesComponent, ComponentContext by componentContext {
 
-    private val userHelper by instance<UserHelper>()
-    val user = userHelper.user
+    private val appSettings by instance<Settings.PlatformAppSettings>()
+    override val titleLanguage: Flow<TitleLanguage?> = appSettings.titleLanguage
+
+    private val listRepository by instance<ListRepository>()
+    override val listState: StateFlow<ListRepository.State> = listRepository.list.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = ListRepository.State.None
+    )
 
     @Composable
     override fun render() {
