@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explicit</string>
+    <string name="explicit">Explizit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -100,4 +100,9 @@
     <string name="trending">Trending</string>
     <string name="popular">Popularität</string>
     <string name="upcoming">Upcoming</string>
+    <string name="discover">Discover</string>
+    <string name="search">Search</string>
+    <string name="list">List</string>
+    <string name="episode">Episode</string>
+    <string name="repeat">Repeat</string>
 </resources>
