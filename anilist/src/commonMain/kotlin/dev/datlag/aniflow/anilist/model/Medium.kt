@@ -335,6 +335,12 @@ data class Medium(
             } ?: -1
         }
 
+    val episodesOrChapters: Int
+        get() = when (type) {
+            MediaType.MANGA -> chapters
+            else -> episodes
+        }
+
     @Serializable
     data class Title(
         /**

@@ -4,6 +4,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
+import dev.datlag.aniflow.anilist.type.MediaListSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -17,6 +18,7 @@ class ListRepository(
 
     private val page = MutableStateFlow(0)
     private val _type = MutableStateFlow(MediaType.UNKNOWN__)
+    private val sort = MutableStateFlow(MediaListSort.UPDATED_TIME_DESC)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val type = _type.transformLatest {
@@ -36,12 +38,14 @@ class ListRepository(
     private val query = combine(
         page,
         type,
+        sort,
         user.filterNotNull().distinctUntilChanged(),
-    ) { p, t, u ->
+    ) { p, t, s, u ->
         Query(
             page = p,
             type = t,
-            userId = u.id
+            userId = u.id,
+            sort = s
         )
     }
 
@@ -86,7 +90,8 @@ class ListRepository(
     private data class Query(
         val page: Int,
         val type: MediaType,
-        val userId: Int
+        val userId: Int,
+        val sort: MediaListSort
     ) {
         fun toGraphQL() = ListQuery(
             page = Optional.present(page),
@@ -95,7 +100,12 @@ class ListRepository(
             } else {
                 Optional.present(type)
             },
-            userId = Optional.present(userId)
+            userId = Optional.present(userId),
+            sort = if (sort == MediaListSort.UNKNOWN__) {
+                Optional.absent()
+            } else {
+                Optional.present(listOf(sort))
+            }
         )
     }
 

@@ -49,12 +49,23 @@ data object SchemeTheme {
     }.getOrNull()
 
     @Composable
-    fun create(key: Any?): Updater? {
+    fun create(
+        key: Any?,
+        defaultColor: Color? = null,
+        defaultOnColor: Color? = null,
+    ): Updater? {
         if (key == null) {
             return null
         }
 
-        val state = rememberSchemeThemeDominantColorState(key)
+        val onColor = defaultOnColor ?: remember(defaultColor) {
+            defaultColor?.plainOnColor
+        }
+        val state = rememberSchemeThemeDominantColorState(
+            key = key,
+            defaultColor = defaultColor ?: MaterialTheme.colorScheme.primary,
+            defaultOnColor = onColor ?: MaterialTheme.colorScheme.onPrimary,
+        )
         val scope = rememberCoroutineScope()
         return remember(state, scope) {
             state?.let { Updater.State(scope, it) }

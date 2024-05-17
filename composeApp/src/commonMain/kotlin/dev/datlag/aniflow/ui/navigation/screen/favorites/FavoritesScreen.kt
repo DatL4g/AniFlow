@@ -63,7 +63,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {},
-                expanded = listState.isScrollingUp() && listState.canScrollForward,
+                expanded = listState.isScrollingUp(),
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.SwapVert,
@@ -77,7 +77,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
         },
         bottomBar = {
             HidingNavigationBar(
-                visible = listState.isScrollingUp() && listState.canScrollForward,
+                visible = listState.isScrollingUp(),
                 selected = NavigationBarState.Favorite,
                 loggedIn = flowOf(true),
                 onDiscover = component::viewDiscover,
@@ -108,14 +108,15 @@ fun FavoritesScreen(component: FavoritesComponent) {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
-                    contentPadding = padding.plus(PaddingValues(8.dp)),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = padding.merge(PaddingValues(16.dp)),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    items(current.medium.toList()) {
+                    items(current.medium.toList(), key = { it.id }) {
                         ListCard(
                             medium = it,
                             titleLanguage = titleLanguage,
-                            modifier = Modifier.fillParentMaxWidth().height(150.dp)
+                            modifier = Modifier.fillParentMaxWidth().height(150.dp),
+                            onClick = component::details
                         )
                     }
                 }

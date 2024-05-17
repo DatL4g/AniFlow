@@ -153,7 +153,7 @@ fun HomeScreen(component: HomeComponent) {
                     onClick = {
                         imagePicker.launch()
                     },
-                    expanded = listState.isScrollingUp() && listState.canScrollForward,
+                    expanded = listState.isScrollingUp(),
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.CameraEnhance,
@@ -168,7 +168,7 @@ fun HomeScreen(component: HomeComponent) {
         },
         bottomBar = {
             HidingNavigationBar(
-                visible = listState.isScrollingUp() && listState.canScrollForward,
+                visible = listState.isScrollingUp(),
                 selected = NavigationBarState.Home,
                 loggedIn = component.loggedIn,
                 onDiscover = component::viewDiscover,

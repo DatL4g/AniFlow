@@ -7,6 +7,7 @@ import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.ListRepository
+import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
@@ -23,6 +24,7 @@ class FavoritesScreenComponent(
     override val di: DI,
     private val onDiscover: () -> Unit,
     private val onHome: () -> Unit,
+    private val onMedium: (Medium) -> Unit
 ) : FavoritesComponent, ComponentContext by componentContext {
 
     private val appSettings by instance<Settings.PlatformAppSettings>()
@@ -56,5 +58,9 @@ class FavoritesScreenComponent(
 
     override fun viewHome() {
         onHome()
+    }
+
+    override fun details(medium: Medium) {
+        onMedium(medium)
     }
 }
