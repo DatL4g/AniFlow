@@ -18,11 +18,13 @@ import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import dev.datlag.aniflow.LocalEdgeToEdge
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.merge
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.component.TopSection
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.*
 import kotlin.math.max
@@ -127,7 +129,7 @@ fun EditDialog(component: EditComponent) {
                         },
                         enabled = editState.canRemoveEpisode
                     ) {
-                        Text(text = "-1")
+                        Text(text = stringResource(SharedRes.strings.minus_one))
                     }
                     OutlinedTextField(
                         modifier = Modifier.weight(1F),
@@ -138,7 +140,7 @@ fun EditDialog(component: EditComponent) {
                         placeholder = {
                             Text(
                                 modifier = Modifier.fillMaxWidth(),
-                                text = "Episode",
+                                text = stringResource(SharedRes.strings.episode),
                                 textAlign = TextAlign.Center,
                                 style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                             )
@@ -155,7 +157,7 @@ fun EditDialog(component: EditComponent) {
                         },
                         enabled = editState.canAddEpisode
                     ) {
-                        Text(text = "+1")
+                        Text(text = stringResource(SharedRes.strings.plus_one))
                     }
                 }
             }
@@ -174,7 +176,7 @@ fun EditDialog(component: EditComponent) {
                             },
                             enabled = editState.canRemoveRepeat
                         ) {
-                            Text(text = "-1")
+                            Text(text = stringResource(SharedRes.strings.minus_one))
                         }
                         OutlinedTextField(
                             modifier = Modifier.weight(1F),
@@ -185,7 +187,7 @@ fun EditDialog(component: EditComponent) {
                             placeholder = {
                                 Text(
                                     modifier = Modifier.fillMaxWidth(),
-                                    text = "Repeat",
+                                    text = stringResource(SharedRes.strings.repeat),
                                     textAlign = TextAlign.Center,
                                     style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
                                 )
@@ -202,7 +204,7 @@ fun EditDialog(component: EditComponent) {
                             },
                             enabled = editState.canAddRepeat
                         ) {
-                            Text(text = "+1")
+                            Text(text = stringResource(SharedRes.strings.plus_one))
                         }
                     }
                 }

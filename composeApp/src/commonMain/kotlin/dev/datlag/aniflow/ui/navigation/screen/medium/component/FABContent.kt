@@ -105,7 +105,7 @@ fun FABContent(
                         ),
                         FABItem(
                             icon = Icons.Rounded.Star,
-                            label = "Rating",
+                            label = stringResource(SharedRes.strings.rating),
                             onClick = {
                                 speedDialFABState.collapse()
                                 ratingState.show()

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
@@ -61,9 +62,14 @@ fun BSDialog(
                 value = value,
                 onValueChange = { value = it },
                 placeholder = {
-                    Text(text = "Search")
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(SharedRes.strings.search),
+                        textAlign = TextAlign.Center
+                    )
                 },
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
             )
         }
     )

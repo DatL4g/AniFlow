@@ -102,7 +102,7 @@ fun HidingNavigationBar(
                     )
                 },
                 label = {
-                    Text(text = "Discover")
+                    Text(text = stringResource(SharedRes.strings.discover))
                 }
             )
             NavigationBarItem(
@@ -137,7 +137,7 @@ fun HidingNavigationBar(
                     )
                 },
                 label = {
-                    Text(text = "List")
+                    Text(text = stringResource(SharedRes.strings.list))
                 }
             )
         }
