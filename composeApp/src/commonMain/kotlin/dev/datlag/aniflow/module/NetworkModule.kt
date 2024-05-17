@@ -177,8 +177,11 @@ data object NetworkModule {
             )
         }
         bindSingleton<TraceRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
             TraceRepository(
                 trace = instance(),
+                nsfw = appSettings.adultContent
             )
         }
         bindSingleton<NekosRepository> {
