@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material.icons.rounded.GetApp
+import androidx.compose.material.icons.rounded.Troubleshoot
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
 import com.maxkeppeler.sheets.option.models.DisplayMode
@@ -128,15 +130,10 @@ fun HomeScreen(component: HomeComponent) {
                     config = OptionConfig(
                         mode = DisplayMode.LIST
                     ),
-                    header = Header.Custom { padding ->
-                        Text(
-                            modifier = Modifier.padding(padding.merge(PaddingValues(16.dp))).fillMaxWidth(),
-                            text = "Matching Anime",
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
+                    header = Header.Default(
+                        icon = IconSource(Icons.Rounded.Troubleshoot),
+                        title = stringResource(SharedRes.strings.matching_anime)
+                    ),
                     selection = OptionSelection.Single(
                         options = results.map {
                             Option(
@@ -161,7 +158,7 @@ fun HomeScreen(component: HomeComponent) {
                         )
                     },
                     text = {
-                        Text(text = "Scan")
+                        Text(text = stringResource(SharedRes.strings.scan))
                     }
                 )
             }
@@ -208,7 +205,7 @@ fun HomeScreen(component: HomeComponent) {
                     }
                     item {
                         DefaultOverview(
-                            title = "Trending",
+                            title = stringResource(SharedRes.strings.trending),
                             flow = component.trending,
                             titleLanguage = titleLanguage,
                             onMediumClick = component::details
@@ -216,7 +213,7 @@ fun HomeScreen(component: HomeComponent) {
                     }
                     item {
                         DefaultOverview(
-                            title = "Popular",
+                            title = stringResource(SharedRes.strings.popular),
                             flow = component.popularNow,
                             titleLanguage = titleLanguage,
                             onMediumClick = component::details
@@ -225,7 +222,7 @@ fun HomeScreen(component: HomeComponent) {
                     if (!isManga) {
                         item {
                             DefaultOverview(
-                                title = "Popular Next",
+                                title = stringResource(SharedRes.strings.upcoming),
                                 flow = component.popularNext,
                                 titleLanguage = titleLanguage,
                                 onMediumClick = component::details

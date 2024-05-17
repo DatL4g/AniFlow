@@ -19,7 +19,7 @@
     <string name="media_status_hiatus">Pausiert</string>
     <string name="unknown">Unbekannt</string>
     <string name="rated">Bewertet</string>
-    <string name="popular">Popularität</string>
+    <string name="popularity">Popularität</string>
     <string name="score">Wertung</string>
     <string name="translate">Übersetzen</string>
     <string name="description">Beschreibung</string>

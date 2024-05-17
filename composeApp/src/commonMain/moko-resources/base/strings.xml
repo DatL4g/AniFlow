@@ -19,7 +19,7 @@
     <string name="media_status_hiatus">Paused</string>
     <string name="unknown">Unknown</string>
     <string name="rated">Rated</string>
-    <string name="popular">Popular</string>
+    <string name="popularity">Popular</string>
     <string name="score">Score</string>
     <string name="translate">Translate</string>
     <string name="description">Description</string>
@@ -92,4 +92,12 @@
     <string name="minus_one">-1</string>
     <string name="filter">Filter</string>
     <string name="all">All</string>
+    <string name="oh_noo">Oh noo...</string>
+    <string name="error_try_again">An error occurred, please try again later QwQ</string>
+    <string name="matching_anime">Matching Anime</string>
+    <string name="scan">Scan</string>
+    <string name="schedule">Schedule</string>
+    <string name="trending">Trending</string>
+    <string name="popular">Popular</string>
+    <string name="upcoming">Upcoming</string>
 </resources>

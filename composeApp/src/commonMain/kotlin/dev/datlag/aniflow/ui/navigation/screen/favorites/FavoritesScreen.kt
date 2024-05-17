@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SwapVert
@@ -37,6 +38,7 @@ import dev.datlag.aniflow.anilist.ListRepository
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.ui.custom.ErrorContent
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.favorites.component.ListCard
@@ -102,7 +104,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
                 selection = OptionSelection.Single(
                     options = options.map {
                         Option(
-                            icon = IconSource(it.icon(Icons.Rounded.FilterList)),
+                            icon = IconSource(it.icon(Icons.Rounded.ClearAll)),
                             titleText = stringResource(it.stringRes(type, SharedRes.strings.all)),
                             selected = status == it
                         )
@@ -161,7 +163,9 @@ fun FavoritesScreen(component: FavoritesComponent) {
                 }
             }
             is ListRepository.State.Error -> {
-                Text(text = "Error")
+                ErrorContent(
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             is ListRepository.State.Success -> {
                 val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
