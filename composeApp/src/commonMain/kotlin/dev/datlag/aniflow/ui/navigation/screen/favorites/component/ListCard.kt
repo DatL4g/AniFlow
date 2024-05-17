@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.settings.model.TitleLanguage
@@ -34,7 +35,8 @@ fun ListCard(
     medium: Medium,
     titleLanguage: TitleLanguage?,
     modifier: Modifier = Modifier,
-    onClick: (Medium) -> Unit
+    onClick: (Medium) -> Unit,
+    onIncrease: (Medium, Int) -> Unit
 ) {
     val defaultColor = remember(medium.coverImage.color) {
         medium.coverImage.color?.substringAfter('#')?.let {
@@ -123,9 +125,9 @@ fun ListCard(
                 modifier = Modifier.weight(1F).padding(top = 16.dp, end = 16.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                var progress by remember(medium.entry?.progress) { mutableStateOf(medium.entry?.progress ?: 0) }
-                val totalEpisodes = max(medium.episodesOrChapters, 0)
-                val maxProgress = max(max(progress, totalEpisodes), 0)
+                var progress by remember(medium.id) { mutableStateOf(medium.entry?.progress ?: 0) }
+                val totalEpisodes = remember(medium.episodesOrChapters) { max(medium.episodesOrChapters, 0) }
+                val maxProgress = remember(progress, totalEpisodes) { max(max(progress, totalEpisodes), 0) }
 
                 Text(
                     text = medium.preferred(titleLanguage),
@@ -147,10 +149,11 @@ fun ListCard(
                         Button(
                             onClick = {
                                 progress++
+                                onIncrease(medium, progress)
                             },
                             enabled = progress < totalEpisodes
                         ) {
-                            Text(text = "+1")
+                            Text(text = stringResource(SharedRes.strings.plus_one))
                         }
                     }
                 }

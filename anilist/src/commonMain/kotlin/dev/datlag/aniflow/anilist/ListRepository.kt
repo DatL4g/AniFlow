@@ -5,6 +5,7 @@ import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.type.MediaListSort
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -19,9 +20,10 @@ class ListRepository(
     private val page = MutableStateFlow(0)
     private val _type = MutableStateFlow(MediaType.UNKNOWN__)
     private val sort = MutableStateFlow(MediaListSort.UPDATED_TIME_DESC)
+    val status = MutableStateFlow(MediaListStatus.UNKNOWN__)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val type = _type.transformLatest {
+    val type = _type.transformLatest {
         return@transformLatest if (it == MediaType.UNKNOWN__) {
             emitAll(viewManga.map { m ->
                 if (m) {
@@ -39,13 +41,15 @@ class ListRepository(
         page,
         type,
         sort,
+        status,
         user.filterNotNull().distinctUntilChanged(),
-    ) { p, t, s, u ->
+    ) { p, t, s, l, u ->
         Query(
             page = p,
             type = t,
             userId = u.id,
-            sort = s
+            sort = s,
+            status = l
         )
     }
 
@@ -87,11 +91,33 @@ class ListRepository(
         }
     }
 
+    fun setType(type: MediaType) {
+        _type.update { type }
+    }
+
+    fun viewAnime() = setType(MediaType.ANIME)
+    fun viewManga() = setType(MediaType.MANGA)
+
+    fun toggleType() {
+        _type.update {
+            if (it == MediaType.MANGA) {
+                MediaType.ANIME
+            } else {
+                MediaType.MANGA
+            }
+        }
+    }
+
+    fun setStatus(status: MediaListStatus) {
+        this.status.update { status }
+    }
+
     private data class Query(
         val page: Int,
         val type: MediaType,
         val userId: Int,
-        val sort: MediaListSort
+        val sort: MediaListSort,
+        val status: MediaListStatus
     ) {
         fun toGraphQL() = ListQuery(
             page = Optional.present(page),
@@ -105,6 +131,11 @@ class ListRepository(
                 Optional.absent()
             } else {
                 Optional.present(listOf(sort))
+            },
+            status = if (status == MediaListStatus.UNKNOWN__) {
+                Optional.absent()
+            } else {
+                Optional.present(status)
             }
         )
     }

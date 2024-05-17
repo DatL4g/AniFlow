@@ -6,16 +6,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.IconSource
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
@@ -23,6 +34,8 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.ListRepository
+import dev.datlag.aniflow.anilist.type.MediaListStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
@@ -35,6 +48,7 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun FavoritesScreen(component: FavoritesComponent) {
     val listState = rememberLazyListState()
+    val type by component.type.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
 
     Scaffold(
         topBar = {
@@ -44,6 +58,22 @@ fun FavoritesScreen(component: FavoritesComponent) {
                 },
                 actions = {
 
+                    IconButton(
+                        onClick = component::toggleView,
+                        enabled = type != MediaType.UNKNOWN__
+                    ) {
+                        if (type == MediaType.ANIME) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.MenuBook,
+                                contentDescription = null
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.PlayArrow,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(
                     containerColor = Color.Transparent,
@@ -58,17 +88,51 @@ fun FavoritesScreen(component: FavoritesComponent) {
             )
         },
         floatingActionButton = {
+            val status by component.status.collectAsStateWithLifecycle(MediaListStatus.UNKNOWN__)
+            val statusDialog = rememberUseCaseState()
+            val options = remember {
+                setOf(
+                    MediaListStatus.UNKNOWN__,
+                    *MediaListStatus.entries.toTypedArray()
+                ).toList()
+            }
+
+            OptionDialog(
+                state = statusDialog,
+                selection = OptionSelection.Single(
+                    options = options.map {
+                        Option(
+                            icon = IconSource(it.icon(Icons.Rounded.FilterList)),
+                            titleText = stringResource(it.stringRes(type, SharedRes.strings.all)),
+                            selected = status == it
+                        )
+                    },
+                    onSelectOption = { option, _ ->
+                        component.setStatus(options[option])
+                    }
+                ),
+                config = OptionConfig(
+                    mode = DisplayMode.LIST
+                ),
+                header = Header.Default(
+                    icon = IconSource(Icons.Rounded.FilterList),
+                    title = stringResource(SharedRes.strings.filter)
+                )
+            )
+
             ExtendedFloatingActionButton(
-                onClick = {},
+                onClick = {
+                    statusDialog.show()
+                },
                 expanded = listState.scrollUpVisible(),
                 icon = {
                     Icon(
-                        imageVector = Icons.Rounded.SwapVert,
+                        imageVector = status.icon(Icons.Rounded.FilterList),
                         contentDescription = null
                     )
                 },
                 text = {
-                    Text(text = "Sort")
+                    Text(text = stringResource(status.stringRes(type, SharedRes.strings.all)))
                 }
             )
         },
@@ -113,7 +177,8 @@ fun FavoritesScreen(component: FavoritesComponent) {
                             medium = it,
                             titleLanguage = titleLanguage,
                             modifier = Modifier.fillParentMaxWidth().height(150.dp),
-                            onClick = component::details
+                            onClick = component::details,
+                            onIncrease = component::increase
                         )
                     }
                 }

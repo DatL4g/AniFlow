@@ -2,6 +2,7 @@ query ListQuery(
     $type: MediaType,
     $userId: Int,
     $page: Int,
+    $status: MediaListStatus,
     $html: Boolean,
     $statusVersion: Int,
     $sort: [MediaListSort]
@@ -10,7 +11,7 @@ query ListQuery(
         pageInfo {
             hasNextPage
         },
-        mediaList(type: $type, userId: $userId, sort: $sort) {
+        mediaList(type: $type, userId: $userId, sort: $sort, status: $status) {
             status,
             score(format: POINT_5),
             progress,

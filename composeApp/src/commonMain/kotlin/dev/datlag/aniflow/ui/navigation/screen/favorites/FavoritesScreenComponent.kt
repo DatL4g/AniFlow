@@ -3,18 +3,26 @@ package dev.datlag.aniflow.ui.navigation.screen.favorites
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.EditMutation
 import dev.datlag.aniflow.anilist.ListRepository
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.type.MediaListStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
+import dev.datlag.aniflow.model.coroutines.Executor
+import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -30,6 +38,7 @@ class FavoritesScreenComponent(
     private val appSettings by instance<Settings.PlatformAppSettings>()
     override val titleLanguage: Flow<TitleLanguage?> = appSettings.titleLanguage
 
+    private val apolloClient by instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val listRepository by instance<ListRepository>()
     override val listState: StateFlow<ListRepository.State> = listRepository.list.flowOn(
         context = ioDispatcher()
@@ -38,6 +47,10 @@ class FavoritesScreenComponent(
         started = SharingStarted.WhileSubscribed(),
         initialValue = ListRepository.State.None
     )
+
+    private val increaseExecutor = Executor()
+    override val type: Flow<MediaType> = listRepository.type
+    override val status: Flow<MediaListStatus> = listRepository.status
 
     @Composable
     override fun render() {
@@ -62,5 +75,41 @@ class FavoritesScreenComponent(
 
     override fun details(medium: Medium) {
         onMedium(medium)
+    }
+
+    override fun increase(medium: Medium, progress: Int) {
+        val newStatus = if (progress >= medium.episodesOrChapters) {
+            when (val current = medium.entry?.status) {
+                MediaListStatus.REPEATING -> current
+                else -> MediaListStatus.COMPLETED
+            }
+        } else {
+            medium.entry?.status ?: MediaListStatus.UNKNOWN__
+        }
+
+        val mutation = EditMutation(
+            mediaId = Optional.present(medium.id),
+            progress = Optional.present(progress),
+            status = if (newStatus == MediaListStatus.UNKNOWN__) {
+                Optional.absent()
+            } else {
+                Optional.present(newStatus)
+            },
+            repeat = Optional.absent()
+        )
+
+        launchIO {
+            increaseExecutor.enqueue {
+                apolloClient.mutation(mutation).execute()
+            }
+        }
+    }
+
+    override fun toggleView() {
+        listRepository.toggleType()
+    }
+
+    override fun setStatus(status: MediaListStatus) {
+        listRepository.setStatus(status)
     }
 }
