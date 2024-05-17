@@ -88,4 +88,8 @@
     <string name="rating_text">Bewerte diesen %s zwischen 0-5</string>
     <string name="anime">Anime</string>
     <string name="manga">Manga</string>
+    <string name="plus_one">+1</string>
+    <string name="minus_one">-1</string>
+    <string name="filter">Filter</string>
+    <string name="all">All</string>
 </resources>
