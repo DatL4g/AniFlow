@@ -23,10 +23,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.ListRepository
-import dev.datlag.aniflow.common.isScrollingUp
-import dev.datlag.aniflow.common.merge
-import dev.datlag.aniflow.common.plus
-import dev.datlag.aniflow.common.preferred
+import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.favorites.component.ListCard
@@ -63,7 +60,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {},
-                expanded = listState.isScrollingUp(),
+                expanded = listState.scrollUpVisible(),
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.SwapVert,
@@ -77,7 +74,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
         },
         bottomBar = {
             HidingNavigationBar(
-                visible = listState.isScrollingUp(),
+                visible = listState.scrollUpVisible(),
                 selected = NavigationBarState.Favorite,
                 loggedIn = flowOf(true),
                 onDiscover = component::viewDiscover,

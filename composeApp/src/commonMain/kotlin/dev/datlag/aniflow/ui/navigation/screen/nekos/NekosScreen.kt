@@ -34,8 +34,8 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
-import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.merge
+import dev.datlag.aniflow.common.scrollUpVisible
 import dev.datlag.aniflow.nekos.NekosRepository
 import dev.datlag.aniflow.nekos.model.Rating
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
@@ -126,7 +126,7 @@ fun NekosScreen(component: NekosComponent) {
 
             ExtendedFloatingActionButton(
                 onClick = { dialogState.show() },
-                expanded = listState.isScrollingUp(),
+                expanded = listState.scrollUpVisible(),
                 icon = {
                     Icon(
                         imageVector = Icons.Rounded.FilterList,

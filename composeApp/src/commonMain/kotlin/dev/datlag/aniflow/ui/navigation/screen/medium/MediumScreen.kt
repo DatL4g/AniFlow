@@ -81,13 +81,13 @@ fun MediumScreen(component: MediumComponent) {
                     state = appBarState,
                     scrollBehavior = scrollState,
                     coverImage = coverImage,
-                    showShare = listState.isScrollingUp(),
+                    showShare = listState.scrollUpVisible(),
                     component = component
                 )
             },
             floatingActionButton = {
                 FABContent(
-                    expanded = listState.isScrollingUp() && listState.canScrollForward,
+                    expanded = listState.scrollUpVisible(),
                     component = component
                 )
             }

@@ -135,6 +135,18 @@ fun LazyListState.isScrollingUp(): Boolean {
     }.value
 }
 
+val LazyListState.canScroll: Boolean
+    get() = this.canScrollForward || this.canScrollBackward
+
+@Composable
+fun LazyListState.scrollUpVisible(): Boolean {
+    return if (canScroll) {
+        isScrollingUp() && canScrollForward
+    } else {
+        true
+    }
+}
+
 @Composable
 fun LazyGridState.isScrollingUp(): Boolean {
     var previousIndex by remember(this) {
@@ -157,6 +169,18 @@ fun LazyGridState.isScrollingUp(): Boolean {
     }.value
 }
 
+val LazyGridState.canScroll: Boolean
+    get() = this.canScrollForward || this.canScrollBackward
+
+@Composable
+fun LazyGridState.scrollUpVisible(): Boolean {
+    return if (canScroll) {
+        isScrollingUp() && canScrollForward
+    } else {
+        true
+    }
+}
+
 @Composable
 fun LazyStaggeredGridState.isScrollingUp(): Boolean {
     var previousIndex by remember(this) {
@@ -177,6 +201,18 @@ fun LazyStaggeredGridState.isScrollingUp(): Boolean {
             }
         }
     }.value
+}
+
+val LazyStaggeredGridState.canScroll: Boolean
+    get() = this.canScrollForward || this.canScrollBackward
+
+@Composable
+fun LazyStaggeredGridState.scrollUpVisible(): Boolean {
+    return if (canScroll) {
+        isScrollingUp() && canScrollForward
+    } else {
+        true
+    }
 }
 
 /**

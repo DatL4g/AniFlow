@@ -21,7 +21,6 @@ import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.icon
-import dev.datlag.aniflow.common.isScrollingUp
 import dev.datlag.aniflow.common.mapCollect
 import dev.datlag.aniflow.common.stringRes
 import dev.datlag.aniflow.ui.custom.InstantAppContent
