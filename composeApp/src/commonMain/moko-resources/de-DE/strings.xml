@@ -19,7 +19,7 @@
     <string name="media_status_hiatus">Pausiert</string>
     <string name="unknown">Unbekannt</string>
     <string name="rated">Bewertet</string>
-    <string name="popular">Popularität</string>
+    <string name="popularity">Popularität</string>
     <string name="score">Wertung</string>
     <string name="translate">Übersetzen</string>
     <string name="description">Beschreibung</string>
@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explizit</string>
+    <string name="explicit">Explicit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -92,4 +92,12 @@
     <string name="minus_one">-1</string>
     <string name="filter">Filter</string>
     <string name="all">All</string>
+    <string name="oh_noo">Oh noo...</string>
+    <string name="error_try_again">An error occurred, please try again later QwQ</string>
+    <string name="matching_anime">Matching Anime</string>
+    <string name="scan">Scan</string>
+    <string name="schedule">Schedule</string>
+    <string name="trending">Trending</string>
+    <string name="popular">Popularität</string>
+    <string name="upcoming">Upcoming</string>
 </resources>
