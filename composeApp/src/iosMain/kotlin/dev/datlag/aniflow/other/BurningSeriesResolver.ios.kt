@@ -14,5 +14,9 @@ actual class BurningSeriesResolver {
         return emptySet()
     }
 
+    actual fun resolveByName(value: String): Set<Series> {
+        return emptySet()
+    }
+
     actual fun close() { }
 }

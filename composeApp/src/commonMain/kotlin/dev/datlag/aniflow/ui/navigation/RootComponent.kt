@@ -41,7 +41,7 @@ class RootComponent(
                 componentContext = componentContext,
                 di = di,
                 onMediumDetails = {
-                    navigation.push(RootConfig.Details(it))
+                    navigation.bringToFront(RootConfig.Details(it))
                 },
                 onDiscover = {
                     // navigation.replaceCurrent(RootConfig.Wallpaper)
@@ -67,6 +67,9 @@ class RootComponent(
                 },
                 onHome = {
                     navigation.replaceCurrent(RootConfig.Home)
+                },
+                onMedium = {
+                    navigation.bringToFront(RootConfig.Details(it))
                 }
             )
             is RootConfig.Nekos -> NekosScreenComponent(

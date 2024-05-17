@@ -57,18 +57,22 @@ interface MediumComponent : ContentHolderComponent {
     val siteUrl: Flow<String>
 
     val type: Flow<MediaType>
-    val listStatus: Flow<MediaListStatus>
+    val listStatus: StateFlow<MediaListStatus>
 
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
+
+    val bsAvailable: Boolean
+    val bsOptions: Flow<Collection<Series>>
 
     fun back()
     override fun dismissContent() {
         back()
     }
-    fun rate(onLoggedIn: () -> Unit)
     fun rate(value: Int)
     fun descriptionTranslation(text: String?)
     fun showCharacter(character: Character)
     fun toggleFavorite()
     fun edit()
+
+    suspend fun searchBS(value: String)
 }

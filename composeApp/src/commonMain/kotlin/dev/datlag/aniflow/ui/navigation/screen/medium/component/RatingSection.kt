@@ -60,7 +60,7 @@ fun RatingSection(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(SharedRes.strings.popular),
+                    text = stringResource(SharedRes.strings.popularity),
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(

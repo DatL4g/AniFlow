@@ -18,6 +18,7 @@ import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
+import dev.datlag.aniflow.model.mutableStateIn
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
@@ -25,11 +26,9 @@ import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
+import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -56,46 +55,53 @@ class HomeScreenComponent(
 
     private val userHelper by instance<UserHelper>()
     override val user: Flow<User?> = userHelper.user
+    override val loggedIn: Flow<Boolean> = userHelper.isLoggedIn
 
     private val stateScope = ioScope()
     private val airingTodayRepository by instance<AiringTodayRepository>()
     override val airing: Flow<AiringTodayRepository.State> = airingTodayRepository.airing.map {
         StateSaver.Home.updateAiring(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = AiringTodayRepository.State.None
     )
 
     private val trendingRepository by instance<TrendingRepository>()
-    override val trending: Flow<CollectionState> = trendingRepository.trending.map {
+    override val trending: MutableStateFlow<CollectionState> = trendingRepository.trending.map {
         StateSaver.Home.updateTrending(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).mutableStateIn(
         scope = stateScope,
-        started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
     private val popularSeasonRepository by instance<PopularSeasonRepository>()
-    override val popularNow: Flow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
+    override val popularNow: MutableStateFlow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
         StateSaver.Home.updatePopularCurrent(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).mutableStateIn(
         scope = stateScope,
-        started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
     private val popularNextSeasonRepository by instance<PopularNextSeasonRepository>()
     override val popularNext: Flow<CollectionState> = popularNextSeasonRepository.popularNextSeason.map {
         StateSaver.Home.updatePopularNext(it)
-    }.stateIn(
+    }.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = CollectionState.None
     )
 
     private val traceRepository by instance<TraceRepository>()
-    override val traceState: Flow<TraceRepository.State> = traceRepository.response
+    override val traceState: Flow<TraceRepository.State> = traceRepository.response.flowOn(context = ioDispatcher())
 
     private val dialogNavigation = SlotNavigation<DialogConfig>()
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
@@ -137,6 +143,8 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
+                clearForTypeChange()
+
                 appSettings.setViewManga(false)
             }
         }
@@ -146,6 +154,8 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
+                clearForTypeChange()
+
                 appSettings.setViewManga(true)
             }
         }
@@ -169,5 +179,10 @@ class HomeScreenComponent(
 
     override fun clearTrace() {
         traceRepository.clear()
+    }
+
+    private suspend fun clearForTypeChange() {
+        trending.emit(CollectionState.None)
+        popularNow.emit(CollectionState.None)
     }
 }

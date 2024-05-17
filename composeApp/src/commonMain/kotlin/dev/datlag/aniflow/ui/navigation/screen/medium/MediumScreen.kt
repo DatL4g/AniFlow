@@ -81,59 +81,15 @@ fun MediumScreen(component: MediumComponent) {
                     state = appBarState,
                     scrollBehavior = scrollState,
                     coverImage = coverImage,
-                    showShare = listState.isScrollingUp(),
+                    showShare = listState.scrollUpVisible(),
                     component = component
                 )
             },
             floatingActionButton = {
-                InstantAppContent(
-                    onInstantApp = { helper ->
-                        ExtendedFloatingActionButton(
-                            onClick = { helper.showInstallPrompt() },
-                            expanded = listState.isScrollingUp() && listState.canScrollForward,
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Rounded.GetApp,
-                                    contentDescription = null,
-                                )
-                            },
-                            text = {
-                                Text(text = stringResource(SharedRes.strings.install))
-                            }
-                        )
-                    }
-                ) {
-                    val notReleased by component.status.mapCollect(component.initialMedium.status) {
-                        it == MediaStatus.UNKNOWN__ || it == MediaStatus.NOT_YET_RELEASED
-                    }
-
-                    if (!notReleased) {
-                        val loggedIn by component.isLoggedIn.collectAsStateWithLifecycle(false)
-                        val status by component.listStatus.collectAsStateWithLifecycle(component.initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__)
-                        val type by component.type.collectAsStateWithLifecycle(component.initialMedium.type)
-                        val uriHandler = LocalUriHandler.current
-
-                        ExtendedFloatingActionButton(
-                            onClick = {
-                                if (!loggedIn) {
-                                    uriHandler.openUri(component.loginUri)
-                                } else {
-                                    component.edit()
-                                }
-                            },
-                            expanded = listState.isScrollingUp() && listState.canScrollForward,
-                            icon = {
-                                Icon(
-                                    imageVector = status.icon(),
-                                    contentDescription = null,
-                                )
-                            },
-                            text = {
-                                Text(text = stringResource(status.stringRes(type)))
-                            }
-                        )
-                    }
-                }
+                FABContent(
+                    expanded = listState.scrollUpVisible(),
+                    component = component
+                )
             }
         ) {
             CompositionLocalProvider(

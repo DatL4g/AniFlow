@@ -5,6 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
@@ -21,26 +23,20 @@ import dev.datlag.aniflow.common.*
 import dev.datlag.aniflow.model.*
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
+import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
-import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.character.CharacterDialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.EditDialogComponent
-import dev.datlag.tooling.alsoTrue
-import dev.datlag.tooling.async.suspendCatching
 import dev.datlag.tooling.compose.ioDispatcher
-import dev.datlag.tooling.compose.withMainContext
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.kodein.di.DI
 import org.kodein.di.instance
-import kotlin.time.Duration.Companion.seconds
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 
 class MediumScreenComponent(
@@ -61,7 +57,13 @@ class MediumScreenComponent(
     override val charLanguage: Flow<CharLanguage?> = appSettings.charLanguage.flowOn(ioDispatcher())
 
     private val mediumRepository by di.instance<MediumRepository>()
-    override val mediumState = mediumRepository.medium
+    override val mediumState = mediumRepository.medium.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = MediumRepository.State.None
+    )
 
     private val mediumSuccessState = mediumState.mapNotNull {
         it.safeCast<MediumRepository.State.Success>()
@@ -143,20 +145,13 @@ class MediumScreenComponent(
         it.medium.characters
     }.mapNotEmpty()
 
-    private val changedRating: MutableStateFlow<Int> = MutableStateFlow(initialMedium.entry?.score?.toInt() ?: -1)
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val rating: Flow<Int> = combine(
-        mediumSuccessState.mapLatest {
-            it.medium.entry?.score?.toInt()
-        },
-        changedRating
-    ) { t1, t2 ->
-        if (t2 > -1) {
-            t2
-        } else {
-            t1 ?: t2
-        }
-    }
+    override val rating: MutableStateFlow<Int> = mediumSuccessState.mapNotNull {
+        it.medium.entry?.score?.toInt()
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.score?.toInt() ?: -1
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val trailer: Flow<Medium.Trailer?> = mediumSuccessState.mapLatest {
@@ -184,9 +179,12 @@ class MediumScreenComponent(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val listStatus: Flow<MediaListStatus> = mediumSuccessState.mapLatest {
+    override val listStatus: MutableStateFlow<MediaListStatus> = mediumSuccessState.mapLatest {
         it.medium.entry?.status ?: MediaListStatus.UNKNOWN__
-    }
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.status ?: MediaListStatus.UNKNOWN__
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override val chapters: Flow<Int> = mediumSuccessState.mapLatest {
@@ -198,7 +196,52 @@ class MediumScreenComponent(
         it.medium.volumes
     }
 
+    private val burningSeriesResolver by instance<BurningSeriesResolver>()
+
+    override val bsAvailable: Boolean
+        get() = burningSeriesResolver.isAvailable
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val bsDefaultOptions = title.mapLatest {
+        burningSeriesResolver.resolveByName(it.english, it.romaji)
+    }.flowOn(ioDispatcher()).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = emptySet()
+    )
+
+    private val bsSearch = MutableStateFlow<String?>(null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val bsSearchOptions = bsSearch.mapLatest {
+        it?.ifBlank { null }?.let(burningSeriesResolver::resolveByName).orEmpty()
+    }.flowOn(ioDispatcher())
+
+    override val bsOptions: Flow<Collection<Series>> = combine(
+        bsSearchOptions,
+        bsDefaultOptions
+    ) { search, default ->
+        search.ifEmpty { default }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val watchProgress = mediumSuccessState.mapLatest {
+        it.medium.entry?.progress
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.progress
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val watchRepeat = mediumSuccessState.mapLatest {
+        it.medium.entry?.repeatCount
+    }.mutableStateIn(
+        scope = ioScope(),
+        initialValue = initialMedium.entry?.repeatCount
+    )
+
     private val dialogNavigation = SlotNavigation<DialogConfig>()
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val dialog: Value<ChildSlot<DialogConfig, DialogComponent>> = childSlot(
         source = dialogNavigation,
         serializer = DialogConfig.serializer()
@@ -213,8 +256,19 @@ class MediumScreenComponent(
             is DialogConfig.Edit -> EditDialogComponent(
                 componentContext = context,
                 di = di,
-                titleFlow = title,
-                onDismiss = dialogNavigation::dismiss
+                episodes = episodes,
+                progress = watchProgress,
+                listStatus = listStatus,
+                repeatCount = watchRepeat,
+                episodeStartDate = mediumSuccessState.mapLatest {
+                    it.medium.startDate
+                },
+                onDismiss = dialogNavigation::dismiss,
+                onSave = { status, progress, repeat ->
+                    dialogNavigation.dismiss {
+                        editSave(status, progress, repeat)
+                    }
+                }
             )
         }
     }
@@ -240,40 +294,42 @@ class MediumScreenComponent(
         onBack()
     }
 
-    private suspend fun requestMediaListEntry() {
-        val query = MediaListEntryQuery(
-            id = Optional.present(initialMedium.id)
-        )
-        val execution = CatchResult.timeout(5.seconds) {
-            aniListClient.query(query).execute()
-        }.asNullableSuccess()
-
-        execution?.data?.MediaList?.let { entry ->
-            changedRating.update { entry.score?.toInt() ?: it }
-        }
-    }
-
-    override fun rate(onLoggedIn: () -> Unit) {
-        launchIO {
-            val currentRating = rating.safeFirstOrNull() ?: initialMedium.entry?.score?.toInt() ?: -1
-            if (currentRating <= -1) {
-                requestMediaListEntry()
-            }
-
-            withMainContext {
-                onLoggedIn()
-            }
-        }
-    }
-
     override fun rate(value: Int) {
-        val mutation = RatingMutation(
-            mediaId = Optional.present(initialMedium.id),
-            rating = Optional.present(value * 20)
-        )
+        val newRating = mediumRepository
+            .updateRatingCall(value * 20)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .toFlow()
+            .mapNotNull {
+                it.data?.SaveMediaListEntry?.score?.toInt()
+            }
+
         launchIO {
-            aniListClient.mutation(mutation).execute().data?.SaveMediaListEntry?.score?.let {
-                changedRating.emit(it.toInt())
+            rating.emitAll(newRating)
+        }
+    }
+
+    private fun editSave(
+        state: MediaListStatus,
+        progress: Int,
+        repeat: Int,
+    ) {
+        val newData = mediumRepository
+            .updateEditCall(
+                status = state,
+                progress = progress,
+                repeat = repeat
+            )
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .toFlow()
+            .mapNotNull {
+                it.data?.SaveMediaListEntry
+            }
+
+        launchIO {
+            newData.collect { data ->
+                data.status?.let { listStatus.emit(it) }
+                data.progress?.let { watchProgress.emit(it) }
+                data.repeat?.let { watchRepeat.emit(it) }
             }
         }
     }
@@ -313,5 +369,9 @@ class MediumScreenComponent(
 
     override fun edit() {
         dialogNavigation.activate(DialogConfig.Edit)
+    }
+
+    override suspend fun searchBS(value: String) {
+        bsSearch.update { value }
     }
 }

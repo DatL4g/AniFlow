@@ -95,7 +95,7 @@ fun UserSection(
         )
         Markdown(
             modifier = Modifier.padding(bottom = 16.dp),
-            content = user?.description ?: "Login with [AniList](${loginUri})"
+            content = user?.description ?: stringResource(SharedRes.strings.login_markdown, loginUri)
         )
     }
 }

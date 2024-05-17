@@ -167,17 +167,21 @@ data object NetworkModule {
             CharacterRepository(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
                 fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                isLoggedIn = instance<UserHelper>().isLoggedIn
             )
         }
         bindSingleton<MediumRepository> {
             MediumRepository(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
-                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build()
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
             )
         }
         bindSingleton<TraceRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
             TraceRepository(
                 trace = instance(),
+                nsfw = appSettings.adultContent
             )
         }
         bindSingleton<NekosRepository> {
@@ -186,6 +190,16 @@ data object NetworkModule {
             NekosRepository(
                 nekos = instance(),
                 nsfw = appSettings.adultContent
+            )
+        }
+        bindSingleton<ListRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            ListRepository(
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                user = instance<UserHelper>().user,
+                viewManga = appSettings.viewManga
             )
         }
     }

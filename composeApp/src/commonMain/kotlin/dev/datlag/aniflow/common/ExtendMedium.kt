@@ -159,24 +159,35 @@ fun SearchResponse.Result.AniList.asMedium(): Medium {
     )
 }
 
-fun MediaListStatus.icon() = when (this) {
-    MediaListStatus.CURRENT -> Icons.Rounded.Edit
+fun MediaListStatus.icon(fallback: ImageVector = Icons.Rounded.Add) = when (this) {
+    MediaListStatus.CURRENT -> Icons.Rounded.PlayArrow
     MediaListStatus.COMPLETED -> Icons.Rounded.Check
     MediaListStatus.PAUSED -> Icons.Rounded.Pause
     MediaListStatus.DROPPED -> Icons.Rounded.Close
     MediaListStatus.PLANNING -> Icons.Rounded.WatchLater
     MediaListStatus.REPEATING -> Icons.Rounded.Replay
-    else -> Icons.Rounded.Add
+    else -> fallback
 }
 
-fun MediaListStatus.stringRes(isManga: Boolean) = when (this) {
+fun MediaListStatus.stringRes(
+    isManga: Boolean,
+    fallback: StringResource = SharedRes.strings.add
+) = when (this) {
     MediaListStatus.CURRENT -> if (isManga) SharedRes.strings.reading else SharedRes.strings.watching
     MediaListStatus.COMPLETED -> SharedRes.strings.completed
     MediaListStatus.PAUSED -> SharedRes.strings.paused
     MediaListStatus.DROPPED -> SharedRes.strings.dropped
     MediaListStatus.PLANNING -> SharedRes.strings.planning
     MediaListStatus.REPEATING -> SharedRes.strings.repeating
-    else -> SharedRes.strings.add
+    else -> fallback
 }
 
-fun MediaListStatus.stringRes(type: MediaType) = this.stringRes(type == MediaType.MANGA)
+fun MediaListStatus.stringRes(
+    type: MediaType,
+    fallback: StringResource = SharedRes.strings.add
+) = this.stringRes(type == MediaType.MANGA, fallback)
+
+fun MediaType.stringRes() = when (this) {
+    MediaType.MANGA -> SharedRes.strings.manga
+    else -> SharedRes.strings.anime
+}

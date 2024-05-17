@@ -1,10 +1,9 @@
 package dev.datlag.aniflow.anilist.common
 
+import dev.datlag.aniflow.anilist.*
+import dev.datlag.aniflow.anilist.type.FuzzyDate
 import dev.datlag.aniflow.anilist.type.MediaSeason
-import kotlinx.datetime.Instant
-import kotlinx.datetime.Month
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 
 internal val Month.season: MediaSeason
     get() {
@@ -28,3 +27,83 @@ internal val Instant.nextSeason: Pair<MediaSeason, Int>
         val date = this.toLocalDateTime(TimeZone.currentSystemDefault())
         return date.month.season.next(date.date)
     }
+
+internal fun TrendingQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun AiringQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun SeasonQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun MediumQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun ListQuery.StartDate.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun AiringQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun TrendingQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun MediumQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun SeasonQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}
+
+internal fun ListQuery.StartedAt.toLocalDate(): LocalDate? {
+    return LocalDate(
+        year = year ?: return null,
+        monthNumber = month ?: return null,
+        dayOfMonth = day ?: 1
+    )
+}

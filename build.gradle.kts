@@ -52,6 +52,12 @@ allprojects {
 
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions.jvmTarget = CompileOptions.jvmTarget
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true"
+            )
+        }
     }
     plugins.withType<YarnPlugin> {
         yarn.yarnLockAutoReplace = true

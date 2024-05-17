@@ -17,12 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.TitleLanguage
+import dev.datlag.aniflow.ui.custom.ErrorContent
 import dev.datlag.aniflow.ui.navigation.screen.home.component.airing.AiringCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -44,7 +47,7 @@ fun ScheduleOverview(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Schedule",
+                text = stringResource(SharedRes.strings.schedule),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -74,15 +77,17 @@ fun ScheduleOverview(
                             titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .height(150.dp)
-                                .fillParentMaxWidth(fraction = 0.9F)
-                                .animateItemPlacement(),
+                                .fillParentMaxWidth(fraction = 0.9F),
                             onClick = onMediumClick
                         )
                     }
                 }
             }
             is AiringTodayRepository.State.Error -> {
-                Text("Could not load Schedule")
+                ErrorContent(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontal = true
+                )
             }
         }
     }

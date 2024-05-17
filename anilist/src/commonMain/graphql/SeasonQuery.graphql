@@ -81,7 +81,14 @@ query SeasonQuery(
             },
             mediaListEntry {
                 score(format: POINT_5),
-                status
+                status,
+                progress,
+                repeat,
+                startedAt {
+                    year,
+                    month,
+                    day
+                }
             },
             trailer {
                 id,
@@ -90,7 +97,12 @@ query SeasonQuery(
             },
             siteUrl,
             chapters,
-            volumes
+            volumes,
+            startDate {
+                year,
+                month,
+                day
+            }
         }
     }
 }

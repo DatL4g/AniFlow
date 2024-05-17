@@ -9,7 +9,7 @@ data class SearchResponse(
 ) {
 
     @Transient
-    val isError = !error.isNullOrBlank()
+    val isError = !error.isNullOrBlank() || result.isEmpty()
 
     @Transient
     val combinedResults: Set<CombinedResult> = result.groupBy { it.aniList.id }.mapValues { entry ->
@@ -24,6 +24,17 @@ data class SearchResponse(
             avgSimilarity = entry.value.map { it.similarity }.average().toFloat()
         )
     }.values.toSet()
+
+    fun nsfwAware(allowed: Boolean): SearchResponse {
+        return if (allowed) {
+            this
+        } else {
+            SearchResponse(
+                error = error,
+                result = result.filterNot { it.aniList.isAdult }
+            )
+        }
+    }
 
     @Serializable
     data class Result(

@@ -28,6 +28,8 @@ class App : MultiDexApplication(), DIAware {
         super.onCreate()
 
         if (BuildConfig.DEBUG) {
+            Napier.base(DebugAntilog())
+
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
                     .detectAll()
@@ -37,7 +39,6 @@ class App : MultiDexApplication(), DIAware {
                     .penaltyDialog()
                     .build()
             )
-            Napier.base(DebugAntilog())
         }
         StateSaver.sekretLibraryLoaded = NativeLoader.loadLibrary("sekret")
 

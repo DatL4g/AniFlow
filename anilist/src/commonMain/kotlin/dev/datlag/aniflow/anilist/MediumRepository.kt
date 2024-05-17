@@ -1,8 +1,11 @@
 package dev.datlag.aniflow.anilist
 
+import com.apollographql.apollo3.ApolloCall
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.type.MediaListStatus
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 class MediumRepository(
@@ -11,11 +14,13 @@ class MediumRepository(
 ) {
 
     private val id = MutableStateFlow<Int?>(null)
-    private val query = id.filterNotNull().map {
-        Query(it)
-    }
-    private val fallbackQuery = query.transform {
-        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val query = id.filterNotNull().mapLatest { Query(it) }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val fallbackQuery = query.transformLatest {
+        return@transformLatest emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -29,8 +34,9 @@ class MediumRepository(
         }
     }
 
-    val medium = query.transform {
-        return@transform emitAll(client.query(it.toGraphQL()).toFlow())
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val medium = query.transformLatest {
+        return@transformLatest emitAll(client.query(it.toGraphQL()).toFlow())
     }.mapNotNull {
         val data = it.data
         if (data == null) {
@@ -42,8 +48,8 @@ class MediumRepository(
         } else {
             State.fromGraphQL(data)
         }
-    }.transform {
-        return@transform if (it is State.Error) {
+    }.transformLatest {
+        return@transformLatest if (it is State.Error) {
             emitAll(fallbackQuery)
         } else {
             emit(it)
@@ -53,6 +59,38 @@ class MediumRepository(
     fun clear() = id.update { null }
 
     fun load(id: Int) = this.id.update { id }
+
+    fun updateRatingCall(value: Int): ApolloCall<RatingMutation.Data> {
+        val mutation = RatingMutation(
+            mediaId = Optional.present(id.value),
+            rating = Optional.present(value)
+        )
+
+        return client.mutation(mutation)
+    }
+
+    fun updateEditCall(progress: Int, status: MediaListStatus, repeat: Int): ApolloCall<EditMutation.Data> {
+        val mutation = EditMutation(
+            mediaId = Optional.present(id.value),
+            progress = if (progress >= 1) {
+                Optional.present(progress)
+            } else {
+                Optional.absent()
+            },
+            status = if (status != MediaListStatus.UNKNOWN__) {
+                Optional.present(status)
+            } else {
+                Optional.absent()
+            },
+            repeat = if (repeat >= 1) {
+                Optional.present(repeat)
+            } else {
+                Optional.absent()
+            }
+        )
+
+        return client.mutation(mutation)
+    }
 
     private data class Query(
         val id: Int,
@@ -65,6 +103,7 @@ class MediumRepository(
     }
 
     sealed interface State {
+        data object None : State
         data class Success(val medium: Medium) : State
         data object Error : State
 

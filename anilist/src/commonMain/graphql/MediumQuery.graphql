@@ -69,7 +69,14 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
         },
         mediaListEntry {
             score(format: POINT_5),
-            status
+            status,
+            progress,
+            repeat,
+            startedAt {
+                year,
+                month,
+                day
+            }
         },
         trailer {
             id,
@@ -78,6 +85,11 @@ query MediumQuery($id: Int, $statusVersion: Int, $html: Boolean) {
         },
         siteUrl,
         chapters,
-        volumes
+        volumes,
+        startDate {
+            year,
+            month,
+            day
+        }
     }
 }

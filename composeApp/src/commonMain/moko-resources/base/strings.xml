@@ -100,4 +100,9 @@
     <string name="trending">Trending</string>
     <string name="popular">Popular</string>
     <string name="upcoming">Upcoming</string>
+    <string name="discover">Discover</string>
+    <string name="search">Search</string>
+    <string name="list">List</string>
+    <string name="episode">Episode</string>
+    <string name="repeat">Repeat</string>
 </resources>

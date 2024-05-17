@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
@@ -21,6 +22,7 @@ import com.maxkeppeler.sheets.option.models.DisplayMode
 import com.maxkeppeler.sheets.option.models.Option
 import com.maxkeppeler.sheets.option.models.OptionConfig
 import com.maxkeppeler.sheets.option.models.OptionSelection
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.common.toComposeColor
 import dev.datlag.aniflow.common.toComposeString
 import dev.datlag.aniflow.other.StateSaver
@@ -78,6 +80,13 @@ fun ColorSection(
         config = OptionConfig(
             mode = DisplayMode.GRID_VERTICAL,
             gridColumns = 4
+        ),
+        header = Header.Default(
+            icon = IconSource(
+                imageVector = Icons.Filled.Circle,
+                tint = MaterialTheme.colorScheme.primary
+            ),
+            title = stringResource(SharedRes.strings.profile_color)
         )
     )
 
@@ -91,7 +100,7 @@ fun ColorSection(
             contentDescription = null,
         )
         Text(
-            text = "Profile Color"
+            text = stringResource(SharedRes.strings.profile_color)
         )
         Spacer(modifier = Modifier.weight(1F))
         IconButton(

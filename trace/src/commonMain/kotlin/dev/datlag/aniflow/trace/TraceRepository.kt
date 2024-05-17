@@ -7,21 +7,25 @@ import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
 
 class TraceRepository(
-    private val trace: Trace
+    private val trace: Trace,
+    private val nsfw: Flow<Boolean> = flowOf(false),
 ) {
 
     private val byteArray = MutableStateFlow<ByteArray?>(null)
     
     @OptIn(ExperimentalCoroutinesApi::class)
-    val response: Flow<State> = byteArray.transformLatest {
-        return@transformLatest if (it == null || it.isEmpty()) {
+    val response: Flow<State> = combine(byteArray, nsfw.distinctUntilChanged()) { t1, t2 ->
+        t1 to t2
+    }.transformLatest { (t1, t2) ->
+        return@transformLatest if (t1 == null || t1.isEmpty()) {
             emit(State.None)
         } else {
             emit(
                 State.fromResponse(
-                    CatchResult.repeat(2) {
-                        trace.search(it)
-                    }.asNullableSuccess()
+                    response = CatchResult.repeat(2) {
+                        trace.search(t1)
+                    }.asNullableSuccess(),
+                    nsfw = t2
                 )
             )
         }
@@ -44,11 +48,13 @@ class TraceRepository(
         data object Error : State
 
         companion object {
-            fun fromResponse(response: SearchResponse?): State {
-                return if (response == null || response.isError) {
+            fun fromResponse(response: SearchResponse?, nsfw: Boolean): State {
+                val nsfwAware = response?.nsfwAware(nsfw)
+
+                return if (nsfwAware == null || nsfwAware.isError) {
                     Error
                 } else {
-                    Success(response)
+                    Success(nsfwAware)
                 }
             }
         }

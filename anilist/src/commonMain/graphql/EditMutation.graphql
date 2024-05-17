@@ -1,0 +1,23 @@
+mutation EditMutation(
+    $mediaId: Int,
+    $progress: Int,
+    $status: MediaListStatus,
+    $repeat: Int
+) {
+    SaveMediaListEntry(
+        mediaId: $mediaId,
+        progress: $progress,
+        status: $status,
+        repeat: $repeat
+    ) {
+        progress,
+        progressVolumes,
+        repeat,
+        status,
+        startedAt {
+            year,
+            month,
+            day
+        }
+    }
+}

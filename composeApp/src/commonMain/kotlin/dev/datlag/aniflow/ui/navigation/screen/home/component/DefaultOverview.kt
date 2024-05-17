@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.settings.model.TitleLanguage
+import dev.datlag.aniflow.ui.custom.ErrorContent
 import dev.datlag.aniflow.ui.navigation.screen.home.component.default.MediumCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -65,15 +66,17 @@ fun DefaultOverview(
                             titleLanguage = titleLanguage,
                             modifier = Modifier
                                 .width(200.dp)
-                                .height(280.dp)
-                                .animateItemPlacement(),
+                                .height(280.dp),
                             onClick = onMediumClick,
                         )
                     }
                 }
             }
             is CollectionState.Error -> {
-                Text("Could not load $title")
+                ErrorContent(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontal = true
+                )
             }
         }
     }
