@@ -150,6 +150,12 @@ fun SettingsScreen(component: SettingsComponent) {
             item {
                 SponsorSection(modifier = Modifier.fillParentMaxWidth())
             }
+            item {
+                AboutSection(
+                    modifier = Modifier.fillParentMaxWidth(),
+                    onClick = component::about
+                )
+            }
         }
     }
 }

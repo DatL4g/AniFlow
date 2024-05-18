@@ -4,6 +4,7 @@ files:
     ignore:
       - /composeApp/src/commonMain/moko-resources/fonts/
       - /composeApp/src/commonMain/moko-resources/images/
+      - /composeApp/src/commonMain/moko-resources/assets/
     translate_attributes: 0
     content_segmentation: 0
 
@@ -12,5 +13,6 @@ files:
     ignore:
       - /composeApp/src/commonMain/moko-resources/fonts/
       - /composeApp/src/commonMain/moko-resources/images/
+      - /composeApp/src/commonMain/moko-resources/assets/
     translate_attributes: 0
     content_segmentation: 0

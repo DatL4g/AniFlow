@@ -7,4 +7,7 @@ sealed class DialogConfig {
 
     @Serializable
     data object Settings : DialogConfig()
+
+    @Serializable
+    data object About : DialogConfig()
 }

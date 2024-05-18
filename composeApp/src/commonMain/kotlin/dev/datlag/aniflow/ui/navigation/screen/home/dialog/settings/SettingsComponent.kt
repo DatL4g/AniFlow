@@ -24,4 +24,5 @@ interface SettingsComponent : DialogComponent {
     fun changeCharLanguage(value: SettingsChar?)
     fun logout()
     fun nekos()
+    fun about()
 }
