@@ -60,7 +60,7 @@
     <string name="safe">Sicher</string>
     <string name="suggestive">Suggestiv</string>
     <string name="borderline">Grenzwertig</string>
-    <string name="explicit">Explizit</string>
+    <string name="explicit">Explicit</string>
     <string name="watching">Ansehen</string>
     <string name="reading">Lesen</string>
     <string name="planning">Planen</string>
@@ -93,16 +93,18 @@
     <string name="filter">Filter</string>
     <string name="all">All</string>
     <string name="oh_noo">Oh noo...</string>
-    <string name="error_try_again">An error occurred, please try again later QwQ</string>
+    <string name="error_try_again">Ein Fehler ist aufgetreten, bitte versuch es später nochmal QwQ</string>
     <string name="matching_anime">Matching Anime</string>
     <string name="scan">Scan</string>
     <string name="schedule">Schedule</string>
     <string name="trending">Trending</string>
-    <string name="popular">Popularität</string>
+    <string name="popular">Beliebt</string>
     <string name="upcoming">Upcoming</string>
     <string name="discover">Discover</string>
     <string name="search">Search</string>
     <string name="list">List</string>
     <string name="episode">Episode</string>
     <string name="repeat">Repeat</string>
+    <string name="open_source_licenses">Open-Source Lizenzen</string>
+    <string name="open_source_licenses_text">Das ist eine Liste von (allen) Bibliotheken, die in diesem Projekt verwendet werden und deren Lizenzen</string>
 </resources>
