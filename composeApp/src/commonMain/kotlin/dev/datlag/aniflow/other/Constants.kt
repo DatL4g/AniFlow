@@ -5,6 +5,8 @@ data object Constants {
     const val GITHUB_REPO = "https://github.com/DatL4g/AniFlow"
     const val GITHUB_OWNER = "https://github.com/DatL4g"
 
+    const val SPDX_LICENSE_BASE = "https://spdx.org/licenses/"
+
     data object AniList {
         const val SERVER_URL = "https://graphql.anilist.co/"
         const val CACHE_FACTORY = "AniListCacheFactory"

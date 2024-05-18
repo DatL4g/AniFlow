@@ -18,7 +18,8 @@ class SettingsDialogComponent(
     componentContext: ComponentContext,
     override val di: DI,
     private val onNekos: () -> Unit,
-    private val onDismiss: () -> Unit
+    private val onDismiss: () -> Unit,
+    private val onAbout: () -> Unit
 ) : SettingsComponent, ComponentContext by componentContext {
 
     private val appSettings by di.instance<Settings.PlatformAppSettings>()
@@ -76,5 +77,9 @@ class SettingsDialogComponent(
 
     override fun dismiss() {
         onDismiss()
+    }
+
+    override fun about() {
+        onAbout()
     }
 }

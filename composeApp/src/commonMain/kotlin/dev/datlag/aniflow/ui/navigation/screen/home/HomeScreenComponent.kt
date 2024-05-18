@@ -25,6 +25,7 @@ import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.DialogComponent
+import dev.datlag.aniflow.ui.navigation.screen.home.dialog.about.AboutDialogComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
@@ -113,6 +114,14 @@ class HomeScreenComponent(
                 componentContext = context,
                 di = di,
                 onNekos = onNekos,
+                onDismiss = dialogNavigation::dismiss,
+                onAbout = {
+                    dialogNavigation.activate(DialogConfig.About)
+                }
+            )
+            is DialogConfig.About -> AboutDialogComponent(
+                componentContext = context,
+                di = di,
                 onDismiss = dialogNavigation::dismiss
             )
         }
