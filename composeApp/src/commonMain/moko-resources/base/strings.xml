@@ -105,4 +105,6 @@
     <string name="list">List</string>
     <string name="episode">Episode</string>
     <string name="repeat">Repeat</string>
+    <string name="open_source_licenses">Open-Source Licenses</string>
+    <string name="open_source_licenses_text">This is a list of (all) libraries used in this project and it\'s licenses</string>
 </resources>
