@@ -107,4 +107,7 @@
     <string name="repeat">Repeat</string>
     <string name="open_source_licenses">Open-Source Licenses</string>
     <string name="open_source_licenses_text">This is a list of (all) libraries used in this project and it\'s licenses</string>
+    <string name="chapter">Chapter</string>
+    <string name="watched_episode">Watched Episode</string>
+    <string name="read_chapter">Read Chapter</string>
 </resources>
