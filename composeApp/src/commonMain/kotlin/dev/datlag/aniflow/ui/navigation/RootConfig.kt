@@ -19,4 +19,7 @@ sealed class RootConfig {
 
     @Serializable
     data object Nekos : RootConfig()
+
+    @Serializable
+    data object Discover : RootConfig()
 }

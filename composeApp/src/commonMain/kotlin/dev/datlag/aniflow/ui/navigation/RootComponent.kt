@@ -10,6 +10,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.router.stack.*
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.ui.navigation.screen.discover.DiscoverScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.favorites.FavoritesScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.home.HomeScreenComponent
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumScreenComponent
@@ -44,7 +45,7 @@ class RootComponent(
                     navigation.bringToFront(RootConfig.Details(it))
                 },
                 onDiscover = {
-                    // navigation.replaceCurrent(RootConfig.Wallpaper)
+                    navigation.replaceCurrent(RootConfig.Discover)
                 },
                 onFavorites = {
                     navigation.replaceCurrent(RootConfig.Favorites)
@@ -63,7 +64,7 @@ class RootComponent(
                 componentContext = componentContext,
                 di = di,
                 onDiscover = {
-                    // navigation.replaceCurrent(RootConfig.Wallpaper)
+                    navigation.replaceCurrent(RootConfig.Discover)
                 },
                 onHome = {
                     navigation.replaceCurrent(RootConfig.Home)
@@ -76,6 +77,16 @@ class RootComponent(
                 componentContext = componentContext,
                 di = di,
                 onBack = navigation::pop
+            )
+            is RootConfig.Discover -> DiscoverScreenComponent(
+                componentContext = componentContext,
+                di = di,
+                onHome = {
+                    navigation.replaceCurrent(RootConfig.Home)
+                },
+                onList = {
+                    navigation.replaceCurrent(RootConfig.Favorites)
+                }
             )
         }
     }
