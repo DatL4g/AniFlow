@@ -1,0 +1,108 @@
+query SearchQuery(
+    $query: String,
+    $adultContent: Boolean,
+    $preventGenres: [String],
+    $type: MediaType
+) {
+    Page {
+        media(
+            search: $query,
+            isAdult: $adultContent,
+            genre_not_in: $preventGenres,
+            sort: [POPULARITY_DESC],
+            type: $type
+        ) {
+            id,
+            idMal,
+            type,
+            status(version: 2),
+            description(asHtml: true),
+            episodes,
+            duration,
+            chapters,
+            countryOfOrigin,
+            popularity,
+            isFavourite,
+            isFavouriteBlocked,
+            isAdult,
+            format,
+            bannerImage,
+            coverImage {
+                extraLarge,
+                large,
+                medium,
+                color
+            },
+            averageScore,
+            title {
+                english,
+                native,
+                romaji,
+                userPreferred
+            },
+            nextAiringEpisode {
+                episode,
+                airingAt
+            },
+            rankings {
+                rank,
+                allTime,
+                year,
+                season,
+                type
+            },
+            genres,
+            characters(sort: [FAVOURITES_DESC,RELEVANCE]) {
+                nodes {
+                    id,
+                    name {
+                        first
+                        middle
+                        last
+                        full
+                        native
+                        userPreferred
+                    },
+                    image {
+                        large
+                        medium
+                    },
+                    description(asHtml: true)
+                    gender,
+                    dateOfBirth {
+                        year
+                        month
+                        day
+                    },
+                    bloodType,
+                    isFavourite,
+                    isFavouriteBlocked,
+                }
+            },
+            mediaListEntry {
+                score(format: POINT_5),
+                status,
+                progress,
+                repeat,
+                startedAt {
+                    year,
+                    month,
+                    day
+                }
+            },
+            trailer {
+                id,
+                site,
+                thumbnail
+            },
+            siteUrl,
+            chapters,
+            volumes,
+            startDate {
+                year,
+                month,
+                day
+            }
+        }
+    }
+}

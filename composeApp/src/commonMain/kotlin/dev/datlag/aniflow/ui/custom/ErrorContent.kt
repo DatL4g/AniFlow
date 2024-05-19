@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
 import dev.icerock.moko.resources.ImageResource
@@ -60,11 +61,13 @@ fun ErrorContent(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 text = stringResource(title),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                text = stringResource(text)
+                text = stringResource(text),
+                textAlign = TextAlign.Center
             )
         }
     }

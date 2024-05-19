@@ -86,6 +86,9 @@ class RootComponent(
                 },
                 onList = {
                     navigation.replaceCurrent(RootConfig.Favorites)
+                },
+                onMedium = {
+                    navigation.bringToFront(RootConfig.Details(it))
                 }
             )
         }

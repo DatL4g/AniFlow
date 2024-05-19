@@ -1,5 +1,6 @@
 package dev.datlag.aniflow.anilist.state
 
+import dev.datlag.aniflow.anilist.SearchQuery
 import dev.datlag.aniflow.anilist.SeasonQuery
 import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
@@ -37,6 +38,16 @@ sealed interface CollectionState {
         }
 
         fun fromSeasonGraphQL(data: SeasonQuery.Data?): CollectionState {
+            val mediaList = data?.Page?.mediaFilterNotNull()
+
+            if (mediaList.isNullOrEmpty()) {
+                return Error
+            }
+
+            return Success(mediaList.map { Medium(it) })
+        }
+
+        fun fromSearchGraphQL(data: SearchQuery.Data?): CollectionState {
             val mediaList = data?.Page?.mediaFilterNotNull()
 
             if (mediaList.isNullOrEmpty()) {

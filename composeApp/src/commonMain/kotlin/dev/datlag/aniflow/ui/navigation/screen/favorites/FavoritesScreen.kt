@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -71,7 +72,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
                             )
                         } else {
                             Icon(
-                                imageVector = Icons.Rounded.PlayArrow,
+                                imageVector = Icons.Rounded.PlayCircle,
                                 contentDescription = null
                             )
                         }

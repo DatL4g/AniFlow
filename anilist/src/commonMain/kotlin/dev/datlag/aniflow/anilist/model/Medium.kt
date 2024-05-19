@@ -313,6 +313,58 @@ data class Medium(
         startDate = media.startDate?.toLocalDate()
     )
 
+    constructor(search: SearchQuery.Medium) : this(
+        id = search.id,
+        idMal = search.idMal,
+        type = search.type ?: MediaType.UNKNOWN__,
+        status = search.status ?: MediaStatus.UNKNOWN__,
+        description = search.description?.ifBlank { null },
+        _episodes = search.episodes ?: -1,
+        avgEpisodeDurationInMin = search.duration ?: -1,
+        format = search.format ?: MediaFormat.UNKNOWN__,
+        _isAdult = search.isAdult ?: false,
+        genres = search.genresFilterNotNull()?.toSet() ?: emptySet(),
+        countryOfOrigin = search.countryOfOrigin?.toString()?.ifBlank { null },
+        averageScore = search.averageScore ?: -1,
+        title = Title(
+            english = search.title?.english?.ifBlank { null },
+            native = search.title?.native?.ifBlank { null },
+            romaji = search.title?.romaji?.ifBlank { null },
+            userPreferred = search.title?.userPreferred?.ifBlank { null }
+        ),
+        bannerImage = search.bannerImage?.ifBlank { null },
+        coverImage = CoverImage(
+            color = search.coverImage?.color?.ifBlank { null },
+            medium = search.coverImage?.medium?.ifBlank { null },
+            large = search.coverImage?.large?.ifBlank { null },
+            extraLarge = search.coverImage?.extraLarge?.ifBlank { null }
+        ),
+        nextAiringEpisode = search.nextAiringEpisode?.let(::NextAiring),
+        ranking = search.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
+        _characters = search.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        entry = search.mediaListEntry?.let(::Entry),
+        trailer = search.trailer?.let {
+            val site = it.site?.ifBlank { null }
+            val thumbnail = it.thumbnail?.ifBlank { null }
+
+            if (site == null || thumbnail == null) {
+                null
+            } else {
+                Trailer(
+                    id = it.id?.ifBlank { null },
+                    site = site,
+                    thumbnail = thumbnail
+                )
+            }
+        },
+        isFavorite = search.isFavourite,
+        _isFavoriteBlocked = search.isFavouriteBlocked,
+        siteUrl = search.siteUrl?.ifBlank { null } ?: "$SITE_URL${search.id}",
+        chapters = search.chapters ?: -1,
+        volumes = search.volumes ?: -1,
+        startDate = search.startDate?.toLocalDate()
+    )
+
     @Transient
     val isAdult: Boolean = _isAdult || genres.any {
         AdultContent.Genre.exists(it)
@@ -455,6 +507,14 @@ data class Medium(
             season = ranking.season?.lastMonth(),
             type = ranking.type
         )
+
+        constructor(ranking: SearchQuery.Ranking) : this(
+            rank = ranking.rank,
+            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
+            year = ranking.year ?: -1,
+            season = ranking.season?.lastMonth(),
+            type = ranking.type
+        )
     }
 
     @Serializable
@@ -498,6 +558,14 @@ data class Medium(
         )
 
         constructor(entry: ListQuery.MediaList) : this(
+            score = entry.score,
+            status = entry.status ?: MediaListStatus.UNKNOWN__,
+            progress = entry.progress,
+            repeatCount = entry.repeat,
+            startDate = entry.startedAt?.toLocalDate()
+        )
+
+        constructor(entry: SearchQuery.MediaListEntry) : this(
             score = entry.score,
             status = entry.status ?: MediaListStatus.UNKNOWN__,
             progress = entry.progress,
@@ -591,6 +659,11 @@ data class Medium(
         )
 
         constructor(nextAiringEpisode: ListQuery.NextAiringEpisode) : this(
+            episodes = nextAiringEpisode.episode,
+            airingAt = nextAiringEpisode.airingAt
+        )
+
+        constructor(nextAiringEpisode: SearchQuery.NextAiringEpisode) : this(
             episodes = nextAiringEpisode.episode,
             airingAt = nextAiringEpisode.airingAt
         )

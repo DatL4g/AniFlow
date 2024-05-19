@@ -202,5 +202,15 @@ data object NetworkModule {
                 viewManga = appSettings.viewManga
             )
         }
+        bindSingleton<SearchRepository> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            SearchRepository(
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga
+            )
+        }
     }
 }

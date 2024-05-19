@@ -110,4 +110,6 @@
     <string name="chapter">Chapter</string>
     <string name="watched_episode">Watched Episode</string>
     <string name="read_chapter">Read Chapter</string>
+    <string name="search_anime">Search Anime</string>
+    <string name="search_manga">Search Manga</string>
 </resources>
