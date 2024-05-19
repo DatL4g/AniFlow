@@ -2,12 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.component
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.rounded.List
-import androidx.compose.material.icons.filled.NoAdultContent
-import androidx.compose.material.icons.filled.OndemandVideo
-import androidx.compose.material.icons.filled.RssFeed
-import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,8 +17,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.type.MediaFormat
-import dev.datlag.aniflow.anilist.type.MediaStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.text
 import dev.datlag.aniflow.ui.navigation.screen.medium.MediumComponent
@@ -31,8 +25,6 @@ import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.pluralStringResource
 import dev.icerock.moko.resources.compose.stringResource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun CoverSection(
@@ -84,11 +76,10 @@ fun CoverSection(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
         ) {
             val format by component.format.collectAsStateWithLifecycle(component.initialMedium.format)
-            val episodes by component.episodes.collectAsStateWithLifecycle(component.initialMedium.episodes)
+            val episodes by component.episodesOrChapters.collectAsStateWithLifecycle(component.initialMedium.episodes)
             val duration by component.duration.collectAsStateWithLifecycle(component.initialMedium.avgEpisodeDurationInMin)
             val status by component.status.collectAsStateWithLifecycle(component.initialMedium.status)
             val isAdult by component.isAdult.collectAsStateWithLifecycle(component.initialMedium.isAdult)
-            val chapters by component.chapters.collectAsStateWithLifecycle(component.initialMedium.chapters)
             val volumes by component.volumes.collectAsStateWithLifecycle(component.initialMedium.volumes)
 
             Row(
@@ -121,25 +112,19 @@ fun CoverSection(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    val type by component.type.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
+                    val (icon, stringRes) = remember(type) {
+                        when (type) {
+                            MediaType.MANGA -> Icons.Rounded.AutoStories to SharedRes.plurals.chapters
+                            else -> Icons.AutoMirrored.Rounded.List to SharedRes.plurals.episodes
+                        }
+                    }
+
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.List,
+                        imageVector = icon,
                         contentDescription = null
                     )
-                    Text(text = pluralStringResource(SharedRes.plurals.episodes, episodes, episodes))
-                }
-            } else {
-                if (chapters > -1) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.AutoStories,
-                            contentDescription = null
-                        )
-                        Text(text = pluralStringResource(SharedRes.plurals.chapters, chapters, chapters))
-                    }
+                    Text(text = pluralStringResource(stringRes, episodes, episodes))
                 }
             }
             if (duration > -1) {

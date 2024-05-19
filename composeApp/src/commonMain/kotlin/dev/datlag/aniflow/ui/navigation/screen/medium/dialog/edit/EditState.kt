@@ -27,6 +27,9 @@ class EditState(
     val canAddEpisode: Boolean
         get() = episodeState.canAdd
 
+    val hasEpisodes: Boolean
+        get() = episodeState.hasEpisodes
+
     val canRemoveRepeat: Boolean
         get() = repeatState.canRemove
 
@@ -145,6 +148,9 @@ class EditState(
 
         internal val canAdd: Boolean
             get() = currentEpisode.value < maxEpisodes
+
+        internal val hasEpisodes: Boolean
+            get() = maxEpisodes > 0
 
         internal fun plus(
             value: Int = 1,

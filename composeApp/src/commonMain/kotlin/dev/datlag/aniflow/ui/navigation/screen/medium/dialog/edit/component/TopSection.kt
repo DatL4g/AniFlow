@@ -61,7 +61,7 @@ fun TopSection(
         }
         Text(
             modifier = Modifier.weight(1F),
-            text = "Edit",
+            text = stringResource(SharedRes.strings.edit),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,

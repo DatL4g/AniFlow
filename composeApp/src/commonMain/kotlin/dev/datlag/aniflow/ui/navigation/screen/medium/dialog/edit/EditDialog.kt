@@ -2,33 +2,24 @@ package dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
-import com.maxkeppeler.sheets.calendar.CalendarDialog
-import com.maxkeppeler.sheets.calendar.models.CalendarConfig
-import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import dev.datlag.aniflow.LocalEdgeToEdge
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaListStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.merge
 import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.component.TopSection
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
-import io.github.aakira.napier.Napier
-import kotlinx.datetime.*
-import kotlin.math.max
-import kotlin.math.min
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -51,12 +42,13 @@ fun EditDialog(component: EditComponent) {
         sheetState = sheetState
     ) {
         val editState = rememberEditState(
-            mediumEpisodes = component.episodes,
+            mediumEpisodes = component.episodesOrChapters,
             progress = component.progress,
             repeat = component.repeatCount,
             listStatus = component.listStatus,
         )
         val currentListStatus by editState.listStatus.collectAsStateWithLifecycle()
+        val type by component.type.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
 
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -83,7 +75,13 @@ fun EditDialog(component: EditComponent) {
             item {
                 Text(
                     modifier = Modifier.fillParentMaxWidth().padding(top = 32.dp),
-                    text = "Watched Episode",
+                    text = stringResource(
+                        if (type == MediaType.MANGA) {
+                            SharedRes.strings.read_chapter
+                        } else {
+                            SharedRes.strings.watched_episode
+                        }
+                    ),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Medium
                 )
@@ -115,49 +113,57 @@ fun EditDialog(component: EditComponent) {
                     }
                 }
             }
-            item {
-                val currentEpisode by editState.episode.collectAsStateWithLifecycle()
+            if (editState.hasEpisodes) {
+                item {
+                    val currentEpisode by editState.episode.collectAsStateWithLifecycle()
 
-                Row(
-                    modifier = Modifier.fillParentMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            editState.minusEpisode()
-                        },
-                        enabled = editState.canRemoveEpisode
+                    Row(
+                        modifier = Modifier.fillParentMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = stringResource(SharedRes.strings.minus_one))
-                    }
-                    OutlinedTextField(
-                        modifier = Modifier.weight(1F),
-                        value = if (currentEpisode <= 0) "" else currentEpisode.toString(),
-                        onValueChange = {
-                            editState.setEpisode(it.toIntOrNull())
-                        },
-                        placeholder = {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(SharedRes.strings.episode),
-                                textAlign = TextAlign.Center,
-                                style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
-                            )
-                        },
-                        singleLine = true,
-                        maxLines = 1,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                        shape = MaterialTheme.shapes.medium
-                    )
-                    Button(
-                        onClick = {
-                            editState.plusEpisode()
-                        },
-                        enabled = editState.canAddEpisode
-                    ) {
-                        Text(text = stringResource(SharedRes.strings.plus_one))
+                        Button(
+                            onClick = {
+                                editState.minusEpisode()
+                            },
+                            enabled = editState.canRemoveEpisode
+                        ) {
+                            Text(text = stringResource(SharedRes.strings.minus_one))
+                        }
+                        OutlinedTextField(
+                            modifier = Modifier.weight(1F),
+                            value = if (currentEpisode <= 0) "" else currentEpisode.toString(),
+                            onValueChange = {
+                                editState.setEpisode(it.toIntOrNull())
+                            },
+                            placeholder = {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = stringResource(
+                                        if (type == MediaType.MANGA) {
+                                            SharedRes.strings.chapter
+                                        } else {
+                                            SharedRes.strings.episode
+                                        }
+                                    ),
+                                    textAlign = TextAlign.Center,
+                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                )
+                            },
+                            singleLine = true,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        Button(
+                            onClick = {
+                                editState.plusEpisode()
+                            },
+                            enabled = editState.canAddEpisode
+                        ) {
+                            Text(text = stringResource(SharedRes.strings.plus_one))
+                        }
                     }
                 }
             }

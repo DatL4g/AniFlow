@@ -107,4 +107,7 @@
     <string name="repeat">Wiederholung</string>
     <string name="open_source_licenses">Open-Source Lizenzen</string>
     <string name="open_source_licenses_text">Das ist eine Liste von (allen) Bibliotheken, die in diesem Projekt verwendet werden und deren Lizenzen</string>
+    <string name="chapter">Kapitel</string>
+    <string name="watched_episode">Gesehene Folge</string>
+    <string name="read_chapter">Gelesenes Kapitel</string>
 </resources>

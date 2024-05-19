@@ -114,8 +114,8 @@ class MediumScreenComponent(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val episodes: Flow<Int> = mediumSuccessState.mapLatest {
-        it.medium.episodes
+    override val episodesOrChapters: Flow<Int> = mediumSuccessState.mapLatest {
+        it.medium.episodesOrChapters
     }.distinctUntilChanged()
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -187,11 +187,6 @@ class MediumScreenComponent(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val chapters: Flow<Int> = mediumSuccessState.mapLatest {
-        it.medium.chapters
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     override val volumes: Flow<Int> = mediumSuccessState.mapLatest {
         it.medium.volumes
     }
@@ -256,13 +251,14 @@ class MediumScreenComponent(
             is DialogConfig.Edit -> EditDialogComponent(
                 componentContext = context,
                 di = di,
-                episodes = episodes,
+                episodesOrChapters = episodesOrChapters,
                 progress = watchProgress,
                 listStatus = listStatus,
                 repeatCount = watchRepeat,
                 episodeStartDate = mediumSuccessState.mapLatest {
                     it.medium.startDate
                 },
+                type = type,
                 onDismiss = dialogNavigation::dismiss,
                 onSave = { status, progress, repeat ->
                     dialogNavigation.dismiss {

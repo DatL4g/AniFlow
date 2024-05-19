@@ -10,8 +10,6 @@ import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.other.Series
-import dev.datlag.aniflow.settings.model.AppSettings
-import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import kotlinx.coroutines.flow.Flow
@@ -38,10 +36,9 @@ interface MediumComponent : ContentHolderComponent {
     val genres: Flow<Set<String>>
 
     val format: Flow<MediaFormat>
-    val episodes: Flow<Int>
+    val episodesOrChapters: Flow<Int>
     val duration: Flow<Int>
     val status: Flow<MediaStatus>
-    val chapters: Flow<Int>
     val volumes: Flow<Int>
 
     val rated: Flow<Medium.Ranking?>

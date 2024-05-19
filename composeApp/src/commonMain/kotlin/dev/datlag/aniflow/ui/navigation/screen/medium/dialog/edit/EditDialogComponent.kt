@@ -5,6 +5,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.arkivanov.decompose.ComponentContext
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.type.MediaListStatus
+import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
@@ -21,11 +22,12 @@ import org.kodein.di.instance
 class EditDialogComponent(
     componentContext: ComponentContext,
     override val di: DI,
-    override val episodes: Flow<Int>,
+    override val episodesOrChapters: Flow<Int>,
     override val progress: Flow<Int?>,
     override val listStatus: Flow<MediaListStatus>,
     override val repeatCount: Flow<Int?>,
     override val episodeStartDate: Flow<LocalDate?>,
+    override val type: Flow<MediaType>,
     private val onDismiss: () -> Unit,
     private val onSave: (MediaListStatus, Int, Int) -> Unit
 ) : EditComponent, ComponentContext by componentContext {
