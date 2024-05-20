@@ -1,6 +1,6 @@
 query ListQuery(
     $type: MediaType,
-    $userId: Int,
+    $userId: Int!,
     $page: Int,
     $status: MediaListStatus,
     $html: Boolean,

@@ -96,7 +96,11 @@ class TrendingRepository(
             } else {
                 Optional.present(nsfw)
             },
-            type = Optional.present(type),
+            type = if (type == MediaType.UNKNOWN__) {
+                Optional.absent()
+            } else {
+                Optional.present(type)
+            },
             sort = Optional.present(listOf(MediaSort.TRENDING_DESC)),
             preventGenres = if (nsfw) {
                 Optional.absent()

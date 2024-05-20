@@ -42,12 +42,12 @@ class ListRepository(
         type,
         sort,
         status,
-        user.filterNotNull().distinctUntilChanged(),
+        user.mapNotNull { it?.id }.distinctUntilChanged(),
     ) { p, t, s, l, u ->
         Query(
             page = p,
             type = t,
-            userId = u.id,
+            userId = u,
             sort = s,
             status = l
         )
@@ -126,7 +126,7 @@ class ListRepository(
             } else {
                 Optional.present(type)
             },
-            userId = Optional.present(userId),
+            userId = userId,
             sort = if (sort == MediaListSort.UNKNOWN__) {
                 Optional.absent()
             } else {

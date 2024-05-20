@@ -1,11 +1,21 @@
 package dev.datlag.aniflow.common
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector4D
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,7 +29,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.kmpalette.DominantColorState
@@ -249,3 +261,45 @@ val Color.plainOnColor: Color
     } else {
         Color.White
     }
+
+@Composable
+fun animatePaddingAsState(
+    targetValues: PaddingValues,
+    layoutDirection: LayoutDirection = LocalLayoutDirection.current,
+    animationSpec: AnimationSpec<PaddingValues> = spring(),
+    label: String = "PaddingAnimation",
+    finishedListener: ((PaddingValues) -> Unit)? = null
+): State<PaddingValues> {
+    return animateValueAsState(
+        targetValue = targetValues,
+        typeConverter = PaddingToVector(layoutDirection),
+        animationSpec = animationSpec,
+        label = label,
+        finishedListener = finishedListener
+    )
+}
+
+private fun PaddingToVector(direction: LayoutDirection): TwoWayConverter<PaddingValues, AnimationVector4D> = TwoWayConverter(
+    convertToVector = {
+        AnimationVector4D(
+            v1 = it.calculateTopPadding().value,
+            v2 = it.calculateStartPadding(direction).value,
+            v3 = it.calculateEndPadding(direction).value,
+            v4 = it.calculateBottomPadding().value
+        )
+    },
+    convertFromVector = {
+        PaddingValues(
+            top = it.v1.dp,
+            start = it.v2.dp,
+            end = it.v3.dp,
+            bottom = it.v4.dp
+        )
+    }
+)
+
+fun LazyGridScope.header(
+    content: @Composable LazyGridItemScope.() -> Unit
+) {
+    item(span = { GridItemSpan(this.maxLineSpan) }, content = content)
+}

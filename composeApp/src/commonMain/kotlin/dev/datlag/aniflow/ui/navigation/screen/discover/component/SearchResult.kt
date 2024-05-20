@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,9 +27,12 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.common.formatText
+import dev.datlag.aniflow.common.icon
 import dev.datlag.aniflow.common.preferred
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.compose.onClick
+import dev.icerock.moko.resources.compose.stringResource
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
@@ -81,16 +85,27 @@ fun SearchResult(
             }
         )
         Column(
-            modifier = Modifier.weight(1F).padding(vertical = 8.dp),
+            modifier = Modifier.fillMaxHeight().weight(1F).padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
+                modifier = Modifier,
                 text = medium.preferred(null),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 softWrap = true,
                 overflow = TextOverflow.Ellipsis
             )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = medium.format.icon(),
+                    contentDescription = null
+                )
+                Text(text = stringResource(medium.formatText()))
+            }
         }
     }
 }

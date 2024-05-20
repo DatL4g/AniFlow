@@ -147,6 +147,15 @@ data class Character(
             native = name.native?.ifBlank { null },
             userPreferred = name.userPreferred?.ifBlank { null }
         )
+
+        constructor(name: RecommendationQuery.Name) : this(
+            first = name.first?.ifBlank { null },
+            middle = name.middle?.ifBlank { null },
+            last = name.last?.ifBlank { null },
+            full = name.full?.ifBlank { null },
+            native = name.native?.ifBlank { null },
+            userPreferred = name.userPreferred?.ifBlank { null }
+        )
     }
 
     @Serializable
@@ -185,6 +194,11 @@ data class Character(
         )
 
         constructor(image: SearchQuery.Image) : this(
+            large = image.large?.ifBlank { null },
+            medium = image.medium?.ifBlank { null },
+        )
+
+        constructor(image: RecommendationQuery.Image) : this(
             large = image.large?.ifBlank { null },
             medium = image.medium?.ifBlank { null },
         )
@@ -318,6 +332,18 @@ data class Character(
                     year = birth.year
                 )
             }
+
+            operator fun invoke(birth: RecommendationQuery.DateOfBirth): BirthDate? {
+                if (birth.day == null && birth.month == null && birth.year == null) {
+                    return null
+                }
+
+                return BirthDate(
+                    day = birth.day,
+                    month = birth.month,
+                    year = birth.year
+                )
+            }
         }
     }
 
@@ -425,6 +451,23 @@ data class Character(
         }
 
         operator fun invoke(character: SearchQuery.Node) : Character? {
+            val name = character.name?.let(::Name) ?: return null
+            val image = character.image?.let(::Image) ?: return null
+
+            return Character(
+                id = character.id,
+                name = name,
+                image = image,
+                gender = character.gender?.ifBlank { null },
+                bloodType = character.bloodType?.ifBlank { null },
+                birthDate = character.dateOfBirth?.let { BirthDate(it) },
+                description = character.description?.ifBlank { null },
+                isFavorite = character.isFavourite,
+                isFavoriteBlocked = character.isFavouriteBlocked
+            )
+        }
+
+        operator fun invoke(character: RecommendationQuery.Node) : Character? {
             val name = character.name?.let(::Name) ?: return null
             val image = character.image?.let(::Image) ?: return null
 

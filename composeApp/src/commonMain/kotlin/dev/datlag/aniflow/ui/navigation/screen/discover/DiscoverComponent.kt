@@ -1,10 +1,12 @@
 package dev.datlag.aniflow.ui.navigation.screen.discover
 
+import dev.datlag.aniflow.anilist.RecommendationRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.ui.navigation.Component
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface DiscoverComponent : Component {
     val loggedIn: Flow<Boolean>
@@ -12,6 +14,8 @@ interface DiscoverComponent : Component {
     val initialSearchValue: String?
     val type: Flow<MediaType>
     val searchResult: Flow<CollectionState>
+
+    val recommendation: StateFlow<RecommendationRepository.State>
 
     fun viewHome()
     fun viewList()

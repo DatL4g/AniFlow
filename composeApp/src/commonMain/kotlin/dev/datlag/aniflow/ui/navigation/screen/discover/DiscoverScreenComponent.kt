@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.anilist.RecommendationRepository
 import dev.datlag.aniflow.anilist.SearchRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
@@ -13,8 +14,12 @@ import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.tooling.compose.ioDispatcher
+import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import org.kodein.di.DI
 import org.kodein.di.instance
 
@@ -38,6 +43,16 @@ class DiscoverScreenComponent(
 
     override val searchResult: Flow<CollectionState> = searchRepository.result.flowOn(
         context = ioDispatcher()
+    )
+
+    private val recommendationRepository by instance<RecommendationRepository>()
+
+    override val recommendation: StateFlow<RecommendationRepository.State> = recommendationRepository.list.flowOn(
+        ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = RecommendationRepository.State.None
     )
 
     @Composable
