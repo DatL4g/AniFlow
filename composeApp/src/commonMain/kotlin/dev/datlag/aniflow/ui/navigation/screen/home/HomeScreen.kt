@@ -6,9 +6,11 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraEnhance
 import androidx.compose.material.icons.rounded.GetApp
@@ -17,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -173,61 +176,66 @@ fun HomeScreen(component: HomeComponent) {
                 onFavorites = component::viewFavorites
             )
         }
-    ) {
-        CompositionLocalProvider(
-            LocalPaddingValues provides it
-        ) {
-            AllLoadingView(
-                loadingContent = {
+    ) { targetPadding ->
+        val smoothPadding by animatePaddingAsState(targetPadding)
 
-                }
-            ) {
-                val viewType by component.viewing.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
-                val isManga = remember(viewType) {
-                    viewType == MediaType.MANGA
-                }
-                val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
-
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
-                    verticalArrangement = Arrangement.spacedBy(32.dp),
-                    contentPadding = LocalPadding(vertical = 16.dp)
+        AllLoadingView(
+            loadingContent = {
+                Box(
+                    modifier = Modifier.padding(smoothPadding).fillMaxSize().background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (!isManga) {
-                        item {
-                            ScheduleOverview(
-                                flow = component.airing,
-                                titleLanguage = titleLanguage,
-                                onMediumClick = component::details
-                            )
-                        }
-                    }
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+                    )
+                }
+            }
+        ) {
+            val viewType by component.viewing.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
+            val isManga = remember(viewType) {
+                viewType == MediaType.MANGA
+            }
+            val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
+                verticalArrangement = Arrangement.spacedBy(32.dp),
+                contentPadding = smoothPadding.plus(PaddingValues(vertical = 16.dp))
+            ) {
+                if (!isManga) {
                     item {
-                        DefaultOverview(
-                            title = stringResource(SharedRes.strings.trending),
-                            flow = component.trending,
+                        ScheduleOverview(
+                            flow = component.airing,
                             titleLanguage = titleLanguage,
                             onMediumClick = component::details
                         )
                     }
+                }
+                item {
+                    DefaultOverview(
+                        title = stringResource(SharedRes.strings.trending),
+                        flow = component.trending,
+                        titleLanguage = titleLanguage,
+                        onMediumClick = component::details
+                    )
+                }
+                item {
+                    DefaultOverview(
+                        title = stringResource(SharedRes.strings.popular),
+                        flow = component.popularNow,
+                        titleLanguage = titleLanguage,
+                        onMediumClick = component::details
+                    )
+                }
+                if (!isManga) {
                     item {
                         DefaultOverview(
-                            title = stringResource(SharedRes.strings.popular),
-                            flow = component.popularNow,
+                            title = stringResource(SharedRes.strings.upcoming),
+                            flow = component.popularNext,
                             titleLanguage = titleLanguage,
                             onMediumClick = component::details
                         )
-                    }
-                    if (!isManga) {
-                        item {
-                            DefaultOverview(
-                                title = stringResource(SharedRes.strings.upcoming),
-                                flow = component.popularNext,
-                                titleLanguage = titleLanguage,
-                                onMediumClick = component::details
-                            )
-                        }
                     }
                 }
             }

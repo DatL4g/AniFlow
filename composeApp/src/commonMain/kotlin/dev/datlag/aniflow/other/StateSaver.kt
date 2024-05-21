@@ -72,22 +72,30 @@ data object StateSaver {
         }.flowOn(ioDispatcher()).distinctUntilChanged()
 
         fun updateAiring(state: HomeAiringState): HomeAiringState {
-            airingLoading.update { false }
+            if (!state.isLoading) {
+                airingLoading.update { false }
+            }
             return state
         }
 
         fun updateTrending(state: HomeDefaultState): HomeDefaultState {
-            trendingLoading.update { false }
+            if (!state.isLoading) {
+                trendingLoading.update { false }
+            }
             return state
         }
 
         fun updatePopularCurrent(state: HomeDefaultState): HomeDefaultState {
-            popularCurrentLoading.update { false }
+            if (!state.isLoading) {
+                popularCurrentLoading.update { false }
+            }
             return state
         }
 
         fun updatePopularNext(state: HomeDefaultState): HomeDefaultState {
-            popularNextLoading.update { false }
+            if (!state.isLoading) {
+                popularNextLoading.update { false }
+            }
             return state
         }
 
