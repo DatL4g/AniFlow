@@ -125,15 +125,6 @@ data object NetworkModule {
                 baseUrl("https://api.nekosapi.com/v3/")
             }.create<Nekos>()
         }
-        bindSingleton<AiringTodayRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            AiringTodayRepository(
-                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent
-            )
-        }
         bindSingleton<CharacterRepository> {
             CharacterRepository(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
@@ -225,6 +216,16 @@ data object NetworkModule {
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent,
                 viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<AiringTodayStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            AiringTodayStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                nsfw = appSettings.adultContent,
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }

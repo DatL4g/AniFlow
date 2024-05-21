@@ -2,10 +2,9 @@ package dev.datlag.aniflow.ui.navigation.screen.home
 
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.Value
-import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
-import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeAiringState
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.settings.model.TitleLanguage
@@ -21,7 +20,7 @@ interface HomeComponent : Component {
     val loggedIn: Flow<Boolean>
     val titleLanguage: Flow<TitleLanguage?>
 
-    val airing: Flow<AiringTodayRepository.State>
+    val airing: StateFlow<HomeAiringState>
     val trending: StateFlow<HomeDefaultState>
     val popularNow: StateFlow<HomeDefaultState>
     val popularNext: StateFlow<HomeDefaultState>

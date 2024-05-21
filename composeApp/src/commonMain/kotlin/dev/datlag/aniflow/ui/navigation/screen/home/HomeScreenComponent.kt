@@ -8,18 +8,17 @@ import com.arkivanov.decompose.router.slot.*
 import com.arkivanov.decompose.value.Value
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.anilist.AiringTodayRepository
+import dev.datlag.aniflow.anilist.AiringTodayStateMachine
 import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
 import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
 import dev.datlag.aniflow.anilist.TrendingStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
-import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeAiringState
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
-import dev.datlag.aniflow.model.mutableStateIn
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
@@ -30,6 +29,7 @@ import dev.datlag.aniflow.ui.navigation.screen.home.dialog.about.AboutDialogComp
 import dev.datlag.aniflow.ui.navigation.screen.home.dialog.settings.SettingsDialogComponent
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -60,15 +60,15 @@ class HomeScreenComponent(
     override val loggedIn: Flow<Boolean> = userHelper.isLoggedIn
 
     private val stateScope = ioScope()
-    private val airingTodayRepository by instance<AiringTodayRepository>()
-    override val airing: Flow<AiringTodayRepository.State> = airingTodayRepository.airing.map {
+    private val airingTodayRepository by instance<AiringTodayStateMachine>()
+    override val airing: StateFlow<HomeAiringState> = airingTodayRepository.state.map {
         StateSaver.Home.updateAiring(it)
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = AiringTodayRepository.State.None
+        initialValue = airingTodayRepository.currentState
     )
 
     private val trendingRepository by instance<TrendingStateMachine>()

@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,8 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
-import dev.datlag.aniflow.anilist.AiringTodayRepository
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.HomeAiringState
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.custom.ErrorContent
@@ -27,11 +25,12 @@ import dev.datlag.aniflow.ui.navigation.screen.home.component.airing.AiringCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ScheduleOverview(
-    flow: Flow<AiringTodayRepository.State>,
+    flow: StateFlow<HomeAiringState>,
     titleLanguage: TitleLanguage?,
     onMediumClick: (Medium) -> Unit
 ) {
@@ -39,7 +38,7 @@ fun ScheduleOverview(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val state by flow.collectAsStateWithLifecycle(AiringTodayRepository.State.None)
+        val state by flow.collectAsStateWithLifecycle()
 
         Row(
             modifier = Modifier.padding(start = 16.dp, end = 4.dp).fillMaxWidth(),
@@ -54,10 +53,10 @@ fun ScheduleOverview(
         }
 
         when (val current = state) {
-            is AiringTodayRepository.State.None -> {
+            is HomeAiringState.None, is HomeAiringState.Loading -> {
                 Loading()
             }
-            is AiringTodayRepository.State.Success -> {
+            is HomeAiringState.Success -> {
                 val listState = rememberLazyListState(
                     initialFirstVisibleItemIndex = StateSaver.List.Home.airingOverview,
                     initialFirstVisibleItemScrollOffset = StateSaver.List.Home.airingOverviewOffset
@@ -83,7 +82,7 @@ fun ScheduleOverview(
                     }
                 }
             }
-            is AiringTodayRepository.State.Error -> {
+            is HomeAiringState.Error -> {
                 ErrorContent(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     horizontal = true

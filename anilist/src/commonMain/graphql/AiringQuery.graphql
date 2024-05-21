@@ -1,8 +1,8 @@
 query AiringQuery(
     $page: Int,
     $perPage: Int,
-    $statusVersion: Int,
-    $html: Boolean,
+    $statusVersion: Int!,
+    $html: Boolean!,
     $sort: [AiringSort],
     $airingAtGreater: Int
 ) {

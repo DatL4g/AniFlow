@@ -5,6 +5,7 @@ import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeAiringState
 import dev.datlag.aniflow.anilist.state.HomeDefaultAction
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.AppSettings
@@ -70,7 +71,7 @@ data object StateSaver {
             t1 && t2 && t3 && t4
         }.flowOn(ioDispatcher()).distinctUntilChanged()
 
-        fun updateAiring(state: AiringTodayRepository.State): AiringTodayRepository.State {
+        fun updateAiring(state: HomeAiringState): HomeAiringState {
             airingLoading.update { false }
             return state
         }
