@@ -28,7 +28,7 @@ internal val Instant.nextSeason: Pair<MediaSeason, Int>
         return date.month.season.next(date.date)
     }
 
-internal fun TrendingQuery.StartDate.toLocalDate(): LocalDate? {
+internal fun PageMediaQuery.StartDate.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,
@@ -37,14 +37,6 @@ internal fun TrendingQuery.StartDate.toLocalDate(): LocalDate? {
 }
 
 internal fun AiringQuery.StartDate.toLocalDate(): LocalDate? {
-    return LocalDate(
-        year = year ?: return null,
-        monthNumber = month ?: return null,
-        dayOfMonth = day ?: 1
-    )
-}
-
-internal fun SeasonQuery.StartDate.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,
@@ -92,7 +84,7 @@ internal fun AiringQuery.StartedAt.toLocalDate(): LocalDate? {
     )
 }
 
-internal fun TrendingQuery.StartedAt.toLocalDate(): LocalDate? {
+internal fun PageMediaQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,
@@ -101,14 +93,6 @@ internal fun TrendingQuery.StartedAt.toLocalDate(): LocalDate? {
 }
 
 internal fun MediumQuery.StartedAt.toLocalDate(): LocalDate? {
-    return LocalDate(
-        year = year ?: return null,
-        monthNumber = month ?: return null,
-        dayOfMonth = day ?: 1
-    )
-}
-
-internal fun SeasonQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,

@@ -9,12 +9,13 @@ import com.arkivanov.decompose.value.Value
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.AiringTodayRepository
-import dev.datlag.aniflow.anilist.PopularNextSeasonRepository
-import dev.datlag.aniflow.anilist.PopularSeasonRepository
-import dev.datlag.aniflow.anilist.TrendingRepository
+import dev.datlag.aniflow.anilist.PopularNextSeasonStateMachine
+import dev.datlag.aniflow.anilist.PopularSeasonStateMachine
+import dev.datlag.aniflow.anilist.TrendingStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
@@ -70,35 +71,37 @@ class HomeScreenComponent(
         initialValue = AiringTodayRepository.State.None
     )
 
-    private val trendingRepository by instance<TrendingRepository>()
-    override val trending: MutableStateFlow<CollectionState> = trendingRepository.trending.map {
+    private val trendingRepository by instance<TrendingStateMachine>()
+    override val trending: StateFlow<HomeDefaultState> = trendingRepository.state.map {
         StateSaver.Home.updateTrending(it)
     }.flowOn(
         context = ioDispatcher()
-    ).mutableStateIn(
+    ).stateIn(
         scope = stateScope,
-        initialValue = CollectionState.None
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = trendingRepository.currentState
     )
 
-    private val popularSeasonRepository by instance<PopularSeasonRepository>()
-    override val popularNow: MutableStateFlow<CollectionState> = popularSeasonRepository.popularThisSeason.map {
+    private val popularSeasonRepository by instance<PopularSeasonStateMachine>()
+    override val popularNow: StateFlow<HomeDefaultState> = popularSeasonRepository.state.map {
         StateSaver.Home.updatePopularCurrent(it)
     }.flowOn(
         context = ioDispatcher()
-    ).mutableStateIn(
+    ).stateIn(
         scope = stateScope,
-        initialValue = CollectionState.None
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = popularSeasonRepository.currentState
     )
 
-    private val popularNextSeasonRepository by instance<PopularNextSeasonRepository>()
-    override val popularNext: Flow<CollectionState> = popularNextSeasonRepository.popularNextSeason.map {
+    private val popularNextSeasonRepository by instance<PopularNextSeasonStateMachine>()
+    override val popularNext: StateFlow<HomeDefaultState> = popularNextSeasonRepository.state.map {
         StateSaver.Home.updatePopularNext(it)
     }.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = stateScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = CollectionState.None
+        initialValue = popularNextSeasonRepository.currentState
     )
 
     private val traceRepository by instance<TraceRepository>()
@@ -152,8 +155,6 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
-                clearForTypeChange()
-
                 appSettings.setViewManga(false)
             }
         }
@@ -163,8 +164,6 @@ class HomeScreenComponent(
         StateSaver.Home.updateAllLoading()
         launchIO {
             viewTypeExecutor.enqueue {
-                clearForTypeChange()
-
                 appSettings.setViewManga(true)
             }
         }
@@ -188,10 +187,5 @@ class HomeScreenComponent(
 
     override fun clearTrace() {
         traceRepository.clear()
-    }
-
-    private suspend fun clearForTypeChange() {
-        trending.emit(CollectionState.None)
-        popularNow.emit(CollectionState.None)
     }
 }

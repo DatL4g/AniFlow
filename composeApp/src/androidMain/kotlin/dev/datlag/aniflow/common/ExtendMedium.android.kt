@@ -1,9 +1,7 @@
 package dev.datlag.aniflow.common
 
-import dev.datlag.aniflow.anilist.TrendingQuery
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.Character
-import dev.datlag.aniflow.settings.model.AppSettings
 import java.util.Locale
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
 import dev.datlag.aniflow.settings.model.CharLanguage as SettingsChar

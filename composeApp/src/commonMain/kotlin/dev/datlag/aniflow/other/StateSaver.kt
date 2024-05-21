@@ -5,6 +5,8 @@ import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeDefaultAction
+import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.scopeCatching
 import dev.datlag.tooling.async.suspendCatching
@@ -73,17 +75,17 @@ data object StateSaver {
             return state
         }
 
-        fun updateTrending(state: CollectionState): CollectionState {
+        fun updateTrending(state: HomeDefaultState): HomeDefaultState {
             trendingLoading.update { false }
             return state
         }
 
-        fun updatePopularCurrent(state: CollectionState): CollectionState {
+        fun updatePopularCurrent(state: HomeDefaultState): HomeDefaultState {
             popularCurrentLoading.update { false }
             return state
         }
 
-        fun updatePopularNext(state: CollectionState): CollectionState {
+        fun updatePopularNext(state: HomeDefaultState): HomeDefaultState {
             popularNextLoading.update { false }
             return state
         }

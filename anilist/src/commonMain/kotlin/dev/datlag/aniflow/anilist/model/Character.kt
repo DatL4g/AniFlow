@@ -1,6 +1,7 @@
 package dev.datlag.aniflow.anilist.model
 
 import dev.datlag.aniflow.anilist.*
+import dev.datlag.aniflow.anilist.PageMediaQuery
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -103,7 +104,7 @@ data class Character(
             userPreferred = name.userPreferred?.ifBlank { null }
         )
 
-        constructor(name: TrendingQuery.Name) : this(
+        constructor(name: PageMediaQuery.Name) : this(
             first = name.first?.ifBlank { null },
             middle = name.middle?.ifBlank { null },
             last = name.last?.ifBlank { null },
@@ -113,15 +114,6 @@ data class Character(
         )
 
         constructor(name: AiringQuery.Name) : this(
-            first = name.first?.ifBlank { null },
-            middle = name.middle?.ifBlank { null },
-            last = name.last?.ifBlank { null },
-            full = name.full?.ifBlank { null },
-            native = name.native?.ifBlank { null },
-            userPreferred = name.userPreferred?.ifBlank { null }
-        )
-
-        constructor(name: SeasonQuery.Name) : this(
             first = name.first?.ifBlank { null },
             middle = name.middle?.ifBlank { null },
             last = name.last?.ifBlank { null },
@@ -173,17 +165,12 @@ data class Character(
             medium = image.medium?.ifBlank { null },
         )
 
-        constructor(image: TrendingQuery.Image) : this(
+        constructor(image: PageMediaQuery.Image) : this(
             large = image.large?.ifBlank { null },
             medium = image.medium?.ifBlank { null },
         )
 
         constructor(image: AiringQuery.Image) : this(
-            large = image.large?.ifBlank { null },
-            medium = image.medium?.ifBlank { null }
-        )
-
-        constructor(image: SeasonQuery.Image) : this(
             large = image.large?.ifBlank { null },
             medium = image.medium?.ifBlank { null }
         )
@@ -261,7 +248,7 @@ data class Character(
                 )
             }
 
-            operator fun invoke(birth: TrendingQuery.DateOfBirth): BirthDate? {
+            operator fun invoke(birth: PageMediaQuery.DateOfBirth): BirthDate? {
                 if (birth.day == null && birth.month == null && birth.year == null) {
                     return null
                 }
@@ -286,18 +273,6 @@ data class Character(
             }
 
             operator fun invoke(birth: AiringQuery.DateOfBirth): BirthDate? {
-                if (birth.day == null && birth.month == null && birth.year == null) {
-                    return null
-                }
-
-                return BirthDate(
-                    day = birth.day,
-                    month = birth.month,
-                    year = birth.year
-                )
-            }
-
-            operator fun invoke(birth: SeasonQuery.DateOfBirth): BirthDate? {
                 if (birth.day == null && birth.month == null && birth.year == null) {
                     return null
                 }
@@ -365,7 +340,7 @@ data class Character(
             )
         }
 
-        operator fun invoke(character: TrendingQuery.Node) : Character? {
+        operator fun invoke(character: PageMediaQuery.Node) : Character? {
             val name = character.name?.let(::Name) ?: return null
             val image = character.image?.let(::Image) ?: return null
 
@@ -400,23 +375,6 @@ data class Character(
         }
 
         operator fun invoke(character: AiringQuery.Node) : Character? {
-            val name = character.name?.let(::Name) ?: return null
-            val image = character.image?.let(::Image) ?: return null
-
-            return Character(
-                id = character.id,
-                name = name,
-                image = image,
-                gender = character.gender?.ifBlank { null },
-                bloodType = character.bloodType?.ifBlank { null },
-                birthDate = character.dateOfBirth?.let { BirthDate(it) },
-                description = character.description?.ifBlank { null },
-                isFavorite = character.isFavourite,
-                isFavoriteBlocked = character.isFavouriteBlocked
-            )
-        }
-
-        operator fun invoke(character: SeasonQuery.Node) : Character? {
             val name = character.name?.let(::Name) ?: return null
             val image = character.image?.let(::Image) ?: return null
 

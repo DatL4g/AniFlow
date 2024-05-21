@@ -125,39 +125,10 @@ data object NetworkModule {
                 baseUrl("https://api.nekosapi.com/v3/")
             }.create<Nekos>()
         }
-        bindSingleton<TrendingRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            TrendingRepository(
-                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
-            )
-        }
         bindSingleton<AiringTodayRepository> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             AiringTodayRepository(
-                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent
-            )
-        }
-        bindSingleton<PopularSeasonRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            PopularSeasonRepository(
-                apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
-            )
-        }
-        bindSingleton<PopularNextSeasonRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            PopularNextSeasonRepository(
                 apolloClient = instance(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent
@@ -221,6 +192,40 @@ data object NetworkModule {
                 user = instance<UserHelper>().user,
                 nsfw = appSettings.adultContent,
                 viewManga = appSettings.viewManga
+            )
+        }
+
+        bindProvider<TrendingStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            TrendingStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<PopularSeasonStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            PopularSeasonStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<PopularNextSeasonStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            PopularNextSeasonStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
     }

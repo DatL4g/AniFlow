@@ -3,16 +3,17 @@ package dev.datlag.aniflow.ui.navigation.screen.home
 import com.arkivanov.decompose.router.slot.ChildSlot
 import com.arkivanov.decompose.value.Value
 import dev.datlag.aniflow.anilist.AiringTodayRepository
-import dev.datlag.aniflow.anilist.TrendingRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.User
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.trace.TraceRepository
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.navigation.DialogComponent
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface HomeComponent : Component {
     val viewing: Flow<MediaType>
@@ -21,9 +22,9 @@ interface HomeComponent : Component {
     val titleLanguage: Flow<TitleLanguage?>
 
     val airing: Flow<AiringTodayRepository.State>
-    val trending: Flow<CollectionState>
-    val popularNow: Flow<CollectionState>
-    val popularNext: Flow<CollectionState>
+    val trending: StateFlow<HomeDefaultState>
+    val popularNow: StateFlow<HomeDefaultState>
+    val popularNext: StateFlow<HomeDefaultState>
 
     val traceState: Flow<TraceRepository.State>
 

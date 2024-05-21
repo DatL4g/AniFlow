@@ -17,17 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.custom.ErrorContent
 import dev.datlag.aniflow.ui.navigation.screen.home.component.default.MediumCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DefaultOverview(
     title: String,
-    flow: Flow<CollectionState>,
+    flow: StateFlow<HomeDefaultState>,
     titleLanguage: TitleLanguage?,
     onMediumClick: (Medium) -> Unit,
 ) {
@@ -35,7 +36,7 @@ fun DefaultOverview(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        val state by flow.collectAsStateWithLifecycle(CollectionState.None)
+        val state by flow.collectAsStateWithLifecycle()
 
         Row(
             modifier = Modifier.padding(start = 16.dp, end = 4.dp).fillMaxWidth(),
@@ -50,10 +51,10 @@ fun DefaultOverview(
         }
 
         when (val current = state) {
-            is CollectionState.None -> {
+            is HomeDefaultState.None, is HomeDefaultState.Loading -> {
                 Loading()
             }
-            is CollectionState.Success -> {
+            is HomeDefaultState.Success -> {
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -72,7 +73,7 @@ fun DefaultOverview(
                     }
                 }
             }
-            is CollectionState.Error -> {
+            is HomeDefaultState.Error -> {
                 ErrorContent(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     horizontal = true

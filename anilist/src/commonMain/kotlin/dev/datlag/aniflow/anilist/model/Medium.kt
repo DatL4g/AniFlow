@@ -2,6 +2,7 @@ package dev.datlag.aniflow.anilist.model
 
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.AdultContent
+import dev.datlag.aniflow.anilist.PageMediaQuery
 import dev.datlag.aniflow.anilist.common.lastMonth
 import dev.datlag.aniflow.anilist.common.toLocalDate
 import dev.datlag.aniflow.anilist.type.*
@@ -53,7 +54,7 @@ data class Medium(
     val volumes: Int = -1,
     val startDate: LocalDate? = null
 ) {
-    constructor(trending: TrendingQuery.Medium) : this(
+    constructor(trending: PageMediaQuery.Medium) : this(
         id = trending.id,
         idMal = trending.idMal,
         type = trending.type ?: MediaType.UNKNOWN__,
@@ -155,58 +156,6 @@ data class Medium(
         chapters = airing.chapters ?: -1,
         volumes = airing.volumes ?: -1,
         startDate = airing.startDate?.toLocalDate()
-    )
-
-    constructor(season: SeasonQuery.Medium) : this(
-        id = season.id,
-        idMal = season.idMal,
-        type = season.type ?: MediaType.UNKNOWN__,
-        status = season.status ?: MediaStatus.UNKNOWN__,
-        description = season.description?.ifBlank { null },
-        _episodes = season.episodes ?: -1,
-        avgEpisodeDurationInMin = season.duration ?: -1,
-        format = season.format ?: MediaFormat.UNKNOWN__,
-        _isAdult = season.isAdult ?: false,
-        genres = season.genresFilterNotNull()?.toSet() ?: emptySet(),
-        countryOfOrigin = season.countryOfOrigin?.toString()?.ifBlank { null },
-        averageScore = season.averageScore ?: -1,
-        title = Title(
-            english = season.title?.english?.ifBlank { null },
-            native = season.title?.native?.ifBlank { null },
-            romaji = season.title?.romaji?.ifBlank { null },
-            userPreferred = season.title?.userPreferred?.ifBlank { null }
-        ),
-        bannerImage = season.bannerImage?.ifBlank { null },
-        coverImage = CoverImage(
-            color = season.coverImage?.color?.ifBlank { null },
-            medium = season.coverImage?.medium?.ifBlank { null },
-            large = season.coverImage?.large?.ifBlank { null },
-            extraLarge = season.coverImage?.extraLarge?.ifBlank { null }
-        ),
-        nextAiringEpisode = season.nextAiringEpisode?.let(::NextAiring),
-        ranking = season.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-        _characters = season.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
-        entry = season.mediaListEntry?.let(::Entry),
-        trailer = season.trailer?.let {
-            val site = it.site?.ifBlank { null }
-            val thumbnail = it.thumbnail?.ifBlank { null }
-
-            if (site == null || thumbnail == null) {
-                null
-            } else {
-                Trailer(
-                    id = it.id?.ifBlank { null },
-                    site = site,
-                    thumbnail = thumbnail,
-                )
-            }
-        },
-        isFavorite = season.isFavourite,
-        _isFavoriteBlocked = season.isFavouriteBlocked,
-        siteUrl = season.siteUrl?.ifBlank { null } ?: "$SITE_URL${season.id}",
-        chapters = season.chapters ?: -1,
-        volumes = season.volumes ?: -1,
-        startDate = season.startDate?.toLocalDate()
     )
 
     constructor(query: MediumQuery.Media) : this(
@@ -528,7 +477,7 @@ data class Medium(
             type = ranking.type
         )
 
-        constructor(ranking: TrendingQuery.Ranking) : this(
+        constructor(ranking: PageMediaQuery.Ranking) : this(
             rank = ranking.rank,
             allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
             year = ranking.year ?: -1,
@@ -537,14 +486,6 @@ data class Medium(
         )
 
         constructor(ranking: AiringQuery.Ranking) : this(
-            rank = ranking.rank,
-            allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
-            year = ranking.year ?: -1,
-            season = ranking.season?.lastMonth(),
-            type = ranking.type
-        )
-
-        constructor(ranking: SeasonQuery.Ranking) : this(
             rank = ranking.rank,
             allTime = ranking.allTime ?: (ranking.season?.lastMonth() == null && ranking.year == null),
             year = ranking.year ?: -1,
@@ -593,7 +534,7 @@ data class Medium(
             startDate = entry.startedAt?.toLocalDate()
         )
 
-        constructor(entry: TrendingQuery.MediaListEntry) : this(
+        constructor(entry: PageMediaQuery.MediaListEntry) : this(
             score = entry.score,
             status = entry.status ?: MediaListStatus.UNKNOWN__,
             progress = entry.progress,
@@ -602,14 +543,6 @@ data class Medium(
         )
 
         constructor(entry: AiringQuery.MediaListEntry) : this(
-            score = entry.score,
-            status = entry.status ?: MediaListStatus.UNKNOWN__,
-            progress = entry.progress,
-            repeatCount = entry.repeat,
-            startDate = entry.startedAt?.toLocalDate()
-        )
-
-        constructor(entry: SeasonQuery.MediaListEntry) : this(
             score = entry.score,
             status = entry.status ?: MediaListStatus.UNKNOWN__,
             progress = entry.progress,
@@ -706,7 +639,7 @@ data class Medium(
          */
         val airingAt: Int
     ) {
-        constructor(nextAiringEpisode: TrendingQuery.NextAiringEpisode) : this(
+        constructor(nextAiringEpisode: PageMediaQuery.NextAiringEpisode) : this(
             episodes = nextAiringEpisode.episode,
             airingAt = nextAiringEpisode.airingAt
         )
@@ -717,11 +650,6 @@ data class Medium(
         )
 
         constructor(nextAiringEpisode: AiringQuery.NextAiringEpisode) : this(
-            episodes = nextAiringEpisode.episode,
-            airingAt = nextAiringEpisode.airingAt
-        )
-
-        constructor(nextAiringEpisode: SeasonQuery.NextAiringEpisode) : this(
             episodes = nextAiringEpisode.episode,
             airingAt = nextAiringEpisode.airingAt
         )
