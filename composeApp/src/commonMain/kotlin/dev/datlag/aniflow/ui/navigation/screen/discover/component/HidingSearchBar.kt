@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.Clear
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,11 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.SharedRes
-import dev.datlag.aniflow.anilist.state.CollectionState
+import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.other.SearchBarState
+import dev.datlag.aniflow.other.rememberSearchBarState
 import dev.datlag.aniflow.ui.custom.ErrorContent
 import dev.datlag.aniflow.ui.navigation.screen.discover.DiscoverComponent
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
@@ -49,6 +55,7 @@ import dev.icerock.moko.resources.compose.stringResource
 @Composable
 fun HidingSearchBar(
     visible: Boolean,
+    searchBarState: SearchBarState = rememberSearchBarState(),
     component: DiscoverComponent
 ) {
     val density = LocalDensity.current
@@ -74,15 +81,10 @@ fun HidingSearchBar(
     ) {
         val type by component.type.collectAsStateWithLifecycle(MediaType.UNKNOWN__)
         var query by remember { mutableStateOf(component.initialSearchValue ?: "") }
-        var active by remember { mutableStateOf(false) }
 
         val activePadding by animateDpAsState(
-            targetValue = if (active) 0.dp else 16.dp
+            targetValue = if (searchBarState.isActive) 0.dp else 16.dp
         )
-
-        LaunchedEffect(query) {
-            component.search(query)
-        }
 
         SearchBar(
             modifier = Modifier
@@ -92,13 +94,15 @@ fun HidingSearchBar(
             query = query,
             onQueryChange = {
                 query = it
+                component.search(query)
             },
-            active = active,
+            active = searchBarState.isActive,
             onActiveChange = {
-                active = it
+                searchBarState.isActive = it
             },
             onSearch = {
                 query = it
+                component.search(query)
             },
             leadingIcon = {
                 Icon(
@@ -130,7 +134,7 @@ fun HidingSearchBar(
                         IconButton(
                             onClick = {
                                 query = ""
-                                active = false
+                                searchBarState.isActive = false
                             },
                             enabled = query.isNotBlank()
                         ) {
@@ -142,7 +146,7 @@ fun HidingSearchBar(
                     }
                     IconButton(
                         onClick = {
-                            active = true
+                            searchBarState.isActive = true
                             component.toggleView()
                         },
                         enabled = type != MediaType.UNKNOWN__
@@ -162,16 +166,26 @@ fun HidingSearchBar(
                 }
             },
             content = {
-                val resultState by component.searchResult.collectAsStateWithLifecycle(CollectionState.None)
+                val resultState by component.searchResult.collectAsStateWithLifecycle()
 
                 when (val current = resultState) {
-                    is CollectionState.None -> {}
-                    is CollectionState.Error -> {
+                    is SearchState.None -> { }
+                    is SearchState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+                            )
+                        }
+                    }
+                    is SearchState.Error -> {
                         ErrorContent(
                             modifier = Modifier.fillMaxSize()
                         )
                     }
-                    is CollectionState.Success -> {
+                    is SearchState.Success -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(16.dp),

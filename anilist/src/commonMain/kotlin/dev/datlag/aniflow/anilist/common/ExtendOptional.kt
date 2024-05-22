@@ -38,4 +38,4 @@ fun <V> Optional.Companion.presentIfNot(predicate: Boolean, value: V) = if (pred
     present(value)
 }
 
-fun <V> Optional.Companion.presentAsList(value: V) = present(listOf(value))
+fun <V> Optional.Companion.presentAsList(vararg value: V) = present(listOf(*value))

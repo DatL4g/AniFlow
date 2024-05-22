@@ -164,16 +164,6 @@ data object NetworkModule {
                 viewManga = appSettings.viewManga
             )
         }
-        bindSingleton<SearchRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            SearchRepository(
-                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
-            )
-        }
         bindSingleton<RecommendationRepository> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
@@ -227,6 +217,18 @@ data object NetworkModule {
                 fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
                 nsfw = appSettings.adultContent,
                 crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<SearchStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            SearchStateMachine(
+                client = instance(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance(Constants.AniList.FALLBACK_APOLLO_CLIENT),
+                nsfw = appSettings.adultContent,
+                viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics,
+                log = Napier::e
             )
         }
     }

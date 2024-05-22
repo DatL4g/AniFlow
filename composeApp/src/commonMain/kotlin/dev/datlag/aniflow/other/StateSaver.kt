@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
-import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.state.HomeAiringState
 import dev.datlag.aniflow.anilist.state.HomeDefaultAction
 import dev.datlag.aniflow.anilist.state.HomeDefaultState

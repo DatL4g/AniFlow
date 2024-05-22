@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.state.CollectionState
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.custom.ErrorContent

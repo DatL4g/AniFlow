@@ -11,6 +11,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.haze
@@ -19,6 +22,7 @@ import dev.datlag.aniflow.common.animatePaddingAsState
 import dev.datlag.aniflow.common.header
 import dev.datlag.aniflow.common.merge
 import dev.datlag.aniflow.common.scrollUpVisible
+import dev.datlag.aniflow.other.rememberSearchBarState
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.discover.component.HidingSearchBar
@@ -29,17 +33,19 @@ import dev.datlag.aniflow.ui.navigation.screen.discover.component.TypeCard
 @Composable
 fun DiscoverScreen(component: DiscoverComponent) {
     val listState = rememberLazyGridState()
+    val searchBarState = rememberSearchBarState()
 
     Scaffold(
         topBar = {
             HidingSearchBar(
                 visible = listState.scrollUpVisible(),
+                searchBarState = searchBarState,
                 component = component
             )
         },
         bottomBar = {
             HidingNavigationBar(
-                visible = listState.scrollUpVisible(),
+                visible = listState.scrollUpVisible() && !searchBarState.isActive,
                 selected = NavigationBarState.Discover,
                 loggedIn = component.loggedIn,
                 onDiscover = { },

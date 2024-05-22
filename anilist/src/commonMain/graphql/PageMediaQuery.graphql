@@ -1,6 +1,7 @@
 query PageMediaQuery(
     $page: Int,
     $perPage: Int,
+    $query: String,
     $sort: [MediaSort],
     $year: Int,
     $season: MediaSeason,
@@ -12,6 +13,7 @@ query PageMediaQuery(
 ) {
     Page(page: $page, perPage: $perPage) {
         media(
+            search: $query,
             sort: $sort,
             seasonYear: $year,
             season: $season,

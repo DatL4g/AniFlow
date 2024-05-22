@@ -78,4 +78,20 @@ sealed interface PageMediaQuery {
             html = true
         )
     }
+
+    data class Search(
+        val query: String,
+        val type: MediaType,
+        val nsfw: Boolean
+    ) : PageMediaQuery {
+        override fun toGraphQL() = PageMediaGraphQL(
+            query = Optional.present(query),
+            adultContent = Optional.presentIfNot(nsfw),
+            type = Optional.presentMediaType(type),
+            sort = Optional.presentAsList(MediaSort.SEARCH_MATCH, MediaSort.POPULARITY_DESC),
+            preventGenres = Optional.presentIfNot(nsfw, AdultContent.Genre.allTags),
+            statusVersion = 2,
+            html = true
+        )
+    }
 }
