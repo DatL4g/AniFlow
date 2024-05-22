@@ -56,14 +56,7 @@ sealed interface SearchState {
     ) : PostLoading
 }
 
-sealed interface SearchAction {
-
-    sealed interface Type : SearchAction {
-
-        data object Anime : Type
-
-        data object Manga : Type
-
-        data object Toggle : Type
-    }
-}
+/**
+ * Don't use action as state may not be collected while changing data.
+ */
+sealed interface SearchAction { }

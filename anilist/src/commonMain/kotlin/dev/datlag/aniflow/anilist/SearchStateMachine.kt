@@ -27,8 +27,7 @@ class SearchStateMachine(
     private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
     private val viewManga: Flow<Boolean> = flowOf(false),
-    private val crashlytics: FirebaseFactory.Crashlytics?,
-    private val log: (String) -> Unit
+    private val crashlytics: FirebaseFactory.Crashlytics?
 ) : FlowReduxStateMachine<SearchState, SearchAction>(
     initialState = currentState
 ) {
@@ -90,21 +89,6 @@ class SearchStateMachine(
                 onEnterEffect {
                     currentState = it
                 }
-                onActionEffect<SearchAction.Type> { action, _ ->
-                    when (action) {
-                        is SearchAction.Type.Anime -> _type.update { MediaType.ANIME }
-                        is SearchAction.Type.Manga -> _type.update { MediaType.MANGA }
-                        is SearchAction.Type.Toggle -> {
-                            _type.update {
-                                if (it == MediaType.MANGA) {
-                                    MediaType.ANIME
-                                } else {
-                                    MediaType.MANGA
-                                }
-                            }
-                        }
-                    }
-                }
                 collectWhileInState(query) { q, state ->
                     state.override {
                         if (q == null) {
@@ -146,8 +130,38 @@ class SearchStateMachine(
         }
     }
 
+    /**
+     * Don't use action as state may not be collected while changing data.
+     */
     fun search(query: String) {
         StateSaver.searchQuery = _search.updateAndGet { query.trim() }?.ifBlank { null }
+    }
+
+    /**
+     * Don't use action as state may not be collected while changing data.
+     */
+    fun viewAnime() {
+        _type.update { MediaType.ANIME }
+    }
+
+    /**
+     * Don't use action as state may not be collected while changing data.
+     */
+    fun viewManga() {
+        _type.update { MediaType.MANGA }
+    }
+
+    /**
+     * Don't use action as state may not be collected while changing data.
+     */
+    fun toggleType() {
+        _type.update {
+            if (it == MediaType.MANGA) {
+                MediaType.ANIME
+            } else {
+                MediaType.MANGA
+            }
+        }
     }
 
     companion object {

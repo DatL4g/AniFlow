@@ -90,8 +90,6 @@ class DiscoverScreenComponent(
     }
 
     override fun toggleView() {
-        launchIO {
-            searchRepository.dispatch(SearchAction.Type.Toggle)
-        }
+        searchRepository.toggleType()
     }
 }

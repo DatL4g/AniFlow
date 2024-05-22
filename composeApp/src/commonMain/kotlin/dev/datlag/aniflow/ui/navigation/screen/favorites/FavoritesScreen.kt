@@ -2,6 +2,7 @@ package dev.datlag.aniflow.ui.navigation.screen.favorites
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -9,11 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.ClearAll
 import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.PlayCircle
-import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,11 +35,14 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
-import dev.datlag.aniflow.anilist.ListRepository
+import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.ListState
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.custom.ErrorContent
+import dev.datlag.aniflow.ui.custom.InfiniteListHandler
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.favorites.component.ListCard
@@ -153,7 +156,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
         val state by component.listState.collectAsStateWithLifecycle()
 
         when (val current = state) {
-            is ListRepository.State.None -> {
+            is ListState.None -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(padding),
                     contentAlignment = Alignment.Center
@@ -163,31 +166,86 @@ fun FavoritesScreen(component: FavoritesComponent) {
                     )
                 }
             }
-            is ListRepository.State.Error -> {
-                ErrorContent(
-                    modifier = Modifier.fillMaxSize()
+            is ListState.Data -> {
+                ListData(
+                    state = current,
+                    listState = listState,
+                    padding = padding,
+                    titleLanguage = null,
+                    onClick = component::details,
+                    onIncrease = component::increase,
+                    onLoadMore = component::nextPage
                 )
             }
-            is ListRepository.State.Success -> {
-                val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
+        }
+    }
+}
 
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
-                    contentPadding = padding.merge(PaddingValues(16.dp)),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    items(current.medium.toList(), key = { it.id }) {
-                        ListCard(
-                            medium = it,
-                            titleLanguage = titleLanguage,
-                            modifier = Modifier.fillParentMaxWidth().height(150.dp),
-                            onClick = component::details,
-                            onIncrease = component::increase
+@Composable
+private fun ListData(
+    state: ListState.Data,
+    listState: LazyListState,
+    padding: PaddingValues,
+    titleLanguage: TitleLanguage?,
+    onClick: (Medium) -> Unit,
+    onIncrease: (Medium, Int) -> Unit,
+    onLoadMore: suspend () -> Unit
+) {
+    val collection = remember(state) { state.collection }
+
+    if (collection.isNotEmpty()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
+            contentPadding = padding.merge(PaddingValues(16.dp)),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            items(collection.toList(), key = { it.id }) {
+                ListCard(
+                    medium = it,
+                    titleLanguage = titleLanguage,
+                    modifier = Modifier.fillParentMaxWidth().height(150.dp),
+                    onClick = onClick,
+                    onIncrease = onIncrease
+                )
+            }
+            if (state is ListState.Loading) {
+                item {
+                    Box(
+                        modifier = Modifier.fillParentMaxWidth().padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
                         )
                     }
                 }
             }
+        }
+
+        InfiniteListHandler(
+            listState = listState,
+            canLoadMore = state.hasNextPage,
+            onLoadMore = onLoadMore
+        )
+    } else {
+        when (state) {
+            is ListState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(0.2F).clip(CircleShape)
+                    )
+                }
+            }
+            is ListState.Error -> {
+                ErrorContent(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            else -> { }
         }
     }
 }

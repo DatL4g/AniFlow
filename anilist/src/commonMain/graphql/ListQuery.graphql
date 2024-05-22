@@ -2,12 +2,13 @@ query ListQuery(
     $type: MediaType,
     $userId: Int!,
     $page: Int,
+    $perPage: Int,
     $status: MediaListStatus,
-    $html: Boolean,
-    $statusVersion: Int,
+    $html: Boolean!,
+    $statusVersion: Int!,
     $sort: [MediaListSort]
 ) {
-    Page(page: $page) {
+    Page(page: $page, perPage: $perPage) {
         pageInfo {
             hasNextPage
         },

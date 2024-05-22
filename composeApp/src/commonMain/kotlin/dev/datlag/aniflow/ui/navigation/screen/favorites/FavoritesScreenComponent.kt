@@ -9,20 +9,20 @@ import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.EditMutation
-import dev.datlag.aniflow.anilist.ListRepository
+import dev.datlag.aniflow.anilist.ListStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.ListAction
+import dev.datlag.aniflow.anilist.state.ListState
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.model.coroutines.Executor
 import dev.datlag.aniflow.other.Constants
-import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.settings.Settings
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.tooling.compose.ioDispatcher
-import dev.datlag.tooling.compose.withMainContext
+import dev.datlag.tooling.compose.withIOContext
 import dev.datlag.tooling.decompose.ioScope
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
 import org.kodein.di.instance
@@ -39,13 +39,13 @@ class FavoritesScreenComponent(
     override val titleLanguage: Flow<TitleLanguage?> = appSettings.titleLanguage
 
     private val apolloClient by instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
-    private val listRepository by instance<ListRepository>()
-    override val listState: StateFlow<ListRepository.State> = listRepository.list.flowOn(
+    private val listRepository by instance<ListStateMachine>()
+    override val listState: StateFlow<ListState> = listRepository.state.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = ListRepository.State.None
+        initialValue = listRepository.currentState
     )
 
     private val increaseExecutor = Executor()
@@ -106,10 +106,20 @@ class FavoritesScreenComponent(
     }
 
     override fun toggleView() {
-        listRepository.toggleType()
+        launchIO {
+            listRepository.dispatch(ListAction.Type.Toggle)
+        }
     }
 
     override fun setStatus(status: MediaListStatus) {
-        listRepository.setStatus(status)
+        launchIO {
+            listRepository.dispatch(ListAction.Status(status))
+        }
+    }
+
+    override suspend fun nextPage() {
+        withIOContext {
+            listRepository.dispatch(ListAction.Page.Next)
+        }
     }
 }

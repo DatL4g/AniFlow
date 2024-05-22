@@ -1,6 +1,8 @@
 package dev.datlag.aniflow.anilist.common
 
 import com.apollographql.apollo3.api.Optional
+import dev.datlag.aniflow.anilist.type.MediaListSort
+import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaType
 
@@ -18,6 +20,16 @@ fun Optional.Companion.presentIfNot(value: Boolean) = if (value) {
 
 fun Optional.Companion.presentMediaType(type: MediaType) = when (type) {
     MediaType.UNKNOWN__ -> absent()
+    else -> present(type)
+}
+
+fun Optional.Companion.presentMediaListSort(type: MediaListSort) = when (type) {
+    MediaListSort.UNKNOWN__ -> absent()
+    else -> present(listOf(type))
+}
+
+fun Optional.Companion.presentMediaListStatus(type: MediaListStatus) = when (type) {
+    MediaListStatus.UNKNOWN__ -> absent()
     else -> present(type)
 }
 

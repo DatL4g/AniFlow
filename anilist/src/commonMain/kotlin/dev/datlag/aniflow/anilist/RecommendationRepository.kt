@@ -149,7 +149,9 @@ class RecommendationRepository(
                     Optional.present(type)
                 },
                 userId = userId,
-                sort = Optional.present(listOf(MediaListSort.FINISHED_ON_DESC, MediaListSort.UPDATED_TIME_DESC))
+                sort = Optional.present(listOf(MediaListSort.FINISHED_ON_DESC, MediaListSort.UPDATED_TIME_DESC)),
+                statusVersion = 2,
+                html = true
             )
         }
 

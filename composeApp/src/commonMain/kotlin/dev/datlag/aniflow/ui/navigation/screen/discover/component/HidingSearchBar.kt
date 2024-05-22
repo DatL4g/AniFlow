@@ -146,7 +146,6 @@ fun HidingSearchBar(
                     }
                     IconButton(
                         onClick = {
-                            searchBarState.isActive = true
                             component.toggleView()
                         },
                         enabled = type != MediaType.UNKNOWN__
