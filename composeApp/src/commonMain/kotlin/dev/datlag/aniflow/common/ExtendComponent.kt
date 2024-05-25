@@ -6,6 +6,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import com.arkivanov.essenty.lifecycle.LifecycleOwner
 import com.kmpalette.DominantColorState
 import dev.datlag.aniflow.LocalDI
+import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.ui.navigation.Component
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.tooling.decompose.lifecycle.LocalLifecycleOwner
@@ -13,6 +14,8 @@ import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import org.kodein.di.instance
+import org.kodein.di.instanceOrNull
 
 /**
  * Can be placed in the Component interface again when
@@ -30,7 +33,12 @@ fun Component.onRender(content: @Composable () -> Unit) {
         content()
     }
     SideEffect {
-        // ToDo: di.nullableFirebaseInstance()?.crashlytics?.screen(this)
+        nullableFirebaseInstance()?.crashlytics?.screen(this)
+
+        val bs by instanceOrNull<BurningSeriesResolver>()
+        bs?.let {
+            nullableFirebaseInstance()?.crashlytics?.bs(it)
+        }
     }
 }
 
