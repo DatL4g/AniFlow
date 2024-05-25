@@ -5,12 +5,14 @@ import dev.datlag.aniflow.anilist.state.DiscoverListType
 import dev.datlag.aniflow.anilist.state.DiscoverState
 import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.navigation.Component
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 interface DiscoverComponent : Component {
     val loggedIn: Flow<Boolean>
+    val titleLanguage: Flow<TitleLanguage?>
 
     val initialSearchValue: String?
     val type: Flow<MediaType>

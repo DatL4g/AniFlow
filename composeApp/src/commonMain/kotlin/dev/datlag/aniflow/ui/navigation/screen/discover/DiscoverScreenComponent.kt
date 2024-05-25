@@ -15,6 +15,8 @@ import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
 import dev.datlag.aniflow.other.UserHelper
+import dev.datlag.aniflow.settings.Settings
+import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +37,9 @@ class DiscoverScreenComponent(
 
     private val userHelper by instance<UserHelper>()
     override val loggedIn: Flow<Boolean> = userHelper.isLoggedIn
+
+    private val appSettings by instance<Settings.PlatformAppSettings>()
+    override val titleLanguage: Flow<TitleLanguage?> = appSettings.titleLanguage
 
     private val searchRepository by instance<SearchStateMachine>()
 

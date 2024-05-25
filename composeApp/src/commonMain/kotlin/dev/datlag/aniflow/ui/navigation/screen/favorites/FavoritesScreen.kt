@@ -156,12 +156,13 @@ fun FavoritesScreen(component: FavoritesComponent) {
         }
     ) { padding ->
         val state by component.listState.collectAsStateWithLifecycle()
+        val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
 
         ListData(
             state = state,
             listState = listState,
             padding = padding,
-            titleLanguage = null,
+            titleLanguage = titleLanguage,
             onClick = component::details,
             onIncrease = component::increase,
             onLoadMore = component::nextPage

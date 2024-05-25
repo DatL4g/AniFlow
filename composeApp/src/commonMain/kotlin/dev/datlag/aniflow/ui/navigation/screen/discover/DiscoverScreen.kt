@@ -156,6 +156,8 @@ fun DiscoverScreen(component: DiscoverComponent) {
                 )
             }
             is DiscoverState.Success -> {
+                val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
+
                 LazyVerticalGrid(
                     state = listState,
                     modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
@@ -167,7 +169,7 @@ fun DiscoverScreen(component: DiscoverComponent) {
                     items(current.collection.toList(), key = { it.id }) {
                         MediumCard(
                             medium = it,
-                            titleLanguage = null,
+                            titleLanguage = titleLanguage,
                             modifier = Modifier.fillMaxWidth().aspectRatio(0.65F),
                             onClick = component::details
                         )
