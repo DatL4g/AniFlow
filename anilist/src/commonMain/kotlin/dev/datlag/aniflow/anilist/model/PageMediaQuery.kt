@@ -161,13 +161,12 @@ sealed interface PageMediaQuery {
 
     data class Season(
         val season: MediaSeason,
-        val type: MediaType,
         val nsfw: Boolean
     ) : PageMediaQuery {
         override fun toGraphQL() = PageMediaGraphQL(
             season = Optional.presentMediaSeason(season),
             adultContent = Optional.presentIfNot(nsfw),
-            type = Optional.presentMediaType(type),
+            type = Optional.presentMediaType(MediaType.ANIME),
             preventGenres = Optional.presentIfNot(nsfw, AdultContent.Genre.allTags),
             statusVersion = 2,
             html = true

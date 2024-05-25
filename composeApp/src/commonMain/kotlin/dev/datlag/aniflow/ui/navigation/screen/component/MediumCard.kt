@@ -1,4 +1,4 @@
-package dev.datlag.aniflow.ui.navigation.screen.home.component.default
+package dev.datlag.aniflow.ui.navigation.screen.component
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
@@ -15,6 +15,8 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.ui.navigation.screen.home.component.default.GenreChip
+import dev.datlag.aniflow.ui.navigation.screen.home.component.default.Rating
 import dev.datlag.aniflow.ui.theme.SchemeTheme
 import dev.datlag.aniflow.ui.theme.rememberSchemeThemeDominantColorState
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle

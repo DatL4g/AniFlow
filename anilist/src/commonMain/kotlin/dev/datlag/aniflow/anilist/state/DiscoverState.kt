@@ -2,6 +2,7 @@ package dev.datlag.aniflow.anilist.state
 
 import com.apollographql.apollo3.api.ApolloResponse
 import dev.datlag.aniflow.anilist.ListQuery
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.PageListQuery
 import dev.datlag.aniflow.anilist.model.PageMediaQuery
@@ -9,24 +10,28 @@ import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
 sealed interface DiscoverState {
+
+    val isFailure: Boolean
+        get() = this is Failure
+
     sealed interface Recommended : DiscoverState {
-        data object None : Recommended
 
         sealed interface Loading : Recommended {
-            data class WatchList(
-                internal val query: PageListQuery,
-                internal val fallback: Boolean
-            ) : Loading {
+            data object WatchList : Loading
 
+            data class Matching(
+                internal val query: PageMediaQuery
+            ) : Loading
 
-                fun fromGraphQL(nsfw: Boolean, response: ApolloResponse<ListQuery.Data>): DiscoverState {
+            companion object {
+                fun fromList(nsfw: Boolean, response: ApolloResponse<ListQuery.Data>): DiscoverState {
                     val data = response.data
 
                     return if (data == null) {
-                        if (fallback) {
-                            Error(throwable = response.exception)
+                        if (response.hasNonCacheError()) {
+                            Failure(response.exception)
                         } else {
-                            copy(fallback = true)
+                            WatchList
                         }
                     } else {
                         val mediumList = data.Page?.mediaListFilterNotNull()?.mapNotNull {
@@ -37,46 +42,32 @@ sealed interface DiscoverState {
                         }?.distinctBy { it.id }
 
                         if (mediumList.isNullOrEmpty()) {
-                            if (fallback) {
-                                Error(throwable = response.exception)
-                            } else {
-                                copy(fallback = true)
-                            }
+                            Failure(response.exception)
                         } else {
                             Matching(
                                 query = PageMediaQuery.Recommendation(
                                     nsfw = nsfw,
                                     collection = mediumList
-                                ),
-                                fallback = false
+                                )
                             )
                         }
                     }
                 }
-            }
 
-            data class Matching(
-                internal val query: PageMediaQuery,
-                internal val fallback: Boolean
-            ) : Loading {
-                fun fromGraphQL(response: ApolloResponse<PageMediaGraphQL.Data>): DiscoverState {
+                fun fromMatching(defaultState: DiscoverState, response: ApolloResponse<PageMediaGraphQL.Data>): DiscoverState {
                     val data = response.data
 
                     return if (data == null) {
-                        if (fallback) {
-                            Error(throwable = response.exception)
+                        if (response.hasNonCacheError()) {
+                            Failure(response.exception)
                         } else {
-                            copy(fallback = true)
+                            defaultState
                         }
                     } else {
                         val mediumList = data.Page?.mediaFilterNotNull()
 
                         if (mediumList.isNullOrEmpty()) {
-                            if (fallback) {
-                                Error(throwable = response.exception)
-                            } else {
-                                copy(fallback = true)
-                            }
+                            Failure(response.exception)
                         } else {
                             Success(
                                 collection = mediumList.map(::Medium).distinctBy { it.id }
@@ -90,30 +81,23 @@ sealed interface DiscoverState {
 
     sealed interface Season : DiscoverState {
 
-        data class None(internal val wanted: MediaSeason) : Season
+        data object Loading : Season
 
-        data class Loading(
-            internal val query: PageMediaQuery,
-            internal val fallback: Boolean
-        ) : Season {
-            fun fromGraphQL(response: ApolloResponse<PageMediaGraphQL.Data>): DiscoverState {
+        companion object {
+            fun fromSeasonResponse(response: ApolloResponse<PageMediaGraphQL.Data>): DiscoverState {
                 val data = response.data
 
                 return if (data == null) {
-                    if (fallback) {
-                        Error(throwable = response.exception)
+                    if (response.hasNonCacheError()) {
+                        Failure(throwable = response.exception)
                     } else {
-                        copy(fallback = true)
+                        Loading
                     }
                 } else {
                     val mediumList = data.Page?.mediaFilterNotNull()
 
                     if (mediumList.isNullOrEmpty()) {
-                        if (fallback) {
-                            Error(throwable = response.exception)
-                        } else {
-                            copy(fallback = true)
-                        }
+                        Failure(throwable = response.exception)
                     } else {
                         Success(
                             collection = mediumList.map(::Medium).distinctBy { it.id }
@@ -130,44 +114,52 @@ sealed interface DiscoverState {
         val collection: Collection<Medium>
     ) : PostLoading
 
-    data class Error(
+    data class Failure(
         internal val throwable: Throwable?
     ) : PostLoading
 }
 
-sealed interface DiscoverAction {
+sealed interface DiscoverListType {
 
-    sealed interface Type : DiscoverAction {
+    data object Recommendation : DiscoverListType
 
-        data object Anime : Type
+    sealed interface Season : DiscoverListType {
+        val mediaSeason : MediaSeason
 
-        data object Manga : Type
-
-        data object Toggle : Type
+        companion object {
+            fun fromSeason(season: MediaSeason): Season = when (season) {
+                MediaSeason.SPRING -> Spring
+                MediaSeason.SUMMER -> Summer
+                MediaSeason.FALL -> Fall
+                MediaSeason.WINTER -> Winter
+                else -> Spring
+            }
+        }
     }
 
-    sealed interface ListType : DiscoverAction {
+    data object Spring : Season {
+        override val mediaSeason: MediaSeason = MediaSeason.SPRING
+    }
 
-        data object Recommendation : ListType
+    data object Summer : Season {
+        override val mediaSeason: MediaSeason = MediaSeason.SUMMER
+    }
 
-        sealed interface Season : ListType {
-            val mediaSeason : MediaSeason
-        }
+    data object Fall : Season {
+        override val mediaSeason: MediaSeason = MediaSeason.FALL
+    }
 
-        data object Spring : Season {
-            override val mediaSeason: MediaSeason = MediaSeason.SPRING
-        }
+    data object Winter : Season {
+        override val mediaSeason: MediaSeason = MediaSeason.WINTER
+    }
 
-        data object Summer : Season {
-            override val mediaSeason: MediaSeason = MediaSeason.SUMMER
-        }
-
-        data object Fall : Season {
-            override val mediaSeason: MediaSeason = MediaSeason.FALL
-        }
-
-        data object Winter : Season {
-            override val mediaSeason: MediaSeason = MediaSeason.WINTER
-        }
+    companion object {
+        val entries = setOf(
+            DiscoverListType.Recommendation,
+            DiscoverListType.Spring,
+            DiscoverListType.Summer,
+            DiscoverListType.Fall,
+            DiscoverListType.Winter
+        )
     }
 }

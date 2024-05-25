@@ -118,4 +118,5 @@
     <string name="summer">Summer</string>
     <string name="fall">Fall</string>
     <string name="winter">Winter</string>
+    <string name="recommendation">Recommendation</string>
 </resources>

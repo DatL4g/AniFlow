@@ -18,5 +18,5 @@ internal object StateSaver {
 
     var listState: ListState = ListState.Loading(emptyList())
 
-    var discoverState: DiscoverState = DiscoverState.Recommended.None
+    var discoverState: DiscoverState = DiscoverState.Recommended.Loading.WatchList
 }

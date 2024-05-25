@@ -220,7 +220,7 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<DiscoverStateMachine> {
+        bindSingleton<DiscoverStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             DiscoverStateMachine(

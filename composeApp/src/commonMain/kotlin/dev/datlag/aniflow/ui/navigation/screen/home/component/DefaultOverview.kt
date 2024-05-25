@@ -1,12 +1,9 @@
 package dev.datlag.aniflow.ui.navigation.screen.home.component
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,9 +16,8 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.TitleLanguage
 import dev.datlag.aniflow.ui.custom.ErrorContent
-import dev.datlag.aniflow.ui.navigation.screen.home.component.default.MediumCard
+import dev.datlag.aniflow.ui.navigation.screen.component.MediumCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable

@@ -9,6 +9,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.DiscoverStateMachine
 import dev.datlag.aniflow.anilist.SearchStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.DiscoverListType
 import dev.datlag.aniflow.anilist.state.DiscoverState
 import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
@@ -59,6 +60,14 @@ class DiscoverScreenComponent(
         initialValue = discoverStateMachine.currentState
     )
 
+    override val discoverType: StateFlow<DiscoverListType> = discoverStateMachine.listType.flowOn(
+        context = ioDispatcher()
+    ).stateIn(
+        scope = ioScope(),
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = discoverStateMachine.currentListType
+    )
+
     @Composable
     override fun render() {
         val haze = remember { HazeState() }
@@ -90,5 +99,10 @@ class DiscoverScreenComponent(
 
     override fun toggleView() {
         searchRepository.toggleType()
+        discoverStateMachine.toggleType()
+    }
+
+    override fun listType(type: DiscoverListType) {
+        discoverStateMachine.listType(type)
     }
 }
