@@ -6,6 +6,8 @@ import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.PageAiringQuery
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.toImmutableList
 
 import dev.datlag.aniflow.anilist.AiringQuery as PageAiringGraphQL
 
@@ -22,7 +24,7 @@ sealed interface HomeAiringState {
     private sealed interface PostLoading : HomeAiringState
 
     data class Success(
-        val collection: Collection<PageAiringGraphQL.AiringSchedule>
+        val collection: ImmutableCollection<PageAiringGraphQL.AiringSchedule>
     ) : PostLoading
 
     data class Failure(
@@ -55,7 +57,7 @@ sealed interface HomeAiringState {
                 if (airingList.isNullOrEmpty()) {
                     Failure(throwable = response.exception)
                 } else {
-                    Success(airingList)
+                    Success(airingList.toImmutableList())
                 }
             }
         }

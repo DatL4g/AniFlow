@@ -4,6 +4,8 @@ import com.apollographql.apollo3.api.ApolloResponse
 import dev.datlag.aniflow.anilist.PageMediaQuery
 import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.Medium
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.toImmutableList
 
 sealed interface HomeDefaultState {
 
@@ -17,7 +19,7 @@ sealed interface HomeDefaultState {
 
     private sealed interface PostLoading : HomeDefaultState
 
-    data class Success(val collection: Collection<Medium>) : PostLoading
+    data class Success(val collection: ImmutableCollection<Medium>) : PostLoading
 
     data class Failure(
         internal val throwable: Throwable?
@@ -39,7 +41,7 @@ sealed interface HomeDefaultState {
                 if (mediumList.isNullOrEmpty()) {
                     Failure(response.exception)
                 } else {
-                    Success(mediumList.map(::Medium))
+                    Success(mediumList.map(::Medium).toImmutableList())
                 }
             }
         }

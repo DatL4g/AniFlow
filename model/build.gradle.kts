@@ -30,6 +30,8 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.coroutines)
             implementation(libs.tooling)
+            api(libs.immutable)
+            api(libs.serialization)
         }
     }
 }

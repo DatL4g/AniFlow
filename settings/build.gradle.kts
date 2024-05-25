@@ -19,6 +19,7 @@ kotlin {
         commonMain.dependencies {
             api(libs.coroutines)
             api(libs.datastore)
+            api(libs.immutable)
 
             implementation(libs.serialization.protobuf)
             implementation(libs.tooling)

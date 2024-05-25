@@ -9,6 +9,7 @@ import dev.datlag.aniflow.anilist.type.MediaListSort
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaType
+import kotlinx.collections.immutable.persistentListOf
 
 fun ApolloResponse<*>.hasNonCacheError(): Boolean {
     return when (exception) {
@@ -62,4 +63,4 @@ fun <V> Optional.Companion.presentIfNot(predicate: Boolean, value: V) = if (pred
     present(value)
 }
 
-fun <V> Optional.Companion.presentAsList(vararg value: V) = present(listOf(*value))
+fun <V> Optional.Companion.presentAsList(vararg value: V) = present(persistentListOf(*value))

@@ -24,6 +24,7 @@ kotlin {
             api(libs.ktorfit)
             implementation(libs.serialization)
             api(libs.flowredux)
+            api(libs.immutable)
 
             api(project(":model"))
             implementation(project(":firebase"))

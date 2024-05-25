@@ -35,6 +35,7 @@ kotlin {
             implementation(libs.datetime)
             implementation(libs.serialization)
             implementation(libs.tooling)
+            api(libs.immutable)
 
             implementation(project(":model"))
             implementation(project(":firebase"))

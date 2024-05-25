@@ -22,6 +22,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.maxkeppeker.sheets.core.models.base.Header
+import com.maxkeppeker.sheets.core.models.base.IconSource
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.option.OptionDialog
 import com.maxkeppeler.sheets.option.models.DisplayMode
@@ -121,6 +123,10 @@ fun NekosScreen(component: NekosComponent) {
                         }
                         component.filter(filterRating)
                     }
+                ),
+                header = Header.Default(
+                    icon = IconSource(Icons.Rounded.FilterList),
+                    title = stringResource(SharedRes.strings.filter)
                 )
             )
 

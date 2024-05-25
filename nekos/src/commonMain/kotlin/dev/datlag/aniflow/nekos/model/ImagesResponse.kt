@@ -1,13 +1,16 @@
 package dev.datlag.aniflow.nekos.model
 
+import dev.datlag.aniflow.model.serializer.SerializableImmutableList
 import dev.datlag.aniflow.nekos.AdultContent
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
 data class ImagesResponse(
-    @SerialName("items") val items: List<Item>,
+    @SerialName("items") val items: SerializableImmutableList<Item>,
     @SerialName("count") val count: Int = items.size,
 ) {
     @Transient
@@ -18,8 +21,8 @@ data class ImagesResponse(
         @SerialName("id") val id: Int,
         @SerialName("image_url") val imageUrl: String? = null,
         @SerialName("sample_url") val sampleUrl: String? = null,
-        @SerialName("characters") val characters: List<Character> = emptyList(),
-        @SerialName("tags") val tags: List<Tag> = emptyList(),
+        @SerialName("characters") val characters: SerializableImmutableList<Character> = persistentListOf(),
+        @SerialName("tags") val tags: SerializableImmutableList<Tag> = persistentListOf(),
     ) {
         @Transient
         val hasAdultTag: Boolean = tags.any {

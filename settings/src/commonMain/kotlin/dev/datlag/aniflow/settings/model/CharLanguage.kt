@@ -1,5 +1,7 @@
 package dev.datlag.aniflow.settings.model
 
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -29,7 +31,7 @@ sealed interface CharLanguage {
     }
 
     companion object CharSerializer : KSerializer<CharLanguage?> {
-        val all: Set<CharLanguage> = setOf(
+        val all: ImmutableSet<CharLanguage> = persistentSetOf(
             RomajiWestern,
             Romaji,
             Native

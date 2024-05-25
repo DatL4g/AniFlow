@@ -8,6 +8,11 @@ import dev.datlag.aniflow.anilist.common.toLocalDate
 import dev.datlag.aniflow.anilist.type.*
 import dev.datlag.aniflow.model.ifValue
 import dev.datlag.aniflow.model.toInt
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -26,7 +31,7 @@ data class Medium(
     val avgEpisodeDurationInMin: Int = -1,
     val format: MediaFormat = MediaFormat.UNKNOWN__,
     private val _isAdult: Boolean = false,
-    val genres: Set<String> = emptySet(),
+    val genres: ImmutableSet<String> = persistentSetOf(),
     val countryOfOrigin: String? = null,
     val averageScore: Int = -1,
     val title: Title = Title(
@@ -43,8 +48,8 @@ data class Medium(
         color = null
     ),
     val nextAiringEpisode: NextAiring? = null,
-    val ranking: Set<Ranking> = emptySet(),
-    private val _characters: Set<Character> = emptySet(),
+    val ranking: ImmutableCollection<Ranking> = persistentSetOf(),
+    private val _characters: ImmutableCollection<Character> = persistentSetOf(),
     val entry: Entry? = null,
     val trailer: Trailer? = null,
     val isFavorite: Boolean = false,
@@ -64,7 +69,7 @@ data class Medium(
         avgEpisodeDurationInMin = trending.duration ?: -1,
         format = trending.format ?: MediaFormat.UNKNOWN__,
         _isAdult = trending.isAdult ?: false,
-        genres = trending.genresFilterNotNull()?.toSet() ?: emptySet(),
+        genres = trending.genresFilterNotNull()?.toImmutableSet() ?: persistentSetOf(),
         countryOfOrigin = trending.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = trending.averageScore ?: -1,
         title = Title(
@@ -81,8 +86,8 @@ data class Medium(
             extraLarge = trending.coverImage?.extraLarge?.ifBlank { null }
         ),
         nextAiringEpisode = trending.nextAiringEpisode?.let(::NextAiring),
-        ranking = trending.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-        _characters = trending.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        ranking = trending.rankingsFilterNotNull()?.map(::Ranking)?.toImmutableSet() ?: persistentSetOf(),
+        _characters = trending.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toImmutableSet() ?: persistentSetOf(),
         entry = trending.mediaListEntry?.let(::Entry),
         trailer = trending.trailer?.let {
             val site = it.site?.ifBlank { null }
@@ -116,7 +121,7 @@ data class Medium(
         avgEpisodeDurationInMin = airing.duration ?: -1,
         format = airing.format ?: MediaFormat.UNKNOWN__,
         _isAdult = airing.isAdult ?: false,
-        genres = airing.genresFilterNotNull()?.toSet() ?: emptySet(),
+        genres = airing.genresFilterNotNull()?.toImmutableSet() ?: persistentSetOf(),
         countryOfOrigin = airing.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = airing.averageScore ?: -1,
         title = Title(
@@ -133,8 +138,8 @@ data class Medium(
             extraLarge = airing.coverImage?.extraLarge?.ifBlank { null }
         ),
         nextAiringEpisode = airing.nextAiringEpisode?.let(::NextAiring),
-        ranking = airing.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-        _characters = airing.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        ranking = airing.rankingsFilterNotNull()?.map(::Ranking)?.toImmutableSet() ?: persistentSetOf(),
+        _characters = airing.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toImmutableSet() ?: persistentSetOf(),
         entry = airing.mediaListEntry?.let(::Entry),
         trailer = airing.trailer?.let {
             val site = it.site?.ifBlank { null }
@@ -168,7 +173,7 @@ data class Medium(
         avgEpisodeDurationInMin = query.duration ?: -1,
         format = query.format ?: MediaFormat.UNKNOWN__,
         _isAdult = query.isAdult ?: false,
-        genres = query.genresFilterNotNull()?.toSet() ?: emptySet(),
+        genres = query.genresFilterNotNull()?.toImmutableSet() ?: persistentSetOf(),
         countryOfOrigin = query.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = query.averageScore ?: -1,
         title = Title(
@@ -185,8 +190,8 @@ data class Medium(
             extraLarge = query.coverImage?.extraLarge?.ifBlank { null }
         ),
         nextAiringEpisode = query.nextAiringEpisode?.let(::NextAiring),
-        ranking = query.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-        _characters = query.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        ranking = query.rankingsFilterNotNull()?.map(::Ranking)?.toImmutableSet() ?: persistentSetOf(),
+        _characters = query.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toImmutableSet() ?: persistentSetOf(),
         entry = query.mediaListEntry?.let(::Entry),
         trailer = query.trailer?.let {
             val site = it.site?.ifBlank { null }
@@ -220,7 +225,7 @@ data class Medium(
         avgEpisodeDurationInMin = media.duration ?: -1,
         format = media.format ?: MediaFormat.UNKNOWN__,
         _isAdult = media.isAdult ?: false,
-        genres = media.genresFilterNotNull()?.toSet() ?: emptySet(),
+        genres = media.genresFilterNotNull()?.toImmutableSet() ?: persistentSetOf(),
         countryOfOrigin = media.countryOfOrigin?.toString()?.ifBlank { null },
         averageScore = media.averageScore ?: -1,
         title = Title(
@@ -237,8 +242,8 @@ data class Medium(
             extraLarge = media.coverImage?.extraLarge?.ifBlank { null }
         ),
         nextAiringEpisode = media.nextAiringEpisode?.let(::NextAiring),
-        ranking = media.rankingsFilterNotNull()?.map(::Ranking)?.toSet() ?: emptySet(),
-        _characters = media.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toSet() ?: emptySet(),
+        ranking = media.rankingsFilterNotNull()?.map(::Ranking)?.toImmutableSet() ?: persistentSetOf(),
+        _characters = media.characters?.nodesFilterNotNull()?.mapNotNull(Character::invoke)?.toImmutableSet() ?: persistentSetOf(),
         entry = list?.let(::Entry),
         trailer = media.trailer?.let {
             val site = it.site?.ifBlank { null }
@@ -268,7 +273,7 @@ data class Medium(
     }
 
     @Transient
-    val characters: Set<Character> = _characters.filterNot { it.id == 36309 }.toSet()
+    val characters: ImmutableSet<Character> = _characters.filterNot { it.id == 36309 }.toImmutableSet()
 
     @Transient
     val isFavoriteBlocked: Boolean = _isFavoriteBlocked || type == MediaType.UNKNOWN__

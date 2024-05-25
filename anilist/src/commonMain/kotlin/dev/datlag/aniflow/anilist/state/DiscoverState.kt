@@ -7,6 +7,9 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.anilist.model.PageListQuery
 import dev.datlag.aniflow.anilist.model.PageMediaQuery
 import dev.datlag.aniflow.anilist.type.MediaSeason
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
 sealed interface DiscoverState {
@@ -47,7 +50,7 @@ sealed interface DiscoverState {
                             Matching(
                                 query = PageMediaQuery.Recommendation(
                                     nsfw = nsfw,
-                                    collection = mediumList
+                                    collection = mediumList.toImmutableList()
                                 )
                             )
                         }
@@ -70,7 +73,7 @@ sealed interface DiscoverState {
                             Failure(response.exception)
                         } else {
                             Success(
-                                collection = mediumList.map(::Medium).distinctBy { it.id }
+                                collection = mediumList.map(::Medium).distinctBy { it.id }.toImmutableList()
                             )
                         }
                     }
@@ -100,7 +103,7 @@ sealed interface DiscoverState {
                         Failure(throwable = response.exception)
                     } else {
                         Success(
-                            collection = mediumList.map(::Medium).distinctBy { it.id }
+                            collection = mediumList.map(::Medium).distinctBy { it.id }.toImmutableList()
                         )
                     }
                 }
@@ -111,7 +114,7 @@ sealed interface DiscoverState {
     private sealed interface PostLoading : DiscoverState
 
     data class Success(
-        val collection: Collection<Medium>
+        val collection: ImmutableCollection<Medium>
     ) : PostLoading
 
     data class Failure(
@@ -154,7 +157,7 @@ sealed interface DiscoverListType {
     }
 
     companion object {
-        val entries = setOf(
+        val entries = persistentSetOf(
             DiscoverListType.Recommendation,
             DiscoverListType.Spring,
             DiscoverListType.Summer,

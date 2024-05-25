@@ -12,6 +12,8 @@ import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.tooling.safeSubList
 import dev.datlag.tooling.safeSubSet
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.datetime.Clock
 import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
@@ -98,15 +100,15 @@ sealed interface PageMediaQuery {
     }
 
     data class Recommendation(
-        val wantedGenres: Collection<String>,
-        val preventIds: Collection<Int>,
+        val wantedGenres: ImmutableCollection<String>,
+        val preventIds: ImmutableCollection<Int>,
         val type: MediaType,
         val nsfw: Boolean
     ) : PageMediaQuery {
 
         constructor(
             nsfw: Boolean,
-            collection: Collection<Medium>,
+            collection: ImmutableCollection<Medium>,
             type: MediaType = collection.let { c ->
                 val allTypes = c.map {
                     it.type
@@ -140,8 +142,8 @@ sealed interface PageMediaQuery {
                 allGenres.groupingBy { g -> g }.eachCount().toList().sortedByDescending { p ->
                     p.second
                 }.safeSubSet(0, 5).toMap().keys.safeSubSet(0, 5)
-            },
-            preventIds = collection.map { it.id },
+            }.toImmutableSet(),
+            preventIds = collection.map { it.id }.toImmutableSet(),
             type = type,
             nsfw = nsfw
         )
@@ -151,8 +153,8 @@ sealed interface PageMediaQuery {
             type = Optional.presentMediaType(type),
             sort = Optional.presentAsList(MediaSort.TRENDING_DESC),
             preventGenres = Optional.presentIfNot(nsfw, AdultContent.Genre.allTags),
-            wantedGenres = Optional.present(wantedGenres.toList()),
-            preventIds = Optional.present(preventIds.toList()),
+            wantedGenres = Optional.presentAsList(*wantedGenres.toTypedArray()),
+            preventIds = Optional.presentAsList(*preventIds.toTypedArray()),
             onList = Optional.present(false),
             statusVersion = 2,
             html = true

@@ -16,13 +16,14 @@ import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.settings.model.CharLanguage
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun CharacterSection(
     initialMedium: Medium,
-    characterFlow: Flow<Collection<Character>>,
+    characterFlow: Flow<ImmutableCollection<Character>>,
     charLanguage: Flow<CharLanguage?>,
     modifier: Modifier = Modifier,
     onClick: (Character) -> Unit

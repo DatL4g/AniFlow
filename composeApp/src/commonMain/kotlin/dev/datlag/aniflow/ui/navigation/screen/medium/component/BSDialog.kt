@@ -19,13 +19,14 @@ import dev.datlag.aniflow.other.Series
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BSDialog(
     state: UseCaseState,
-    bsOptions: Collection<Series>,
+    bsOptions: ImmutableCollection<Series>,
     onSearch: suspend (String) -> Unit
 ) {
     OptionDialog(

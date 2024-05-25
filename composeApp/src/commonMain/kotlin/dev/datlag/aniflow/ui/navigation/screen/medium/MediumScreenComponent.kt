@@ -33,6 +33,10 @@ import dev.datlag.aniflow.ui.navigation.screen.medium.dialog.edit.EditDialogComp
 import dev.datlag.tooling.compose.ioDispatcher
 import dev.datlag.tooling.decompose.ioScope
 import dev.datlag.tooling.safeCast
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.kodein.di.DI
@@ -104,7 +108,7 @@ class MediumScreenComponent(
     override val translatedDescription: MutableStateFlow<String?> = MutableStateFlow(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val genres: Flow<Set<String>> = mediumSuccessState.mapLatest {
+    override val genres: Flow<ImmutableSet<String>> = mediumSuccessState.mapLatest {
         it.medium.genres
     }.mapNotEmpty()
 
@@ -141,7 +145,7 @@ class MediumScreenComponent(
     }.distinctUntilChanged()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val characters: Flow<Set<Character>> = mediumSuccessState.mapLatest {
+    override val characters: Flow<ImmutableSet<Character>> = mediumSuccessState.mapLatest {
         it.medium.characters
     }.mapNotEmpty()
 
@@ -212,11 +216,11 @@ class MediumScreenComponent(
         it?.ifBlank { null }?.let(burningSeriesResolver::resolveByName).orEmpty()
     }.flowOn(ioDispatcher())
 
-    override val bsOptions: Flow<Collection<Series>> = combine(
+    override val bsOptions: Flow<ImmutableCollection<Series>> = combine(
         bsSearchOptions,
         bsDefaultOptions
     ) { search, default ->
-        search.ifEmpty { default }
+        search.ifEmpty { default }.toImmutableSet()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

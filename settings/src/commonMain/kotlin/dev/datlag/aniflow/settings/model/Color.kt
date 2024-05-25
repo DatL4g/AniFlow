@@ -1,5 +1,7 @@
 package dev.datlag.aniflow.settings.model
 
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -63,7 +65,7 @@ sealed interface Color {
     ) : Color
 
     companion object ColorSerializer : KSerializer<Color?> {
-        val all: Set<Color> = setOf(
+        val all: ImmutableSet<Color> = persistentSetOf(
             Blue,
             Purple,
             Pink,

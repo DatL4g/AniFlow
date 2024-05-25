@@ -12,6 +12,8 @@ import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.other.Series
 import dev.datlag.aniflow.ui.navigation.ContentHolderComponent
 import dev.datlag.aniflow.ui.navigation.DialogComponent
+import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import dev.datlag.aniflow.settings.model.TitleLanguage as SettingsTitle
@@ -33,7 +35,7 @@ interface MediumComponent : ContentHolderComponent {
     val title: Flow<Medium.Title>
     val description: Flow<String?>
     val translatedDescription: StateFlow<String?>
-    val genres: Flow<Set<String>>
+    val genres: Flow<ImmutableSet<String>>
 
     val format: Flow<MediaFormat>
     val episodesOrChapters: Flow<Int>
@@ -45,7 +47,7 @@ interface MediumComponent : ContentHolderComponent {
     val popular: Flow<Medium.Ranking?>
     val score: Flow<Int?>
 
-    val characters: Flow<Set<Character>>
+    val characters: Flow<ImmutableSet<Character>>
     val rating: Flow<Int>
     val alreadyAdded: Flow<Boolean>
     val trailer: Flow<Medium.Trailer?>
@@ -59,7 +61,7 @@ interface MediumComponent : ContentHolderComponent {
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 
     val bsAvailable: Boolean
-    val bsOptions: Flow<Collection<Series>>
+    val bsOptions: Flow<ImmutableCollection<Series>>
 
     fun back()
     override fun dismissContent() {

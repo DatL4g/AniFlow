@@ -23,6 +23,7 @@ kotlin {
             implementation(libs.tooling)
             api(libs.ktorfit)
             implementation(libs.serialization)
+            api(libs.immutable)
 
             api(project(":model"))
             implementation(project(":firebase"))

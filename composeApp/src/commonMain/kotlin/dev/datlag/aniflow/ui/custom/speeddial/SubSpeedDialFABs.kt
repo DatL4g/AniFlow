@@ -10,11 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun <T: FABItem> SubSpeedDialFABs(
     state: SpeedDialFABState,
-    items: List<T>,
+    items: ImmutableList<T>,
     showLabels: Boolean = true,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     labelContent: @Composable (T) -> Unit = {

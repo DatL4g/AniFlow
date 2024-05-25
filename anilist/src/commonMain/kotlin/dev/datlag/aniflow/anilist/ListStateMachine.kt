@@ -8,6 +8,7 @@ import dev.datlag.aniflow.anilist.state.ListState
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,7 +93,7 @@ class ListStateMachine(
         p to r
     }.runningFold(initial = currentState) { accumulator, (p, r) ->
         return@runningFold (if (p <= 0) {
-            ListState.fromResponse(emptyList(), r)
+            ListState.fromResponse(persistentSetOf(), r)
         } else {
             ListState.fromResponse(accumulator, r)
         }).also { state ->

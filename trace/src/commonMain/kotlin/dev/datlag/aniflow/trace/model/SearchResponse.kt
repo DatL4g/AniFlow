@@ -1,18 +1,24 @@
 package dev.datlag.aniflow.trace.model
 
+import dev.datlag.aniflow.model.serializer.SerializableImmutableList
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.serialization.*
 
 @Serializable
 data class SearchResponse(
     @SerialName("error") val error: String? = null,
-    @SerialName("result") val result: List<Result> = emptyList()
+    @SerialName("result") val result: SerializableImmutableList<Result> = persistentListOf()
 ) {
 
     @Transient
     val isError = !error.isNullOrBlank() || result.isEmpty()
 
     @Transient
-    val combinedResults: Set<CombinedResult> = result.groupBy { it.aniList.id }.mapValues { entry ->
+    val combinedResults: ImmutableSet<CombinedResult> = result.groupBy { it.aniList.id }.mapValues { entry ->
         CombinedResult(
             aniList = Result.AniList(
                 id = entry.key,
@@ -23,7 +29,7 @@ data class SearchResponse(
             maxSimilarity = entry.value.maxOf { it.similarity },
             avgSimilarity = entry.value.map { it.similarity }.average().toFloat()
         )
-    }.values.toSet()
+    }.values.toImmutableSet()
 
     fun nsfwAware(allowed: Boolean): SearchResponse {
         return if (allowed) {
@@ -31,7 +37,7 @@ data class SearchResponse(
         } else {
             SearchResponse(
                 error = error,
-                result = result.filterNot { it.aniList.isAdult }
+                result = result.filterNot { it.aniList.isAdult }.toImmutableList()
             )
         }
     }

@@ -3,6 +3,7 @@ package dev.datlag.aniflow.nekos
 import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.nekos.model.ImagesResponse
 import dev.datlag.aniflow.nekos.model.Rating
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
@@ -36,7 +37,7 @@ class NekosRepository(
                 is State.Success -> {
                     State.Success(
                         ImagesResponse(
-                            items = q.response.items.filterNot { it.hasAdultTag },
+                            items = q.response.items.filterNot { it.hasAdultTag }.toImmutableList(),
                             count = q.response.count
                         )
                     )

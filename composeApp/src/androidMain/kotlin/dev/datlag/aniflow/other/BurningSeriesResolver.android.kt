@@ -9,6 +9,9 @@ import android.os.Build
 import androidx.core.database.getStringOrNull
 import dev.datlag.tooling.scopeCatching
 import io.github.aakira.napier.Napier
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableSet
 
 actual class BurningSeriesResolver(
     private val packageManager: PackageManager,
@@ -33,9 +36,9 @@ actual class BurningSeriesResolver(
             true
         }.getOrNull() ?: false
 
-    actual fun resolveWatchedEpisodes(): Set<Episode> {
+    actual fun resolveWatchedEpisodes(): ImmutableSet<Episode> {
         if (episodeClient == null) {
-            return emptySet()
+            return persistentSetOf()
         }
 
         val episodeCursor = episodeClient.query(
@@ -44,7 +47,7 @@ actual class BurningSeriesResolver(
             "progress > 0 AND length > 0",
             null,
             null
-        ) ?: return emptySet()
+        ) ?: return persistentSetOf()
 
         val episodes = mutableSetOf<Episode>()
 
@@ -82,15 +85,15 @@ actual class BurningSeriesResolver(
         }
 
         episodeCursor.close()
-        return episodes
+        return episodes.toImmutableSet()
     }
 
-    actual fun resolveByName(english: String?, romaji: String?): Set<Series> {
+    actual fun resolveByName(english: String?, romaji: String?): ImmutableSet<Series> {
         val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")?.trim()
         val romajiTrimmed = romaji?.trim()?.ifBlank { null }?.replace("'", "")?.trim()
 
         if (seriesClient == null || (englishTrimmed == null && romajiTrimmed == null)) {
-            return emptySet()
+            return persistentSetOf()
         }
 
         val selection = if (englishTrimmed != null && romajiTrimmed != null) {
@@ -104,19 +107,19 @@ actual class BurningSeriesResolver(
         return seriesBySelection(selection)
     }
 
-    actual fun resolveByName(value: String): Set<Series> {
+    actual fun resolveByName(value: String): ImmutableSet<Series> {
         val trimmed = value.trim().replace("'", "").trim()
 
         return if (trimmed.length >= 3) {
             seriesBySelection("title LIKE '%$trimmed%'")
         } else {
-            emptySet()
+            persistentSetOf()
         }
     }
 
-    private fun seriesBySelection(selection: String): Set<Series> {
+    private fun seriesBySelection(selection: String): ImmutableSet<Series> {
         if (seriesClient == null) {
-            return emptySet()
+            return persistentSetOf()
         }
 
         val seriesCursor = seriesClient.query(
@@ -125,7 +128,7 @@ actual class BurningSeriesResolver(
             selection,
             null,
             null
-        ) ?: return emptySet()
+        ) ?: return persistentSetOf()
 
         val series = mutableSetOf<Series>()
 
@@ -154,7 +157,7 @@ actual class BurningSeriesResolver(
         }
 
         seriesCursor.close()
-        return series
+        return series.toImmutableSet()
     }
 
     actual fun close() {

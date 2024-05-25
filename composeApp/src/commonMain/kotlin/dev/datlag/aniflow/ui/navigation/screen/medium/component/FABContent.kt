@@ -32,6 +32,8 @@ import dev.datlag.aniflow.ui.navigation.screen.medium.MediumComponent
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun FABContent(
@@ -71,7 +73,7 @@ fun FABContent(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 val bsAvailable = component.bsAvailable
-                val bsOptions by component.bsOptions.collectAsStateWithLifecycle(emptySet())
+                val bsOptions by component.bsOptions.collectAsStateWithLifecycle(persistentSetOf())
                 val bsState = rememberUseCaseState()
 
                 val rating by component.rating.collectAsStateWithLifecycle(-1)
@@ -124,7 +126,7 @@ fun FABContent(
                         } else {
                             null
                         }
-                    ),
+                    ).toImmutableList(),
                     showLabels = expanded
                 )
                 SpeedDialFAB(
