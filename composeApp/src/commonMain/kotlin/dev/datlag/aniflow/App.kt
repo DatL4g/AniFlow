@@ -31,7 +31,6 @@ val LocalDarkMode = compositionLocalOf<Boolean> { error("No dark mode state prov
 val LocalEdgeToEdge = staticCompositionLocalOf<Boolean> { false }
 val LocalDI = compositionLocalOf<DI> { error("No dependency injection provided") }
 val LocalHaze = compositionLocalOf<HazeState> { error("No Haze state provided") }
-val LocalPaddingValues = compositionLocalOf<PaddingValues?> { null }
 
 @Composable
 internal fun App(

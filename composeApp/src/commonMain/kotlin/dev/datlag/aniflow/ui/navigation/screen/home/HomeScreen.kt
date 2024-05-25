@@ -40,7 +40,6 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*

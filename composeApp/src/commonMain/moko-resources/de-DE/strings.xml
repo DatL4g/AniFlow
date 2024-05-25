@@ -13,7 +13,7 @@
     <string name="media_format_novel">Roman</string>
     <string name="media_format_one_shot">Einmalig</string>
     <string name="media_status_finished">Beendet</string>
-    <string name="media_status_releasing">In Veröffentlichung</string>
+    <string name="media_status_releasing">Wird veröffentlicht</string>
     <string name="media_status_not_yet_released">Noch nicht veröffentlicht</string>
     <string name="media_status_cancelled">Abgesagt</string>
     <string name="media_status_hiatus">Pausiert</string>

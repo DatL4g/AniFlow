@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.GetApp
@@ -13,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
@@ -37,8 +39,8 @@ import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalDI
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.LocalPaddingValues
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaStatus
 import dev.datlag.aniflow.common.*
@@ -91,65 +93,79 @@ fun MediumScreen(component: MediumComponent) {
                     component = component
                 )
             }
-        ) {
-            CompositionLocalProvider(
-                LocalPaddingValues provides LocalPadding().merge(it)
+        ) { padding ->
+            val smoothPadding by animatePaddingAsState(padding)
+            val mediumState by component.mediumState.collectAsStateWithLifecycle(null)
+            val isLoading = remember(mediumState) {
+                mediumState == null || mediumState is MediumRepository.State.None
+            }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = smoothPadding.plus(PaddingValues(top = 16.dp))
             ) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize().haze(state = LocalHaze.current),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = LocalPadding(top = 16.dp)
-                ) {
-                    item {
-                        CoverSection(
-                            coverImage = coverImage,
-                            component = component,
-                            modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp)
-                        )
+                item {
+                    CoverSection(
+                        coverImage = coverImage,
+                        component = component,
+                        modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp)
+                    )
+                }
+                item {
+                    RatingSection(
+                        initialMedium = component.initialMedium,
+                        ratedFlow = component.rated,
+                        popularFlow = component.popular,
+                        scoreFlow = component.score,
+                        modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp)
+                    )
+                }
+                item {
+                    GenreSection(
+                        initialMedium = component.initialMedium,
+                        genreFlow = component.genres,
+                        modifier = Modifier.fillParentMaxWidth()
+                    )
+                }
+                item {
+                    DescriptionSection(
+                        initialMedium = component.initialMedium,
+                        descriptionFlow = component.description,
+                        translatedDescriptionFlow = component.translatedDescription,
+                        modifier = Modifier.fillParentMaxWidth()
+                    ) { translated ->
+                        component.descriptionTranslation(translated)
                     }
-                    item {
-                        RatingSection(
-                            initialMedium = component.initialMedium,
-                            ratedFlow = component.rated,
-                            popularFlow = component.popular,
-                            scoreFlow = component.score,
-                            modifier = Modifier.fillParentMaxWidth().padding(horizontal = 16.dp).padding(top = 16.dp)
-                        )
+                }
+                item {
+                    CharacterSection(
+                        initialMedium = component.initialMedium,
+                        characterFlow = component.characters,
+                        charLanguage = component.charLanguage,
+                        modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
+                    ) { char ->
+                        component.showCharacter(char)
                     }
+                }
+                item {
+                    TrailerSection(
+                        initialMedium = component.initialMedium,
+                        trailerFlow = component.trailer,
+                        modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
+                    )
+                }
+                if (isLoading) {
                     item {
-                        GenreSection(
-                            initialMedium = component.initialMedium,
-                            genreFlow = component.genres,
-                            modifier = Modifier.fillParentMaxWidth()
-                        )
-                    }
-                    item {
-                        DescriptionSection(
-                            initialMedium = component.initialMedium,
-                            descriptionFlow = component.description,
-                            translatedDescriptionFlow = component.translatedDescription,
-                            modifier = Modifier.fillParentMaxWidth()
-                        ) { translated ->
-                            component.descriptionTranslation(translated)
+                        Box(
+                            modifier = Modifier.fillParentMaxWidth().padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth(fraction = 0.2F).clip(CircleShape)
+                            )
                         }
-                    }
-                    item {
-                        CharacterSection(
-                            initialMedium = component.initialMedium,
-                            characterFlow = component.characters,
-                            charLanguage = component.charLanguage,
-                            modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
-                        ) { char ->
-                            component.showCharacter(char)
-                        }
-                    }
-                    item {
-                        TrailerSection(
-                            initialMedium = component.initialMedium,
-                            trailerFlow = component.trailer,
-                            modifier = Modifier.fillParentMaxWidth().animateItemPlacement()
-                        )
                     }
                 }
             }
