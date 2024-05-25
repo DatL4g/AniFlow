@@ -1,5 +1,7 @@
 package dev.datlag.aniflow.ui.navigation.screen.medium.component
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
@@ -26,6 +28,8 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun BSDialog(
     state: UseCaseState,
+    bsVersionCode: Int,
+    bsVersionName: String?,
     bsOptions: ImmutableCollection<Series>,
     onSearch: suspend (String) -> Unit
 ) {
@@ -58,20 +62,28 @@ fun BSDialog(
                 onSearch(value)
             }
 
-            OutlinedTextField(
+            Column(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                value = value,
-                onValueChange = { value = it },
-                placeholder = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(SharedRes.strings.search),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                shape = MaterialTheme.shapes.medium,
-                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
-            )
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = value,
+                    onValueChange = { value = it },
+                    placeholder = {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = stringResource(SharedRes.strings.search),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    shape = MaterialTheme.shapes.medium,
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                )
+                if (bsVersionCode < 600) {
+                    Text(text = stringResource(SharedRes.strings.bs_version_requirement))
+                }
+            }
         }
     )
 }

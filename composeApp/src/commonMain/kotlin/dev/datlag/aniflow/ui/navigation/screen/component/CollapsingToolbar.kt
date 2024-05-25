@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.PlayCircleFilled
+import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -154,7 +155,7 @@ fun CollapsingToolbar(
                         enabled = isManga
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.PlayCircleFilled,
+                            imageVector = Icons.Rounded.PlayCircleFilled,
                             contentDescription = null,
                             tint = if (isManga) {
                                 LocalContentColor.current

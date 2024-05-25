@@ -81,6 +81,8 @@ fun FABContent(
 
                 BSDialog(
                     state = bsState,
+                    bsVersionCode = component.bsVersionCode,
+                    bsVersionName = component.bsVersionName,
                     bsOptions = bsOptions,
                     onSearch = component::searchBS
                 )

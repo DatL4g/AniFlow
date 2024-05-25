@@ -61,6 +61,8 @@ interface MediumComponent : ContentHolderComponent {
     val dialog: Value<ChildSlot<DialogConfig, DialogComponent>>
 
     val bsAvailable: Boolean
+    val bsVersionCode: Int
+    val bsVersionName: String?
     val bsOptions: Flow<ImmutableCollection<Series>>
 
     fun back()

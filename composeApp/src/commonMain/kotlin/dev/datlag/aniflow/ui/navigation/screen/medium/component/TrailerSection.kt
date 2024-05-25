@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircleFilled
+import androidx.compose.material.icons.rounded.PlayCircleFilled
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -76,7 +77,7 @@ fun TrailerSection(
                     } else {
                         Icon(
                             modifier = Modifier.size(48.dp),
-                            imageVector = Icons.Filled.PlayCircleFilled,
+                            imageVector = Icons.Rounded.PlayCircleFilled,
                             contentDescription = null
                         )
                     }

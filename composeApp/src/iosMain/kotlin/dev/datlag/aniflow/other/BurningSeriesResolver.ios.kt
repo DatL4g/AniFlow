@@ -8,6 +8,9 @@ actual class BurningSeriesResolver {
     actual val isAvailable: Boolean
         get() = false
 
+    actual val versionCode: Int = -1
+    actual val versionName: String? = null
+
     actual fun resolveWatchedEpisodes(): ImmutableSet<Episode> {
         // ToDo("Check if something like content provider exists")
         return persistentSetOf()

@@ -4,6 +4,9 @@ import kotlinx.collections.immutable.ImmutableSet
 
 expect class BurningSeriesResolver {
     val isAvailable: Boolean
+    val versionCode: Int
+    val versionName: String?
+
     fun resolveWatchedEpisodes(): ImmutableSet<Episode>
     fun resolveByName(english: String?, romaji: String?): ImmutableSet<Series>
     fun resolveByName(value: String): ImmutableSet<Series>

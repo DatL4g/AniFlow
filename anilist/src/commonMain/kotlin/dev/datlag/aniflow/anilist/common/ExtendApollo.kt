@@ -63,4 +63,8 @@ fun <V> Optional.Companion.presentIfNot(predicate: Boolean, value: V) = if (pred
     present(value)
 }
 
-fun <V> Optional.Companion.presentAsList(vararg value: V) = present(persistentListOf(*value))
+fun <V> Optional.Companion.presentAsList(vararg value: V) = if (value.isEmpty()) {
+    absent()
+} else {
+    present(persistentListOf(*value))
+}

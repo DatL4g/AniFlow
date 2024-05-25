@@ -112,4 +112,10 @@
     <string name="read_chapter">Gelesenes Kapitel</string>
     <string name="search_anime">Anime suchen</string>
     <string name="search_manga">Manga suchen</string>
+    <string name="spring">Frühling</string>
+    <string name="summer">Sommer</string>
+    <string name="fall">Herbst</string>
+    <string name="winter">Winter</string>
+    <string name="recommendation">Empfehlung</string>
+    <string name="bs_version_requirement">Diese Option wird mit Burning-Series Version 6.0.0 und höher unterstützt.</string>
 </resources>

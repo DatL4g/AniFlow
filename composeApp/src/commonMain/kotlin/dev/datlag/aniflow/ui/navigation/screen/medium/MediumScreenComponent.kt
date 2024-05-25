@@ -200,6 +200,12 @@ class MediumScreenComponent(
     override val bsAvailable: Boolean
         get() = burningSeriesResolver.isAvailable
 
+    override val bsVersionCode: Int
+        get() = burningSeriesResolver.versionCode
+
+    override val bsVersionName: String?
+        get() = burningSeriesResolver.versionName
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val bsDefaultOptions = title.mapLatest {
         burningSeriesResolver.resolveByName(it.english, it.romaji)

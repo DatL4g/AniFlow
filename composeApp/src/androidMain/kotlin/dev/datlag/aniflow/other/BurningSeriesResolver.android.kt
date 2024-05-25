@@ -3,6 +3,7 @@ package dev.datlag.aniflow.other
 import android.content.ContentProviderClient
 import android.content.ContentResolver
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -26,15 +27,28 @@ actual class BurningSeriesResolver(
 
     constructor(context: Context) : this(context.packageManager, context.contentResolver)
 
-    actual val isAvailable: Boolean
-        get() = scopeCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+    private val packageInfo: PackageInfo? = scopeCatching {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+        } else {
+            packageManager.getPackageInfo(packageName, 0)
+        }
+    }.getOrNull()
+
+    @Suppress("DEPRECATION")
+    actual val versionCode: Int
+        get() {
+            return (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo?.longVersionCode?.toInt() ?: packageInfo?.versionCode
             } else {
-                packageManager.getApplicationInfo(packageName, 0)
-            }
-            true
-        }.getOrNull() ?: false
+                packageInfo?.versionCode
+            }) ?: -1
+        }
+
+    actual val versionName: String? = packageInfo?.versionName?.ifBlank { null }
+
+    actual val isAvailable: Boolean
+        get() = packageInfo != null
 
     actual fun resolveWatchedEpisodes(): ImmutableSet<Episode> {
         if (episodeClient == null) {
