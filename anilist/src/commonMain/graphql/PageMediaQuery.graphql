@@ -2,14 +2,17 @@ query PageMediaQuery(
     $page: Int,
     $perPage: Int,
     $query: String,
-    $sort: [MediaSort],
+    $sort: [MediaSort!],
     $year: Int,
     $season: MediaSeason,
-    $preventGenres: [String],
+    $preventGenres: [String!],
     $type: MediaType,
     $adultContent: Boolean,
     $statusVersion: Int!,
     $html: Boolean!,
+    $wantedGenres: [String!],
+    $preventIds: [Int!],
+    $onList: Boolean
 ) {
     Page(page: $page, perPage: $perPage) {
         media(
@@ -19,7 +22,10 @@ query PageMediaQuery(
             season: $season,
             genre_not_in: $preventGenres,
             type: $type,
-            isAdult: $adultContent
+            isAdult: $adultContent,
+            genre_in: $wantedGenres,
+            id_not_in: $preventIds,
+            onList: $onList
         ) {
             id,
             idMal,

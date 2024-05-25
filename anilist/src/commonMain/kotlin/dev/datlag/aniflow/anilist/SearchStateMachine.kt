@@ -2,8 +2,8 @@ package dev.datlag.aniflow.anilist
 
 import com.apollographql.apollo3.ApolloClient
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.PageMediaQuery
-import dev.datlag.aniflow.anilist.state.SearchAction
 import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.firebase.FirebaseFactory
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
@@ -28,8 +29,6 @@ class SearchStateMachine(
     private val nsfw: Flow<Boolean> = flowOf(false),
     private val viewManga: Flow<Boolean> = flowOf(false),
     private val crashlytics: FirebaseFactory.Crashlytics?
-) : FlowReduxStateMachine<SearchState, SearchAction>(
-    initialState = currentState
 ) {
 
     var currentState: SearchState
@@ -83,50 +82,38 @@ class SearchStateMachine(
         }
     }.distinctUntilChanged()
 
-    init {
-        spec {
-            inState<SearchState> {
-                onEnterEffect {
-                    currentState = it
-                }
-                collectWhileInState(query) { q, state ->
-                    state.override {
-                        if (q == null) {
-                            SearchState.None
-                        } else {
-                            SearchState.Loading(
-                                query = q,
-                                fallback = false
-                            )
-                        }
-                    }
-                }
-            }
-            inState<SearchState.Loading> {
-                onEnterEffect {
-                    StateSaver.searchQuery = it.query.query.ifBlank { null }
-                }
-                collectWhileInState(
-                    flowBuilder = {
-                        val usedClient = if (it.fallback) {
-                            fallbackClient
-                        } else {
-                            client
-                        }
+    private val fallbackResponse = query.transform {
+        return@transform if (it == null) {
+            emit(null)
+        } else {
+            emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+        }
+    }
 
-                        usedClient.query(it.query.toGraphQL()).toFlow()
-                    }
-                ) { response, state ->
-                    state.override {
-                        fromGraphQL(response)
-                    }
-                }
+    private val response = query.transform {
+        return@transform if (it == null) {
+            emit(null)
+        } else {
+            emitAll(client.query(it.toGraphQL()).toFlow())
+        }
+    }.transform {
+        return@transform if (it == null) {
+            emit(it)
+        } else {
+            if (it.hasNonCacheError()) {
+                emitAll(fallbackResponse)
+            } else {
+                emit(it)
             }
-            inState<SearchState.Error> {
-                onEnterEffect {
-                    crashlytics?.log(it.throwable)
-                }
+        }
+    }
+
+    val result = response.map { result ->
+        SearchState.fromResponse(result).also { state ->
+            (state as? SearchState.Failure)?.throwable?.let {
+                crashlytics?.log(it)
             }
+            currentState = state
         }
     }
 

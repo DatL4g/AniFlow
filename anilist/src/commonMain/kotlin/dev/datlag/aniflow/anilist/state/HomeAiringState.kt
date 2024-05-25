@@ -1,7 +1,10 @@
 package dev.datlag.aniflow.anilist.state
 
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.exception.CacheMissException
 import dev.datlag.aniflow.anilist.AdultContent
+import dev.datlag.aniflow.anilist.AiringQuery
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.PageAiringQuery
 
 import dev.datlag.aniflow.anilist.AiringQuery as PageAiringGraphQL
@@ -12,26 +15,29 @@ sealed interface HomeAiringState {
         get() = this !is PostLoading
 
     val isError: Boolean
-        get() = this is Error
+        get() = this is Failure
 
-    data object None : HomeAiringState
+    data object Loading : HomeAiringState
 
-    data class Loading(
-        internal val query: PageAiringQuery,
-        internal val fallback: Boolean
-    ) : HomeAiringState {
+    private sealed interface PostLoading : HomeAiringState
 
-        private val nsfw: Boolean
-            get() = query.nsfw
+    data class Success(
+        val collection: Collection<PageAiringGraphQL.AiringSchedule>
+    ) : PostLoading
 
-        fun fromGraphQL(response: ApolloResponse<PageAiringGraphQL.Data>): HomeAiringState {
+    data class Failure(
+        internal val throwable: Throwable?
+    ) : PostLoading
+
+    companion object {
+        fun fromResponse(nsfw: Boolean, response: ApolloResponse<AiringQuery.Data>): HomeAiringState {
             val data = response.data
 
             return if (data == null) {
-                if (fallback) {
-                    Error(throwable = response.exception)
+                if (response.hasNonCacheError()) {
+                    Failure(throwable = response.exception)
                 } else {
-                    copy(fallback = true)
+                    Loading
                 }
             } else {
                 val airingList = data.Page?.airingSchedulesFilterNotNull()?.mapNotNull {
@@ -47,25 +53,11 @@ sealed interface HomeAiringState {
                 }
 
                 if (airingList.isNullOrEmpty()) {
-                    if (fallback) {
-                        Error(throwable = response.exception)
-                    } else {
-                        copy(fallback = true)
-                    }
+                    Failure(throwable = response.exception)
                 } else {
                     Success(airingList)
                 }
             }
         }
     }
-
-    private sealed interface PostLoading : HomeAiringState
-
-    data class Success(
-        val collection: Collection<PageAiringGraphQL.AiringSchedule>
-    ) : PostLoading
-
-    data class Error(
-        internal val throwable: Throwable?
-    ) : PostLoading
 }

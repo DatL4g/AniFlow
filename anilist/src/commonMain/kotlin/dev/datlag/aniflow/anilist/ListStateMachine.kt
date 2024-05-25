@@ -1,10 +1,9 @@
 package dev.datlag.aniflow.anilist
 
 import com.apollographql.apollo3.ApolloClient
-import com.freeletics.flowredux.dsl.FlowReduxStateMachine
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.PageListQuery
 import dev.datlag.aniflow.anilist.model.User
-import dev.datlag.aniflow.anilist.state.ListAction
 import dev.datlag.aniflow.anilist.state.ListState
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
@@ -19,6 +18,8 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.runningFold
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.update
 
@@ -29,8 +30,6 @@ class ListStateMachine(
     private val user: Flow<User?>,
     private val viewManga: Flow<Boolean> = flowOf(false),
     private val crashlytics: FirebaseFactory.Crashlytics?,
-) : FlowReduxStateMachine<ListState, ListAction>(
-    initialState = currentState
 ) {
 
     var currentState: ListState
@@ -72,90 +71,66 @@ class ListStateMachine(
         )
     }.distinctUntilChanged()
 
-    init {
-        spec {
-            inState<ListState> {
-                onEnterEffect {
-                    currentState = it
-                }
-                onActionEffect<ListAction.Page> { action, _ ->
-                    when (action) {
-                        is ListAction.Page.Next -> {
-                            page.update { it + 1 }
-                        }
-                    }
-                }
-                onActionEffect<ListAction.Type> { action, _ ->
-                    when (action) {
-                        is ListAction.Type.Anime -> {
-                            page.update { 0 }
-                            _type.update {
-                                MediaType.ANIME
-                            }
-                        }
-                        is ListAction.Type.Manga -> {
-                            page.update { 0 }
-                            _type.update {
-                                MediaType.MANGA
-                            }
-                        }
-                        is ListAction.Type.Toggle -> {
-                            page.update { 0 }
-                            _type.update {
-                                if (it == MediaType.MANGA) {
-                                    MediaType.ANIME
-                                } else {
-                                    MediaType.MANGA
-                                }
-                            }
-                        }
-                    }
-                }
-                onActionEffect<ListAction.Status> { action, _ ->
-                    page.update { 0 }
-                    _status.update {
-                        action.value
-                    }
-                }
-                collectWhileInState(query) { q, state ->
-                    state.override {
-                        val collection = if (q.page == 0) {
-                            emptyList()
-                        } else {
-                            (this as? ListState.Data)?.collection.orEmpty()
-                        }
+    private val fallbackResponse = query.transform {
+        return@transform emitAll(fallbackClient.query(it.toGraphQL()).toFlow())
+    }
 
-                        ListState.Loading(
-                            query = q,
-                            fallback = false,
-                            collection = collection
-                        )
-                    }
-                }
-            }
-            inState<ListState.Loading> {
-                collectWhileInState(
-                    flowBuilder = {
-                        val usedClient = if (it.fallback) {
-                            fallbackClient
-                        } else {
-                            client
-                        }
+    private val response = query.transform {
+        return@transform emitAll(client.query(it.toGraphQL()).toFlow())
+    }.transform {
+        return@transform if (it.hasNonCacheError()) {
+            emitAll(fallbackResponse)
+        } else {
+            emit(it)
+        }
+    }
 
-                        usedClient.query(it.query.toGraphQL()).toFlow()
-                    }
-                ) { response, state ->
-                    state.override {
-                        fromGraphQL(response)
-                    }
-                }
+    val list = combine(
+        page,
+        response
+    ) { p, r ->
+        p to r
+    }.runningFold(initial = currentState) { accumulator, (p, r) ->
+        return@runningFold (if (p <= 0) {
+            ListState.fromResponse(emptyList(), r)
+        } else {
+            ListState.fromResponse(accumulator, r)
+        }).also { state ->
+            (state as? ListState.Failure)?.throwable?.let {
+                crashlytics?.log(it)
             }
-            inState<ListState.Error> {
-                onEnterEffect {
-                    crashlytics?.log(it.throwable)
-                }
+            currentState = state
+        }
+    }
+
+    fun nextPage() {
+        page.update { it + 1 }
+    }
+
+    fun viewAnime() {
+        page.update { 0 }
+        _type.update { MediaType.ANIME }
+    }
+
+    fun viewManga() {
+        page.update { 0 }
+        _type.update { MediaType.MANGA }
+    }
+
+    fun toggleType() {
+        page.update { 0 }
+        _type.update {
+            if (it == MediaType.MANGA) {
+                MediaType.ANIME
+            } else {
+                MediaType.MANGA
             }
         }
+    }
+
+    fun status(value: MediaListStatus) {
+        page.update { 0 }
+        _status.update { value }
     }
 
     companion object {

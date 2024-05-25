@@ -6,10 +6,10 @@ import androidx.compose.runtime.remember
 import com.arkivanov.decompose.ComponentContext
 import dev.chrisbanes.haze.HazeState
 import dev.datlag.aniflow.LocalHaze
-import dev.datlag.aniflow.anilist.RecommendationRepository
+import dev.datlag.aniflow.anilist.DiscoverStateMachine
 import dev.datlag.aniflow.anilist.SearchStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.state.SearchAction
+import dev.datlag.aniflow.anilist.state.DiscoverState
 import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.onRender
@@ -42,7 +42,7 @@ class DiscoverScreenComponent(
 
     override val type: Flow<MediaType> = searchRepository.type
 
-    override val searchResult: StateFlow<SearchState> = searchRepository.state.flowOn(
+    override val searchResult: StateFlow<SearchState> = searchRepository.result.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
@@ -50,14 +50,13 @@ class DiscoverScreenComponent(
         initialValue = searchRepository.currentState
     )
 
-    private val recommendationRepository by instance<RecommendationRepository>()
-
-    override val recommendation: StateFlow<RecommendationRepository.State> = recommendationRepository.list.flowOn(
-        ioDispatcher()
+    private val discoverStateMachine by instance<DiscoverStateMachine>()
+    override val state: StateFlow<DiscoverState> = discoverStateMachine.state.flowOn(
+        context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
         started = SharingStarted.WhileSubscribed(),
-        initialValue = RecommendationRepository.State.None
+        initialValue = discoverStateMachine.currentState
     )
 
     @Composable

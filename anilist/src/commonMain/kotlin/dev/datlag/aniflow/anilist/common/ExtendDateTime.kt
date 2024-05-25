@@ -60,14 +60,6 @@ internal fun ListQuery.StartDate.toLocalDate(): LocalDate? {
     )
 }
 
-internal fun RecommendationQuery.StartDate.toLocalDate(): LocalDate? {
-    return LocalDate(
-        year = year ?: return null,
-        monthNumber = month ?: return null,
-        dayOfMonth = day ?: 1
-    )
-}
-
 internal fun AiringQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
@@ -93,14 +85,6 @@ internal fun MediumQuery.StartedAt.toLocalDate(): LocalDate? {
 }
 
 internal fun ListQuery.StartedAt.toLocalDate(): LocalDate? {
-    return LocalDate(
-        year = year ?: return null,
-        monthNumber = month ?: return null,
-        dayOfMonth = day ?: 1
-    )
-}
-
-internal fun RecommendationQuery.StartedAt.toLocalDate(): LocalDate? {
     return LocalDate(
         year = year ?: return null,
         monthNumber = month ?: return null,

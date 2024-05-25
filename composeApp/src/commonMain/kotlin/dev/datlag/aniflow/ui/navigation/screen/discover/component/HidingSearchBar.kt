@@ -179,7 +179,7 @@ fun HidingSearchBar(
                             )
                         }
                     }
-                    is SearchState.Error -> {
+                    is SearchState.Failure -> {
                         ErrorContent(
                             modifier = Modifier.fillMaxSize()
                         )

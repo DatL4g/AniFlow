@@ -10,13 +10,9 @@ import dev.datlag.aniflow.anilist.AiringQuery as AiringGraphQL
 
 sealed interface PageAiringQuery {
 
-    val nsfw: Boolean
-
     fun toGraphQL(): AiringGraphQL
 
-    data class Today(
-        override val nsfw: Boolean
-    ) : PageAiringQuery {
+    data object Today : PageAiringQuery {
         override fun toGraphQL() = AiringQuery(
             perPage = Optional.present(20),
             sort = Optional.presentAsList(AiringSort.TIME),

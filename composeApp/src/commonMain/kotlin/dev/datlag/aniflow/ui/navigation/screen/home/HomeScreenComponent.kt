@@ -61,7 +61,7 @@ class HomeScreenComponent(
 
     private val stateScope = ioScope()
     private val airingTodayRepository by instance<AiringTodayStateMachine>()
-    override val airing: StateFlow<HomeAiringState> = airingTodayRepository.state.map {
+    override val airing: StateFlow<HomeAiringState> = airingTodayRepository.airing.map {
         StateSaver.Home.updateAiring(it)
     }.flowOn(
         context = ioDispatcher()
@@ -72,7 +72,7 @@ class HomeScreenComponent(
     )
 
     private val trendingRepository by instance<TrendingStateMachine>()
-    override val trending: StateFlow<HomeDefaultState> = trendingRepository.state.map {
+    override val trending: StateFlow<HomeDefaultState> = trendingRepository.trending.map {
         StateSaver.Home.updateTrending(it)
     }.flowOn(
         context = ioDispatcher()
@@ -83,7 +83,7 @@ class HomeScreenComponent(
     )
 
     private val popularSeasonRepository by instance<PopularSeasonStateMachine>()
-    override val popularNow: StateFlow<HomeDefaultState> = popularSeasonRepository.state.map {
+    override val popularNow: StateFlow<HomeDefaultState> = popularSeasonRepository.popular.map {
         StateSaver.Home.updatePopularCurrent(it)
     }.flowOn(
         context = ioDispatcher()
@@ -94,7 +94,7 @@ class HomeScreenComponent(
     )
 
     private val popularNextSeasonRepository by instance<PopularNextSeasonStateMachine>()
-    override val popularNext: StateFlow<HomeDefaultState> = popularNextSeasonRepository.state.map {
+    override val popularNext: StateFlow<HomeDefaultState> = popularNextSeasonRepository.popularNext.map {
         StateSaver.Home.updatePopularNext(it)
     }.flowOn(
         context = ioDispatcher()

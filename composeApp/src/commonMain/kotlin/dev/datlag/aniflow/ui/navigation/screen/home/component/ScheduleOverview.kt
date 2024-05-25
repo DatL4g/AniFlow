@@ -53,7 +53,7 @@ fun ScheduleOverview(
         }
 
         when (val current = state) {
-            is HomeAiringState.None, is HomeAiringState.Loading -> {
+            is HomeAiringState.Loading -> {
                 Loading()
             }
             is HomeAiringState.Success -> {
@@ -82,7 +82,7 @@ fun ScheduleOverview(
                     }
                 }
             }
-            is HomeAiringState.Error -> {
+            is HomeAiringState.Failure -> {
                 ErrorContent(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     horizontal = true

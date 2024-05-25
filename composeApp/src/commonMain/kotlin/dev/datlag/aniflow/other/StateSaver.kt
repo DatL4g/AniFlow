@@ -5,7 +5,6 @@ import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
 import dev.datlag.aniflow.anilist.*
 import dev.datlag.aniflow.anilist.state.HomeAiringState
-import dev.datlag.aniflow.anilist.state.HomeDefaultAction
 import dev.datlag.aniflow.anilist.state.HomeDefaultState
 import dev.datlag.aniflow.settings.model.AppSettings
 import dev.datlag.tooling.async.scopeCatching

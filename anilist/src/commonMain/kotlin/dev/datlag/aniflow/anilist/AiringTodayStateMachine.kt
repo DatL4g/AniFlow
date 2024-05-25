@@ -4,13 +4,16 @@ import com.apollographql.apollo3.ApolloClient
 import com.freeletics.flowredux.dsl.FlowReduxStateMachine
 import dev.datlag.aniflow.anilist.model.PageAiringQuery
 import dev.datlag.aniflow.anilist.state.HomeAiringState
-import dev.datlag.aniflow.anilist.state.HomeDefaultAction
 import dev.datlag.aniflow.firebase.FirebaseFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.transformLatest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringTodayStateMachine(
@@ -18,8 +21,6 @@ class AiringTodayStateMachine(
     private val fallbackClient: ApolloClient,
     private val nsfw: Flow<Boolean> = flowOf(false),
     private val crashlytics: FirebaseFactory.Crashlytics?
-) : FlowReduxStateMachine<HomeAiringState, HomeDefaultAction>(
-    initialState = currentState
 ) {
 
     var currentState: HomeAiringState
@@ -28,49 +29,25 @@ class AiringTodayStateMachine(
             Companion.currentState = value
         }
 
-    private val query = nsfw.distinctUntilChanged().mapLatest {
-        PageAiringQuery.Today(
-            nsfw = it
-        )
-    }.distinctUntilChanged()
+    private val fallbackResponse = fallbackClient.query(PageAiringQuery.Today.toGraphQL()).toFlow()
 
-    init {
-        spec {
-            inState<HomeAiringState> {
-                onEnterEffect {
-                    currentState = it
-                }
-                collectWhileInState(query) { q, state ->
-                    state.override {
-                        HomeAiringState.Loading(
-                            query = q,
-                            fallback = false
-                        )
-                    }
-                }
-            }
-            inState<HomeAiringState.Loading> {
-                collectWhileInState(
-                    flowBuilder = {
-                        val usedClient = if (it.fallback) {
-                            fallbackClient
-                        } else {
-                            client
-                        }
+    private val response = client.query(PageAiringQuery.Today.toGraphQL()).toFlow().transformLatest {
+        return@transformLatest if (it.hasErrors()) {
+            emitAll(fallbackResponse)
+        } else {
+            emit(it)
+        }
+    }
 
-                        usedClient.query(it.query.toGraphQL()).toFlow()
-                    }
-                ) { response, state ->
-                    state.override {
-                        fromGraphQL(response)
-                    }
-                }
+    val airing = combine(
+        response,
+        nsfw.distinctUntilChanged()
+    ) { r, n ->
+        HomeAiringState.fromResponse(n, r).also { state ->
+            (state as? HomeAiringState.Failure)?.throwable?.let {
+                crashlytics?.log(it)
             }
-            inState<HomeAiringState.Error> {
-                onEnterEffect {
-                    crashlytics?.log(it.throwable)
-                }
-            }
+            currentState = state
         }
     }
 

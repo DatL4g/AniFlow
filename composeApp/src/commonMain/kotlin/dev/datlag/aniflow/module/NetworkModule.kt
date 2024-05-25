@@ -22,6 +22,7 @@ import de.jensklingenberg.ktorfit.ktorfitBuilder
 import dev.datlag.aniflow.BuildKonfig
 import dev.datlag.aniflow.Sekret
 import dev.datlag.aniflow.anilist.*
+import dev.datlag.aniflow.anilist.state.DiscoverState
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.tooling.compose.ioDispatcher
 import io.ktor.client.*
@@ -154,19 +155,7 @@ data object NetworkModule {
                 nsfw = appSettings.adultContent
             )
         }
-        bindSingleton<RecommendationRepository> {
-            val appSettings = instance<Settings.PlatformAppSettings>()
-
-            RecommendationRepository(
-                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
-                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
-                user = instance<UserHelper>().user,
-                nsfw = appSettings.adultContent,
-                viewManga = appSettings.viewManga
-            )
-        }
-
-        bindProvider<TrendingStateMachine> {
+        bindSingleton<TrendingStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             TrendingStateMachine(
@@ -177,7 +166,7 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<PopularSeasonStateMachine> {
+        bindSingleton<PopularSeasonStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             PopularSeasonStateMachine(
@@ -188,7 +177,7 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<PopularNextSeasonStateMachine> {
+        bindSingleton<PopularNextSeasonStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             PopularNextSeasonStateMachine(
@@ -199,7 +188,7 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<AiringTodayStateMachine> {
+        bindSingleton<AiringTodayStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             AiringTodayStateMachine(
@@ -209,7 +198,7 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<SearchStateMachine> {
+        bindSingleton<SearchStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             SearchStateMachine(
@@ -220,13 +209,25 @@ data object NetworkModule {
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )
         }
-        bindProvider<ListStateMachine> {
+        bindSingleton<ListStateMachine> {
             val appSettings = instance<Settings.PlatformAppSettings>()
 
             ListStateMachine(
                 client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
                 fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
                 user = instance<UserHelper>().user,
+                viewManga = appSettings.viewManga,
+                crashlytics = nullableFirebaseInstance()?.crashlytics
+            )
+        }
+        bindProvider<DiscoverStateMachine> {
+            val appSettings = instance<Settings.PlatformAppSettings>()
+
+            DiscoverStateMachine(
+                client = instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT),
+                fallbackClient = instance<ApolloClient>(Constants.AniList.FALLBACK_APOLLO_CLIENT).newBuilder().fetchPolicy(FetchPolicy.NetworkFirst).build(),
+                user = instance<UserHelper>().user,
+                nsfw = appSettings.adultContent,
                 viewManga = appSettings.viewManga,
                 crashlytics = nullableFirebaseInstance()?.crashlytics
             )

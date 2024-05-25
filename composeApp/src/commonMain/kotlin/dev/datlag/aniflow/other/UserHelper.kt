@@ -56,6 +56,7 @@ class UserHelper(
             emit(null)
         }
     }.mutableStateIn(
+        context = ioDispatcher(),
         scope = GlobalScope,
         initialValue = null
     )

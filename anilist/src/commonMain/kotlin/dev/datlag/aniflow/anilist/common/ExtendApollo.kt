@@ -1,10 +1,22 @@
 package dev.datlag.aniflow.anilist.common
 
+import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.exception.ApolloException
+import com.apollographql.apollo3.exception.CacheMissException
+import com.apollographql.apollo3.exception.HttpCacheMissException
 import dev.datlag.aniflow.anilist.type.MediaListSort
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaType
+
+fun ApolloResponse<*>.hasNonCacheError(): Boolean {
+    return when (exception) {
+        is CacheMissException -> false
+        is HttpCacheMissException -> false
+        else -> hasErrors()
+    }
+}
 
 fun Optional.Companion.presentIf(value: Boolean) = if (value) {
     present(value)

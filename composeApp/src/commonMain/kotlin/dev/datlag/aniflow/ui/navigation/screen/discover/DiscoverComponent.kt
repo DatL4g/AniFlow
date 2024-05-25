@@ -1,7 +1,7 @@
 package dev.datlag.aniflow.ui.navigation.screen.discover
 
-import dev.datlag.aniflow.anilist.RecommendationRepository
 import dev.datlag.aniflow.anilist.model.Medium
+import dev.datlag.aniflow.anilist.state.DiscoverState
 import dev.datlag.aniflow.anilist.state.SearchState
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.ui.navigation.Component
@@ -15,7 +15,7 @@ interface DiscoverComponent : Component {
     val type: Flow<MediaType>
     val searchResult: StateFlow<SearchState>
 
-    val recommendation: StateFlow<RecommendationRepository.State>
+    val state: StateFlow<DiscoverState>
 
     fun viewHome()
     fun viewList()

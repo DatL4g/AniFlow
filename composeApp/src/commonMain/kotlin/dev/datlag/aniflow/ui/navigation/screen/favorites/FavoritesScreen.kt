@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.favorites.component.ListCard
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.stringResource
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
@@ -155,35 +157,21 @@ fun FavoritesScreen(component: FavoritesComponent) {
     ) { padding ->
         val state by component.listState.collectAsStateWithLifecycle()
 
-        when (val current = state) {
-            is ListState.None -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(0.2F).clip(CircleShape)
-                    )
-                }
-            }
-            is ListState.Data -> {
-                ListData(
-                    state = current,
-                    listState = listState,
-                    padding = padding,
-                    titleLanguage = null,
-                    onClick = component::details,
-                    onIncrease = component::increase,
-                    onLoadMore = component::nextPage
-                )
-            }
-        }
+        ListData(
+            state = state,
+            listState = listState,
+            padding = padding,
+            titleLanguage = null,
+            onClick = component::details,
+            onIncrease = component::increase,
+            onLoadMore = component::nextPage
+        )
     }
 }
 
 @Composable
 private fun ListData(
-    state: ListState.Data,
+    state: ListState,
     listState: LazyListState,
     padding: PaddingValues,
     titleLanguage: TitleLanguage?,
@@ -240,7 +228,7 @@ private fun ListData(
                     )
                 }
             }
-            is ListState.Error -> {
+            is ListState.Failure -> {
                 ErrorContent(
                     modifier = Modifier.fillMaxSize()
                 )

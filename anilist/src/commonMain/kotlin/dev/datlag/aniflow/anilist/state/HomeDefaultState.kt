@@ -1,9 +1,9 @@
 package dev.datlag.aniflow.anilist.state
 
 import com.apollographql.apollo3.api.ApolloResponse
+import dev.datlag.aniflow.anilist.PageMediaQuery
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.model.PageMediaQuery
-import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
 sealed interface HomeDefaultState {
 
@@ -11,49 +11,37 @@ sealed interface HomeDefaultState {
         get() = this !is PostLoading
 
     val isError: Boolean
-        get() = this is Error
+        get() = this is Failure
 
-    data object None : HomeDefaultState
+    data object Loading : HomeDefaultState
 
-    data class Loading(
-        internal val query: PageMediaQuery,
-        internal val fallback: Boolean
-    ) : HomeDefaultState {
+    private sealed interface PostLoading : HomeDefaultState
 
-        fun fromGraphQL(response: ApolloResponse<PageMediaGraphQL.Data>): HomeDefaultState {
+    data class Success(val collection: Collection<Medium>) : PostLoading
+
+    data class Failure(
+        internal val throwable: Throwable?
+    ) : PostLoading
+
+    companion object {
+        fun fromResponse(response: ApolloResponse<PageMediaQuery.Data>): HomeDefaultState {
             val data = response.data
 
             return if (data == null) {
-                if (fallback) {
-                    Error(throwable = response.exception)
+                if (response.hasNonCacheError()) {
+                    Failure(response.exception)
                 } else {
-                    copy(fallback = true)
+                    Loading
                 }
             } else {
-                val mediaList = data.Page?.mediaFilterNotNull()
+                val mediumList = data.Page?.mediaFilterNotNull()
 
-                if (mediaList.isNullOrEmpty()) {
-                    if (fallback) {
-                        Error(throwable = response.exception)
-                    } else {
-                        copy(fallback = true)
-                    }
+                if (mediumList.isNullOrEmpty()) {
+                    Failure(response.exception)
                 } else {
-                    Success(mediaList.map(::Medium))
+                    Success(mediumList.map(::Medium))
                 }
             }
         }
     }
-
-    private sealed interface PostLoading : HomeDefaultState
-
-    data class Success(
-        val collection: Collection<Medium>
-    ) : PostLoading
-
-    data class Error(
-        internal val throwable: Throwable?
-    ) : PostLoading
 }
-
-sealed interface HomeDefaultAction { }

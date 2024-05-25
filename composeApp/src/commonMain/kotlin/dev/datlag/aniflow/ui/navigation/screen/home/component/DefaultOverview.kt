@@ -50,7 +50,7 @@ fun DefaultOverview(
         }
 
         when (val current = state) {
-            is HomeDefaultState.None, is HomeDefaultState.Loading -> {
+            is HomeDefaultState.Loading -> {
                 Loading()
             }
             is HomeDefaultState.Success -> {
@@ -72,7 +72,7 @@ fun DefaultOverview(
                     }
                 }
             }
-            is HomeDefaultState.Error -> {
+            is HomeDefaultState.Failure -> {
                 ErrorContent(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     horizontal = true

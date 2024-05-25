@@ -11,7 +11,6 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.anilist.EditMutation
 import dev.datlag.aniflow.anilist.ListStateMachine
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.state.ListAction
 import dev.datlag.aniflow.anilist.state.ListState
 import dev.datlag.aniflow.anilist.type.MediaListStatus
 import dev.datlag.aniflow.anilist.type.MediaType
@@ -40,7 +39,7 @@ class FavoritesScreenComponent(
 
     private val apolloClient by instance<ApolloClient>(Constants.AniList.APOLLO_CLIENT)
     private val listRepository by instance<ListStateMachine>()
-    override val listState: StateFlow<ListState> = listRepository.state.flowOn(
+    override val listState: StateFlow<ListState> = listRepository.list.flowOn(
         context = ioDispatcher()
     ).stateIn(
         scope = ioScope(),
@@ -106,20 +105,14 @@ class FavoritesScreenComponent(
     }
 
     override fun toggleView() {
-        launchIO {
-            listRepository.dispatch(ListAction.Type.Toggle)
-        }
+        listRepository.toggleType()
     }
 
     override fun setStatus(status: MediaListStatus) {
-        launchIO {
-            listRepository.dispatch(ListAction.Status(status))
-        }
+        listRepository.status(status)
     }
 
     override suspend fun nextPage() {
-        withIOContext {
-            listRepository.dispatch(ListAction.Page.Next)
-        }
+        listRepository.nextPage()
     }
 }

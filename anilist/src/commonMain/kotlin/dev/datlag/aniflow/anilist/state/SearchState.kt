@@ -1,9 +1,9 @@
 package dev.datlag.aniflow.anilist.state
 
 import com.apollographql.apollo3.api.ApolloResponse
+import dev.datlag.aniflow.anilist.PageMediaQuery
+import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.Medium
-import dev.datlag.aniflow.anilist.model.PageMediaQuery
-import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
 sealed interface SearchState {
 
@@ -11,39 +11,11 @@ sealed interface SearchState {
         get() = this !is PostLoading
 
     val isError: Boolean
-        get() = this is Error
+        get() = this is Failure
 
     data object None : SearchState
 
-    data class Loading(
-        internal val query: PageMediaQuery.Search,
-        internal val fallback: Boolean
-    ) : SearchState {
-
-        fun fromGraphQL(response: ApolloResponse<PageMediaGraphQL.Data>): SearchState {
-            val data = response.data
-
-            return if (data == null) {
-                if (fallback) {
-                    Error(throwable = response.exception)
-                } else {
-                    copy(fallback = true)
-                }
-            } else {
-                val mediaList = data.Page?.mediaFilterNotNull()
-
-                if (mediaList.isNullOrEmpty()) {
-                    if (fallback) {
-                        Error(throwable = response.exception)
-                    } else {
-                        copy(fallback = true)
-                    }
-                } else {
-                    Success(mediaList.map(::Medium))
-                }
-            }
-        }
-    }
+    data object Loading : SearchState
 
     private sealed interface PostLoading : SearchState
 
@@ -51,12 +23,33 @@ sealed interface SearchState {
         val collection: Collection<Medium>
     ) : PostLoading
 
-    data class Error(
+    data class Failure(
         internal val throwable: Throwable?
     ) : PostLoading
-}
 
-/**
- * Don't use action as state may not be collected while changing data.
- */
-sealed interface SearchAction { }
+    companion object {
+        fun fromResponse(response: ApolloResponse<PageMediaQuery.Data>?): SearchState {
+            return if (response == null) {
+                None
+            } else {
+                val data = response.data
+
+                if (data == null) {
+                    if (response.hasNonCacheError()) {
+                        Failure(response.exception)
+                    } else {
+                        Loading
+                    }
+                } else {
+                    val mediumList = data.Page?.mediaFilterNotNull()
+
+                    if (mediumList.isNullOrEmpty()) {
+                        Failure(response.exception)
+                    } else {
+                        Success(mediumList.map(::Medium))
+                    }
+                }
+            }
+        }
+    }
+}
