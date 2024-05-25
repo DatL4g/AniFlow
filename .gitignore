@@ -10,6 +10,7 @@ composeApp/src/commonMain/moko-resources/assets/*
 
 *.iml
 .gradle
+.kotlin
 /local.properties
 /.idea
 .DS_Store

@@ -1,4 +1,5 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -11,13 +12,14 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.cocoapods) apply false
     alias(libs.plugins.compose) apply false
+    // alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.konfig) apply false
     alias(libs.plugins.multiplatform) apply false
     alias(libs.plugins.moko.resources) apply false
     alias(libs.plugins.sekret) apply false
     alias(libs.plugins.serialization) apply false
-    alias(libs.plugins.complete.kotlin)
+    alias(libs.plugins.complete.kotlin) // Disable for K2 or bump version
     alias(libs.plugins.versions)
 }
 
@@ -51,8 +53,8 @@ allprojects {
     }
 
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions.jvmTarget = CompileOptions.jvmTarget
         compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget(CompileOptions.jvmTargetString))
             freeCompilerArgs.addAll(
                 "-P",
                 "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true"

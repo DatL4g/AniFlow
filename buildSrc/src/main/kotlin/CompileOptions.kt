@@ -3,7 +3,7 @@ import org.gradle.api.JavaVersion
 object CompileOptions {
     val sourceCompatibility = JavaVersion.VERSION_17
     val targetCompatibility = JavaVersion.VERSION_17
-    val jvmTarget = targetCompatibility.toString()
+    val jvmTargetString = targetCompatibility.toString()
     val jvmTargetVersion = when {
         targetCompatibility.isJava5 -> 5
         targetCompatibility.isJava6 -> 6

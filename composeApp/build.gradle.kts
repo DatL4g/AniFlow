@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose)
+    // alias(libs.plugins.compose.compiler)
     alias(libs.plugins.konfig)
     alias(libs.plugins.moko.resources)
     alias(libs.plugins.sekret)

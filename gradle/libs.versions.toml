@@ -35,7 +35,7 @@ kmpalette = "3.1.0"
 kodein = "7.22.0"
 kolor = "1.6.0"
 konfig = "0.15.1"
-kotlin = "1.9.23"
+kotlin = "1.9.23" # K2 requires GitLive Firebase bump
 ksp = "1.9.23-1.0.20"
 ktor = "2.3.11"
 ktorfit = "1.13.0"
@@ -128,6 +128,7 @@ android-library = { id = "com.android.library", version.ref = "android" }
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
 cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 complete-kotlin = { id = "com.louiscad.complete-kotlin", version.ref = "complete-kotlin" }
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics-plugin" }
 konfig = { id = "com.codingfeline.buildkonfig", version.ref = "konfig" }
