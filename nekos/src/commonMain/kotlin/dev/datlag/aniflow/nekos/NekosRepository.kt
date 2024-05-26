@@ -1,8 +1,8 @@
 package dev.datlag.aniflow.nekos
 
-import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.nekos.model.ImagesResponse
 import dev.datlag.aniflow.nekos.model.Rating
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -17,13 +17,13 @@ class NekosRepository(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val result = rating.mapLatest {
-        CatchResult.repeat(2) {
+        suspendCatching {
             nekos.images(
                 rating = it.query
             )
         }
     }.mapLatest {
-        State.fromResponse(it.asNullableSuccess())
+        State.fromResponse(it.getOrNull())
     }
     val response = combine(nsfw.distinctUntilChanged(), result, rating) { n, q, r ->
         if (n) {

@@ -1,7 +1,7 @@
 package dev.datlag.aniflow.trace
 
-import dev.datlag.aniflow.model.CatchResult
 import dev.datlag.aniflow.trace.model.SearchResponse
+import dev.datlag.tooling.async.suspendCatching
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
@@ -22,9 +22,9 @@ class TraceRepository(
         } else {
             emit(
                 State.fromResponse(
-                    response = CatchResult.repeat(2) {
+                    response = suspendCatching {
                         trace.search(t1)
-                    }.asNullableSuccess(),
+                    }.getOrNull(),
                     nsfw = t2
                 )
             )
