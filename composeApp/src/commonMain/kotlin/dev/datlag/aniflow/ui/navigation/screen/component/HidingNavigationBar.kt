@@ -44,9 +44,10 @@ fun HidingNavigationBar(
     visible: Boolean,
     selected: NavigationBarState,
     loggedIn: Flow<Boolean>,
+    listClickable: Boolean = false,
     onDiscover: () -> Unit,
     onHome: () -> Unit,
-    onFavorites: () -> Unit
+    onList: (isLoggedIn: Boolean) -> Unit
 ) {
     val density = LocalDensity.current
 
@@ -83,7 +84,7 @@ fun HidingNavigationBar(
             val isHome = remember(selected) {
                 selected is NavigationBarState.Home
             }
-            val isFavorites = remember(selected) {
+            val isList = remember(selected) {
                 selected is NavigationBarState.Favorite
             }
             val isLoggedIn by loggedIn.collectAsStateWithLifecycle(false)
@@ -124,12 +125,12 @@ fun HidingNavigationBar(
             )
             NavigationBarItem(
                 onClick = {
-                    if (!isFavorites) {
-                        onFavorites()
+                    if (!isList) {
+                        onList(isLoggedIn)
                     }
                 },
-                selected = isFavorites,
-                enabled = isLoggedIn,
+                selected = isList,
+                enabled = isLoggedIn || listClickable,
                 icon = {
                     Icon(
                         imageVector = selected.favoriteIcon,

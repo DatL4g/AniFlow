@@ -152,7 +152,7 @@ fun FavoritesScreen(component: FavoritesComponent) {
                 loggedIn = flowOf(true),
                 onDiscover = component::viewDiscover,
                 onHome = component::viewHome,
-                onFavorites = { }
+                onList = { }
             )
         }
     ) { padding ->

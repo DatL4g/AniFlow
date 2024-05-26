@@ -170,9 +170,16 @@ fun HomeScreen(component: HomeComponent) {
                 visible = listState.scrollUpVisible(),
                 selected = NavigationBarState.Home,
                 loggedIn = component.loggedIn,
+                listClickable = true,
                 onDiscover = component::viewDiscover,
                 onHome = { },
-                onFavorites = component::viewFavorites
+                onList = { loggedIn ->
+                    if (loggedIn) {
+                        component.viewFavorites()
+                    } else {
+                        component.viewProfile()
+                    }
+                },
             )
         }
     ) { targetPadding ->

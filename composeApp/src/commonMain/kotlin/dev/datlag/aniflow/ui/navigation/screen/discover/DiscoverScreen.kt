@@ -130,7 +130,9 @@ fun DiscoverScreen(component: DiscoverComponent) {
                 loggedIn = component.loggedIn,
                 onDiscover = { },
                 onHome = component::viewHome,
-                onFavorites = component::viewList
+                onList = {
+                    component.viewList()
+                }
             )
         }
     ) { targetPadding ->
