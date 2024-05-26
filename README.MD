@@ -1,20 +1,13 @@
-# Compose Multiplatform Application
+# AniFlow
 
-## Before running!
- - check your system with [KDoctor](https://github.com/Kotlin/kdoctor)
- - install JDK 17 on your machine
- - add `local.properties` file to the project root and set a path to Android SDK there
+[![Issues](https://img.shields.io/github/issues/DatL4g/AniFlow.svg?style=for-the-badge)](https://github.com/DatL4g/AniFlow/issues)
+[![Stars](https://img.shields.io/github/stars/DatL4g/AniFlow.svg?style=for-the-badge)](https://github.com/DatL4g/AniFlow/stargazers)
+[![Forks](https://img.shields.io/github/forks/DatL4g/AniFlow.svg?style=for-the-badge)](https://github.com/DatL4g/AniFlow/network/members)
+[![Contributors](https://img.shields.io/github/contributors/DatL4g/AniFlow.svg?style=for-the-badge)](https://github.com/DatL4g/AniFlow/graphs/contributors)
+[![License](https://img.shields.io/github/license/DatL4g/AniFlow.svg?style=for-the-badge)](https://github.com/DatL4g/AniFlow/blob/master/LICENSE)
 
-### Android
-To run the application on android device/emulator:  
- - open project in Android Studio and run imported android run configuration
+Welcome to the official repository of "AniFlow"
 
-To build the application bundle:
- - run `./gradlew :composeApp:assembleDebug`
- - find `.apk` file in `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
-
-### iOS
-To run the application on iPhone device/simulator:
- - Open `iosApp/iosApp.xcproject` in Xcode and run standard configuration
- - Or use [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile) for Android Studio
-
+<a href="https://play.google.com/store/apps/details?id=dev.datlag.aniflow" target="_blank">
+<img src="https://play.google.com/intl/en_gb/badges/static/images/badges/en_badge_web_generic.png" width=240 />
+</a>
