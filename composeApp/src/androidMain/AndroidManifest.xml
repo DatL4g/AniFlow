@@ -38,7 +38,7 @@
         android:hardwareAccelerated="true"
         android:enableOnBackInvokedCallback="true"
         android:appCategory="news"
-        android:theme="@style/AppTheme">
+        android:theme="@style/SplashScreenTheme">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
