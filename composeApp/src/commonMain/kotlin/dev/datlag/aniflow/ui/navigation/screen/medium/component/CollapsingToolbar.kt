@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -33,6 +34,7 @@ import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
+import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.MediumRepository
 import dev.datlag.aniflow.anilist.model.Medium
 import dev.datlag.aniflow.common.notPreferred
@@ -44,6 +46,7 @@ import dev.datlag.aniflow.ui.navigation.screen.medium.MediumComponent
 import dev.datlag.tooling.compose.ifFalse
 import dev.datlag.tooling.compose.ifTrue
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.icerock.moko.resources.compose.stringResource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.max
@@ -167,6 +170,54 @@ fun CollapsingToolbar(
                     val siteUrl by component.siteUrl.collectAsStateWithLifecycle(component.initialMedium.siteUrl)
                     val shareHandler = shareHandler()
                     val instantAppHelper = rememberInstantAppHelper()
+                    var showDomainDialog by remember { mutableStateOf(false) }
+
+                    SideEffect {
+                        shareHandler.checkDomain()
+                    }
+
+                    if (showDomainDialog) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showDomainDialog = false
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Share,
+                                    contentDescription = null
+                                )
+                            },
+                            title = {
+                                Text(text = stringResource(SharedRes.strings.share_domain_title))
+                            },
+                            text = {
+                                Text(
+                                    text = stringResource(SharedRes.strings.share_domain_text),
+                                    textAlign = TextAlign.Center
+                                )
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDomainDialog = false
+                                        shareHandler.enableDomain()
+                                    }
+                                ) {
+                                    Text(text = stringResource(SharedRes.strings.enable))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDomainDialog = false
+                                        shareHandler.share(siteUrl)
+                                    }
+                                ) {
+                                    Text(text = stringResource(SharedRes.strings.ignore))
+                                }
+                            }
+                        )
+                    }
 
                     AnimatedVisibility(
                         visible = mediumState is MediumRepository.State.Success && !instantAppHelper.isInstantApp,
@@ -205,9 +256,21 @@ fun CollapsingToolbar(
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
+                        val domainVerified by shareHandler.domainVerifier.collectAsStateWithLifecycle()
+
                         IconButton(
                             onClick = {
-                                shareHandler.share(siteUrl)
+                                shareHandler.checkDomain()
+
+                                if (shareHandler.domainVerifierSupported) {
+                                    if (domainVerified) {
+                                        shareHandler.share(siteUrl)
+                                    } else {
+                                        showDomainDialog = true
+                                    }
+                                } else {
+                                    shareHandler.share(siteUrl)
+                                }
                             }
                         ) {
                             Icon(

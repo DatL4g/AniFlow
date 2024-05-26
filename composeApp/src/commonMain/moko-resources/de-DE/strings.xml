@@ -119,4 +119,8 @@
     <string name="recommendation">Empfehlung</string>
     <string name="bs_version_requirement">Diese Option wird mit Burning-Series Version 6.0.0 und höher unterstützt.</string>
     <string name="nothing_on_list">Du hast nichts auf deiner Liste, ändere den Filter oder füge einen Anime/Manga hinzu.</string>
+    <string name="enable">Aktivieren</string>
+    <string name="ignore">Ignorieren</string>
+    <string name="share_domain_title">In-App Ansicht aktivieren</string>
+    <string name="share_domain_text">Wenn du diese Option einschaltest kannst du in Zukunft Links direkt in der App öffnen.</string>
 </resources>
