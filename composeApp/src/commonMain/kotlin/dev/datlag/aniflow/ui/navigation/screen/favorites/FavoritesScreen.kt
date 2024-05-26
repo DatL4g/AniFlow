@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.maxkeppeker.sheets.core.models.base.Header
 import com.maxkeppeker.sheets.core.models.base.IconSource
@@ -219,6 +220,17 @@ private fun ListData(
         )
     } else {
         when (state) {
+            is ListState.Empty -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(SharedRes.strings.nothing_on_list),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
             is ListState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(padding),

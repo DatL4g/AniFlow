@@ -118,4 +118,5 @@
     <string name="winter">Winter</string>
     <string name="recommendation">Recommendation</string>
     <string name="bs_version_requirement">This feature will be supported with Burning-Series version 6.0.0 and upwards.</string>
+    <string name="nothing_on_list">You have nothing on your list, either change the filter or add any Anime/Manga.</string>
 </resources>

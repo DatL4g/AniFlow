@@ -5,6 +5,7 @@ import dev.datlag.aniflow.anilist.ListQuery
 import dev.datlag.aniflow.anilist.common.hasNonCacheError
 import dev.datlag.aniflow.anilist.model.Medium
 import kotlinx.collections.immutable.ImmutableCollection
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 
 sealed interface ListState {
@@ -19,6 +20,12 @@ sealed interface ListState {
     }
 
     private sealed interface PostLoading : ListState
+
+    data object Empty : PostLoading {
+        override val hasNextPage: Boolean = false
+
+        override val collection: ImmutableCollection<Medium> = persistentSetOf()
+    }
 
     data class Success(
         override val hasNextPage: Boolean,
@@ -61,10 +68,7 @@ sealed interface ListState {
                 val mediaList = data.Page?.mediaListFilterNotNull()
 
                 if (mediaList.isNullOrEmpty()) {
-                    Failure(
-                        throwable = response.exception,
-                        collection = previousCollection
-                    )
+                    Empty
                 } else {
                     Success(
                         hasNextPage = data.Page.pageInfo?.hasNextPage ?: false,

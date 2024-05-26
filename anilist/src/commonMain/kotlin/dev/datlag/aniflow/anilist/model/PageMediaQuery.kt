@@ -7,6 +7,7 @@ import dev.datlag.aniflow.anilist.common.presentAsList
 import dev.datlag.aniflow.anilist.common.presentIfNot
 import dev.datlag.aniflow.anilist.common.presentMediaSeason
 import dev.datlag.aniflow.anilist.common.presentMediaType
+import dev.datlag.aniflow.anilist.common.year
 import dev.datlag.aniflow.anilist.type.MediaSeason
 import dev.datlag.aniflow.anilist.type.MediaSort
 import dev.datlag.aniflow.anilist.type.MediaType
@@ -15,6 +16,10 @@ import dev.datlag.tooling.safeSubSet
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlin.time.Duration.Companion.seconds
 import dev.datlag.aniflow.anilist.PageMediaQuery as PageMediaGraphQL
 
 sealed interface PageMediaQuery {
@@ -163,10 +168,12 @@ sealed interface PageMediaQuery {
 
     data class Season(
         val season: MediaSeason,
+        val year: Int = Clock.System.now().minus(1, DateTimeUnit.YEAR, TimeZone.currentSystemDefault()).year,
         val nsfw: Boolean
     ) : PageMediaQuery {
         override fun toGraphQL() = PageMediaGraphQL(
             season = Optional.presentMediaSeason(season),
+            year = Optional.present(year),
             adultContent = Optional.presentIfNot(nsfw),
             type = Optional.presentMediaType(MediaType.ANIME),
             preventGenres = Optional.presentIfNot(nsfw, AdultContent.Genre.allTags),

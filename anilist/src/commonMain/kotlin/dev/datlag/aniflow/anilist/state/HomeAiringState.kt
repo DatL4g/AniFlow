@@ -5,6 +5,7 @@ import com.apollographql.apollo3.exception.CacheMissException
 import dev.datlag.aniflow.anilist.AdultContent
 import dev.datlag.aniflow.anilist.AiringQuery
 import dev.datlag.aniflow.anilist.common.hasNonCacheError
+import dev.datlag.aniflow.anilist.model.AiringInfo
 import dev.datlag.aniflow.anilist.model.PageAiringQuery
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.collections.immutable.toImmutableList
@@ -24,7 +25,7 @@ sealed interface HomeAiringState {
     private sealed interface PostLoading : HomeAiringState
 
     data class Success(
-        val collection: ImmutableCollection<PageAiringGraphQL.AiringSchedule>
+        val collection: ImmutableCollection<AiringInfo>
     ) : PostLoading
 
     data class Failure(
@@ -53,11 +54,12 @@ sealed interface HomeAiringState {
                         }
                     }
                 }
+                val airingInfo = airingList?.mapNotNull { AiringInfo(it) }
 
-                if (airingList.isNullOrEmpty()) {
+                if (airingInfo.isNullOrEmpty()) {
                     Failure(throwable = response.exception)
                 } else {
-                    Success(airingList.toImmutableList())
+                    Success(airingInfo.toImmutableList())
                 }
             }
         }
