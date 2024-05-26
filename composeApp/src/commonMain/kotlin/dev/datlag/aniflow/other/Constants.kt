@@ -4,6 +4,8 @@ data object Constants {
 
     const val GITHUB_REPO = "https://github.com/DatL4g/AniFlow"
     const val GITHUB_OWNER = "https://github.com/DatL4g"
+    const val PRIVACY_POLICY = "$GITHUB_REPO/blob/master/Privacy_Policy.md"
+    const val TERMS_CONDITIONS = "$GITHUB_REPO/blob/master/Terms_Conditions.md"
 
     const val SPDX_LICENSE_BASE = "https://spdx.org/licenses/"
 

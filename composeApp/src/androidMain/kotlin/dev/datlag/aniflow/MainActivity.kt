@@ -24,7 +24,9 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.requestAppUpdateInfo
+import dev.datlag.aniflow.other.ConsentInfo
 import dev.datlag.aniflow.other.DomainVerifier
+import dev.datlag.aniflow.other.LocalConsentInfo
 import dev.datlag.aniflow.other.UpdateManager
 import dev.datlag.aniflow.other.UserHelper
 import dev.datlag.aniflow.ui.navigation.RootComponent
@@ -65,10 +67,13 @@ class MainActivity : AppCompatActivity() {
             manager.startUpdateFlow(info, this, AppUpdateOptions.defaultOptions(type))
         }
 
+        val consentInfo = ConsentInfo(this)
+
         setContent {
             CompositionLocalProvider(
                 LocalLifecycleOwner provides lifecycleOwner,
-                LocalEdgeToEdge provides true
+                LocalEdgeToEdge provides true,
+                LocalConsentInfo provides consentInfo
             ) {
                 App(
                     di = di

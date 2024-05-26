@@ -123,4 +123,7 @@
     <string name="ignore">Ignorieren</string>
     <string name="share_domain_title">In-App Ansicht aktivieren</string>
     <string name="share_domain_text">Wenn du diese Option einschaltest kannst du in Zukunft Links direkt in der App öffnen.</string>
+    <string name="edit_consent">Einwilligung bearbeiten</string>
+    <string name="policy">Policy</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
 </resources>

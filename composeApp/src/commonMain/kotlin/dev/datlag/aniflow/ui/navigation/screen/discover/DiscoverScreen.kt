@@ -56,11 +56,13 @@ import dev.datlag.aniflow.common.scrollUpVisible
 import dev.datlag.aniflow.common.title
 import dev.datlag.aniflow.other.rememberSearchBarState
 import dev.datlag.aniflow.ui.custom.ErrorContent
+import dev.datlag.aniflow.ui.custom.NativeAdView
 import dev.datlag.aniflow.ui.navigation.screen.component.HidingNavigationBar
 import dev.datlag.aniflow.ui.navigation.screen.component.MediumCard
 import dev.datlag.aniflow.ui.navigation.screen.component.NavigationBarState
 import dev.datlag.aniflow.ui.navigation.screen.discover.component.DiscoverSearchBar
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
+import dev.datlag.tooling.safeSubList
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
 
@@ -159,6 +161,12 @@ fun DiscoverScreen(component: DiscoverComponent) {
             }
             is DiscoverState.Success -> {
                 val titleLanguage by component.titleLanguage.collectAsStateWithLifecycle(null)
+                val headList = remember(current.collection) {
+                    current.collection.safeSubList(0, 10)
+                }
+                val tailList = remember(current.collection) {
+                    current.collection.safeSubList(10, current.collection.size)
+                }
 
                 LazyVerticalGrid(
                     state = listState,
@@ -168,7 +176,18 @@ fun DiscoverScreen(component: DiscoverComponent) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     columns = GridCells.Adaptive(120.dp)
                 ) {
-                    items(current.collection.toList(), key = { it.id }) {
+                    items(headList, key = { it.id }) {
+                        MediumCard(
+                            medium = it,
+                            titleLanguage = titleLanguage,
+                            modifier = Modifier.fillMaxWidth().aspectRatio(0.65F),
+                            onClick = component::details
+                        )
+                    }
+                    header {
+                        NativeAdView()
+                    }
+                    items(tailList, key = { it.id }) {
                         MediumCard(
                             medium = it,
                             titleLanguage = titleLanguage,

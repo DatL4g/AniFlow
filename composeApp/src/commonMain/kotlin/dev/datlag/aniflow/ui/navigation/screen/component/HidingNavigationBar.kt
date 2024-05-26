@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.other.MaterialSymbols
+import dev.datlag.aniflow.ui.custom.BannerAd
 import dev.datlag.aniflow.ui.navigation.RootConfig
 import dev.datlag.tooling.decompose.lifecycle.collectAsStateWithLifecycle
 import dev.icerock.moko.resources.compose.painterResource
@@ -51,96 +53,106 @@ fun HidingNavigationBar(
 ) {
     val density = LocalDensity.current
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInVertically(
-            initialOffsetY = {
-                with(density) { it.dp.roundToPx() }
-            },
-            animationSpec = tween(
-                easing = LinearOutSlowInEasing,
-                durationMillis = 500
-            )
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = tween(
-                easing = LinearOutSlowInEasing,
-                durationMillis = 500
-            )
-        )
-    ) {
-        NavigationBar(
-            modifier = Modifier.hazeChild(
-                state = LocalHaze.current,
-                style = HazeMaterials.thin(NavigationBarDefaults.containerColor)
-            ).fillMaxWidth(),
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)
-        ) {
-            val isDiscover = remember(selected) {
-                selected is NavigationBarState.Discover
-            }
-            val isHome = remember(selected) {
-                selected is NavigationBarState.Home
-            }
-            val isList = remember(selected) {
-                selected is NavigationBarState.Favorite
-            }
-            val isLoggedIn by loggedIn.collectAsStateWithLifecycle(false)
 
-            NavigationBarItem(
-                onClick = {
-                    if (!isDiscover) {
-                        onDiscover()
-                    }
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        val isHome = remember(selected) {
+            selected is NavigationBarState.Home
+        }
+
+        if (isHome) {
+            BannerAd(modifier = Modifier.fillMaxWidth())
+        }
+
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically(
+                initialOffsetY = {
+                    with(density) { it.dp.roundToPx() }
                 },
-                selected = isDiscover,
-                icon = {
-                    Icon(
-                        imageVector = selected.discoverIcon,
-                        contentDescription = null
-                    )
-                },
-                label = {
-                    Text(text = stringResource(SharedRes.strings.discover))
-                }
+                animationSpec = tween(
+                    easing = LinearOutSlowInEasing,
+                    durationMillis = 500
+                )
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { it },
+                animationSpec = tween(
+                    easing = LinearOutSlowInEasing,
+                    durationMillis = 500
+                )
             )
-            NavigationBarItem(
-                onClick = {
-                    if (!isHome) {
-                        onHome()
-                    }
-                },
-                selected = isHome,
-                icon = {
-                    Icon(
-                        imageVector = selected.homeIcon,
-                        contentDescription = null
-                    )
-                },
-                label = {
-                    Text(text = stringResource(SharedRes.strings.home))
+        ) {
+            NavigationBar(
+                modifier = Modifier.hazeChild(
+                    state = LocalHaze.current,
+                    style = HazeMaterials.thin(NavigationBarDefaults.containerColor)
+                ).fillMaxWidth(),
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.contentColorFor(NavigationBarDefaults.containerColor)
+            ) {
+                val isDiscover = remember(selected) {
+                    selected is NavigationBarState.Discover
                 }
-            )
-            NavigationBarItem(
-                onClick = {
-                    if (!isList) {
-                        onList(isLoggedIn)
-                    }
-                },
-                selected = isList,
-                enabled = isLoggedIn || listClickable,
-                icon = {
-                    Icon(
-                        imageVector = selected.favoriteIcon,
-                        contentDescription = null
-                    )
-                },
-                label = {
-                    Text(text = stringResource(SharedRes.strings.list))
+                val isList = remember(selected) {
+                    selected is NavigationBarState.Favorite
                 }
-            )
+                val isLoggedIn by loggedIn.collectAsStateWithLifecycle(false)
+
+                NavigationBarItem(
+                    onClick = {
+                        if (!isDiscover) {
+                            onDiscover()
+                        }
+                    },
+                    selected = isDiscover,
+                    icon = {
+                        Icon(
+                            imageVector = selected.discoverIcon,
+                            contentDescription = null
+                        )
+                    },
+                    label = {
+                        Text(text = stringResource(SharedRes.strings.discover))
+                    }
+                )
+                NavigationBarItem(
+                    onClick = {
+                        if (!isHome) {
+                            onHome()
+                        }
+                    },
+                    selected = isHome,
+                    icon = {
+                        Icon(
+                            imageVector = selected.homeIcon,
+                            contentDescription = null
+                        )
+                    },
+                    label = {
+                        Text(text = stringResource(SharedRes.strings.home))
+                    }
+                )
+                NavigationBarItem(
+                    onClick = {
+                        if (!isList) {
+                            onList(isLoggedIn)
+                        }
+                    },
+                    selected = isList,
+                    enabled = isLoggedIn || listClickable,
+                    icon = {
+                        Icon(
+                            imageVector = selected.favoriteIcon,
+                            contentDescription = null
+                        )
+                    },
+                    label = {
+                        Text(text = stringResource(SharedRes.strings.list))
+                    }
+                )
+            }
         }
     }
 }

@@ -156,6 +156,11 @@ fun SettingsScreen(component: SettingsComponent) {
                     onClick = component::about
                 )
             }
+            item {
+                PrivacySection(
+                    modifier = Modifier.fillParentMaxWidth().padding(top = 16.dp, bottom = 4.dp)
+                )
+            }
         }
     }
 }

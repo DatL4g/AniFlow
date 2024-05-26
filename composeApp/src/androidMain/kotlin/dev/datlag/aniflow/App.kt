@@ -35,6 +35,7 @@ class App : MultiDexApplication(), DIAware {
                     .detectAll()
                     .permitDiskReads()
                     .permitDiskWrites()
+                    .permitCustomSlowCalls()
                     .penaltyLog()
                     .penaltyDialog()
                     .build()

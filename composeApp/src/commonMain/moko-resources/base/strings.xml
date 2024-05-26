@@ -123,4 +123,7 @@
     <string name="ignore">Ignore</string>
     <string name="share_domain_title">Enable In-App View</string>
     <string name="share_domain_text">When enabling this option you can view future shared links directly in this app.</string>
+    <string name="edit_consent">Edit Consent</string>
+    <string name="policy">Policy</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
 </resources>

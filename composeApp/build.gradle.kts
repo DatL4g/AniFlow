@@ -143,9 +143,11 @@ kotlin {
                 implementation(libs.android)
                 implementation(libs.activity)
                 implementation(libs.activity.compose)
+                implementation(libs.ads)
                 implementation(libs.appcompat)
                 implementation(libs.multidex)
                 implementation(libs.splashscreen)
+                implementation(libs.ump)
                 implementation(libs.html.converter)
 
                 implementation(libs.ktor.jvm)

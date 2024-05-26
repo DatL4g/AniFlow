@@ -43,6 +43,7 @@ import dev.datlag.aniflow.LocalHaze
 import dev.datlag.aniflow.SharedRes
 import dev.datlag.aniflow.anilist.type.MediaType
 import dev.datlag.aniflow.common.*
+import dev.datlag.aniflow.other.LocalConsentInfo
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.other.rememberImagePickerState
 import dev.datlag.aniflow.trace.TraceRepository
@@ -73,6 +74,11 @@ fun HomeScreen(component: HomeComponent) {
     }
 
     val dialogState by component.dialog.subscribeAsState()
+    val consentInfo = LocalConsentInfo.current
+
+    LaunchedEffect(consentInfo) {
+        consentInfo.initialize()
+    }
 
     dialogState.child?.instance?.render()
 
