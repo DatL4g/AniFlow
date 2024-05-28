@@ -29,6 +29,8 @@ sealed interface SearchState {
         internal val throwable: Throwable?
     ) : PostLoading
 
+    data object Empty : PostLoading
+
     companion object {
         fun fromResponse(response: ApolloResponse<PageMediaQuery.Data>?): SearchState {
             return if (response == null) {
@@ -46,7 +48,11 @@ sealed interface SearchState {
                     val mediumList = data.Page?.mediaFilterNotNull()
 
                     if (mediumList.isNullOrEmpty()) {
-                        Failure(response.exception)
+                        if (response.hasNonCacheError()) {
+                            Failure(response.exception)
+                        } else {
+                            Empty
+                        }
                     } else {
                         Success(mediumList.map(::Medium).distinctBy { it.id }.toImmutableList())
                     }

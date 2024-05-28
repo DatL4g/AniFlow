@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.hazeChild
 import dev.datlag.aniflow.LocalHaze
@@ -182,6 +183,19 @@ fun DiscoverSearchBar(
                         }
                     }
                 }
+
+                is SearchState.Empty -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(SharedRes.strings.nothing_on_search),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
             }
         }
     )
