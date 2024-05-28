@@ -65,8 +65,12 @@ class DiscoverStateMachine(
         _listType,
         user.map { it?.id }.distinctUntilChanged()
     ) { l, u ->
-        if (u == null) {
-            DiscoverListType.Season.fromSeason(Clock.System.now().season)
+        if (l is DiscoverListType.Recommendation) {
+            if (u == null) {
+                DiscoverListType.Season.fromSeason(Clock.System.now().season)
+            } else {
+                l
+            }
         } else {
             l
         }
