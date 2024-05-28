@@ -44,16 +44,12 @@ sealed interface DiscoverState {
                             )
                         }?.distinctBy { it.id }
 
-                        if (mediumList.isNullOrEmpty()) {
-                            Failure(response.exception)
-                        } else {
-                            Matching(
-                                query = PageMediaQuery.Recommendation(
-                                    nsfw = nsfw,
-                                    collection = mediumList.toImmutableList()
-                                )
+                        Matching(
+                            query = PageMediaQuery.Recommendation(
+                                nsfw = nsfw,
+                                collection = mediumList.orEmpty().toImmutableList()
                             )
-                        }
+                        )
                     }
                 }
 
@@ -158,11 +154,11 @@ sealed interface DiscoverListType {
 
     companion object {
         val entries = persistentSetOf(
-            DiscoverListType.Recommendation,
-            DiscoverListType.Spring,
-            DiscoverListType.Summer,
-            DiscoverListType.Fall,
-            DiscoverListType.Winter
+            Recommendation,
+            Spring,
+            Summer,
+            Fall,
+            Winter
         )
     }
 }
