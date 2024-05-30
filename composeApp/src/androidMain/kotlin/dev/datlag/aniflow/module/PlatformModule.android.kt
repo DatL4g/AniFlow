@@ -17,6 +17,8 @@ import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.Constants
 import dev.datlag.aniflow.other.StateSaver
 import dev.datlag.aniflow.settings.*
+import dev.datlag.tooling.createAsFileSafely
+import dev.datlag.tooling.existsRWSafely
 import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -97,7 +99,13 @@ actual object PlatformModule {
                     fileSystem = FileSystem.SYSTEM,
                     serializer = UserSettingsSerializer,
                     producePath = {
-                        app.filesDir.toOkioPath().resolve("datastore").resolve("user.settings")
+                        val path = app.filesDir.toOkioPath()
+                            .resolve("datastore")
+                            .resolve("user.settings").also {
+                                it.toFile().createAsFileSafely()
+                            }
+
+                        path
                     }
                 )
             )
@@ -109,7 +117,13 @@ actual object PlatformModule {
                     fileSystem = FileSystem.SYSTEM,
                     serializer = AppSettingsSerializer,
                     producePath = {
-                        app.filesDir.toOkioPath().resolve("datastore").resolve("app.settings")
+                        val path = app.filesDir.toOkioPath()
+                            .resolve("datastore")
+                            .resolve("app.settings").also {
+                                it.toFile().createAsFileSafely()
+                            }
+
+                        path
                     }
                 )
             )
