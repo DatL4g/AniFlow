@@ -21,8 +21,12 @@ actual class BurningSeriesResolver(
 ) {
     constructor(packageManager: PackageManager, contentResolver: ContentResolver) : this(
         packageManager = packageManager,
-        episodeClient = contentResolver.acquireContentProviderClient(episodesContentUri),
-        seriesClient = contentResolver.acquireContentProviderClient(seriesContentUri)
+        episodeClient = scopeCatching {
+            contentResolver.acquireContentProviderClient(episodesContentUri)
+        }.getOrNull(),
+        seriesClient = scopeCatching {
+            contentResolver.acquireContentProviderClient(seriesContentUri)
+        }.getOrNull()
     )
 
     constructor(context: Context) : this(context.packageManager, context.contentResolver)

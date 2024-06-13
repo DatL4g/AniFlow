@@ -5,12 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.instantapps.InstantApps
+import com.google.android.gms.common.wrappers.InstantApps as CommonInstantApps
 import dev.datlag.aniflow.findActivity
 
 actual class InstantAppHelper(private val context: Context) {
 
     actual val isInstantApp: Boolean
-        get() = InstantApps.getPackageManagerCompat(context).isInstantApp
+        get() = CommonInstantApps.isInstantApp(context)
 
     actual fun showInstallPrompt() {
         context.findActivity()?.let {
