@@ -24,6 +24,7 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.requestAppUpdateInfo
+import dev.datlag.aniflow.other.BurningSeriesResolver
 import dev.datlag.aniflow.other.ConsentInfo
 import dev.datlag.aniflow.other.DomainVerifier
 import dev.datlag.aniflow.other.LocalConsentInfo
@@ -36,6 +37,7 @@ import dev.datlag.tooling.safeCast
 import io.github.aakira.napier.Napier
 import org.kodein.di.DIAware
 import org.kodein.di.instance
+import org.kodein.di.instanceOrNull
 
 class MainActivity : AppCompatActivity() {
 
@@ -109,7 +111,11 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        val di = applicationContext.safeCast<DIAware>()?.di ?: (application as DIAware).di
+        val resolver by di.instanceOrNull<BurningSeriesResolver>()
+
         DomainVerifier.verify(this)
+        resolver?.close()
     }
 
     override fun onStart() {

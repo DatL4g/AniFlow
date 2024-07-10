@@ -115,29 +115,49 @@ actual class BurningSeriesResolver(
         }
 
         val selection = if (englishTrimmed != null && romajiTrimmed != null) {
-            "title LIKE '%$englishTrimmed%' OR title LIKE '%$romajiTrimmed%'"
+            "fullTitle LIKE '%$englishTrimmed%' OR fullTitle LIKE '%$romajiTrimmed%'"
         } else if (englishTrimmed != null) {
-            "title LIKE '%$englishTrimmed%'"
+            "fullTitle LIKE '%$englishTrimmed%'"
         } else {
-            "title LIKE '%$romajiTrimmed%'"
+            "fullTitle LIKE '%$romajiTrimmed%'"
         }
 
-        return seriesBySelection(selection)
+        return seriesBySelection(selection).ifEmpty {
+            val mainTitleSelection = if (englishTrimmed != null && romajiTrimmed != null) {
+                "mainTitle LIKE '%$englishTrimmed%' OR mainTitle LIKE '%$romajiTrimmed%'"
+            } else if (englishTrimmed != null) {
+                "mainTitle LIKE '%$englishTrimmed%'"
+            } else {
+                "mainTitle LIKE '%$romajiTrimmed%'"
+            }
+
+            seriesBySelection(mainTitleSelection).ifEmpty {
+                val subTitleSelection = if (englishTrimmed != null && romajiTrimmed != null) {
+                    "subTitle LIKE '%$englishTrimmed%' OR subTitle LIKE '%$romajiTrimmed%'"
+                } else if (englishTrimmed != null) {
+                    "subTitle LIKE '%$englishTrimmed%'"
+                } else {
+                    "subTitle LIKE '%$romajiTrimmed%'"
+                }
+
+                seriesBySelection(subTitleSelection)
+            }
+        }
     }
 
     actual fun resolveByName(value: String): ImmutableSet<Series> {
         val trimmed = value.trim().replace("'", "").trim()
 
         return if (trimmed.length >= 3) {
-            seriesBySelection("title LIKE '%$trimmed%'")
+            seriesBySelection("fullTitle LIKE '%$trimmed%'")
         } else {
             persistentSetOf()
         }
     }
 
-    private fun seriesBySelection(selection: String): ImmutableSet<Series> {
+    private fun seriesBySelection(selection: String): ImmutableSet<Series> = scopeCatching {
         if (seriesClient == null) {
-            return persistentSetOf()
+            return@scopeCatching persistentSetOf()
         }
 
         val seriesCursor = seriesClient.query(
@@ -146,13 +166,13 @@ actual class BurningSeriesResolver(
             selection,
             null,
             null
-        ) ?: return persistentSetOf()
+        ) ?: return@scopeCatching persistentSetOf()
 
         val series = mutableSetOf<Series>()
 
         if (seriesCursor.moveToFirst()) {
             while (!seriesCursor.isAfterLast) {
-                val titleIndex = seriesCursor.getColumnIndex("title")
+                val titleIndex = seriesCursor.getColumnIndex("fullTitle")
                 val hrefIndex = seriesCursor.getColumnIndex("hrefPrimary")
 
                 if (hrefIndex == -1) {
@@ -175,12 +195,14 @@ actual class BurningSeriesResolver(
         }
 
         seriesCursor.close()
-        return series.toImmutableSet()
-    }
+        return@scopeCatching series.toImmutableSet()
+    }.getOrNull() ?: persistentSetOf()
 
     actual fun close() {
-        episodeClient?.close()
-        seriesClient?.close()
+        scopeCatching {
+            episodeClient?.close()
+            seriesClient?.close()
+        }
     }
 
     companion object {

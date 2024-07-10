@@ -233,14 +233,6 @@
             <meta-data android:name="photopicker_activity:0:required" android:value="" />
         </service>
 
-        <receiver android:name=".other.BurningSeriesReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="dev.datlag.aniflow.BS_BROADCAST" />
-            </intent-filter>
-        </receiver>
-
         <meta-data
             android:name="instantapps.clients.allowed"
             android:value="true"/>
