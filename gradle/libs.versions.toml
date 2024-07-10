@@ -1,32 +1,32 @@
 [versions]
 app = "1.0.4"
-aboutlibraries = "11.2.0"
+aboutlibraries = "11.2.1"
 activity = "1.9.0"
-ads = "23.1.0"
-android = "8.4.1"
+ads = "23.2.0"
+android = "8.5.0"
 android-core = "1.13.1"
-android-credentials = "1.3.0-alpha04"
-apollo = "4.0.0-beta.6"
+android-credentials = "1.3.0-rc01"
+apollo = "4.0.0-beta.7"
 appcompat = "1.7.0"
 appupdate = "2.1.0"
-atomicfu = "0.24.0"
-coil = "3.0.0-alpha06"
+atomicfu = "0.25.0"
+coil = "3.0.0-alpha08"
 compose = "1.6.11"
 complete-kotlin = "1.1.0"
 coroutines = "1.8.1"
 crashlytics-plugin = "3.0.1"
 datastore = "1.1.1"
 datetime = "0.6.0"
-decompose = "3.0.0"
+decompose = "3.1.0"
 desugar = "2.0.4"
 firebase = "1.12.0"
 firebase-android = "21.0.0"
 firebase-android-analytics = "22.0.1"
 firebase-android-auth = "23.0.0"
 firebase-android-crashlytics = "19.0.1"
-flowredux = "1.2.1"
-google-identity = "1.1.0"
-haze = "0.7.1"
+flowredux = "1.2.2"
+google-identity = "1.1.1"
+haze = "0.7.2"
 html-converter = "0.9.5"
 immutable = "0.3.7"
 instantapps = "18.1.0"
@@ -34,20 +34,20 @@ kache = "2.1.0"
 kasechange = "1.4.1"
 kmpalette = "3.1.0"
 kodein = "7.22.0"
-kolor = "1.6.0"
+kolor = "1.7.0"
 konfig = "0.15.1"
 kotlin = "2.0.0" # K2 requires GitLive Firebase bump
-ksp = "2.0.0-1.0.21"
-ktor = "2.3.11"
+ksp = "2.0.0-1.0.22"
+ktor = "2.3.12"
 ktorfit = "1.14.0"
 markdown-renderer = "0.16.0"
-moko-resources = "0.24.0"
+moko-resources = "0.24.1"
 multidex = "2.0.1"
 napier = "2.7.1"
 sekret = "2.0.0-alpha-05"
-serialization = "1.7.0"
+serialization = "1.7.1"
 splashscreen = "1.0.1"
-tooling = "1.5.2"
+tooling = "1.6.1"
 translate = "17.0.2"
 ump = "2.2.0"
 versions = "0.51.0"
@@ -67,7 +67,6 @@ apollo-cache-sql = { group = "com.apollographql.apollo3", name = "apollo-normali
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 appupdate = { group = "com.google.android.play", name = "app-update", version.ref = "appupdate" }
 appupdate-kotlin = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "appupdate" }
-atomicfu = { group = "org.jetbrains.kotlinx", name = "atomicfu-gradle-plugin", version.ref = "atomicfu" }
 coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-ktor", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
@@ -130,6 +129,7 @@ android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "android" }
 android-library = { id = "com.android.library", version.ref = "android" }
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
+atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.multiplatform)
-    id("kotlinx-atomicfu")
+    alias(libs.plugins.atomicfu)
 }
 
 kotlin {
