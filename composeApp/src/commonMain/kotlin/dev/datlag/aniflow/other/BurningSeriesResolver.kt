@@ -7,19 +7,12 @@ expect class BurningSeriesResolver {
     val versionCode: Int
     val versionName: String?
 
-    fun resolveWatchedEpisodes(): ImmutableSet<Episode>
+    fun resolveWatchedEpisode(seriesHref: String): Int?
     fun resolveByName(english: String?, romaji: String?): ImmutableSet<Series>
     fun resolveByName(value: String): ImmutableSet<Series>
 
     fun close()
 }
-
-data class Episode(
-    val progress: Long,
-    val length: Long,
-    val number: String,
-    val series: Series
-)
 
 data class Series(
     val title: String,

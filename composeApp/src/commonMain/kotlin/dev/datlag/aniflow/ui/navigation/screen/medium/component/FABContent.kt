@@ -84,7 +84,8 @@ fun FABContent(
                     bsVersionCode = component.bsVersionCode,
                     bsVersionName = component.bsVersionName,
                     bsOptions = bsOptions,
-                    onSearch = component::searchBS
+                    onSearch = component::searchBS,
+                    onSelect = component::selectBS
                 )
 
                 RatingDialog(

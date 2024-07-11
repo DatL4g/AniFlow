@@ -31,7 +31,8 @@ fun BSDialog(
     bsVersionCode: Int,
     bsVersionName: String?,
     bsOptions: ImmutableCollection<Series>,
-    onSearch: suspend (String) -> Unit
+    onSearch: suspend (String) -> Unit,
+    onSelect: (Series) -> Unit
 ) {
     OptionDialog(
         state = state,
@@ -45,7 +46,7 @@ fun BSDialog(
                 )
             },
             onSelectOption = { option, _ ->
-
+                onSelect(bsOptions.toList()[option])
             }
         ),
         header = Header.Default(

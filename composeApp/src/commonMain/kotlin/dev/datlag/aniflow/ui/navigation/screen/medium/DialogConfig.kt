@@ -12,5 +12,7 @@ sealed class DialogConfig {
     ) : DialogConfig()
 
     @Serializable
-    data object Edit : DialogConfig()
+    data class Edit(
+        val watched: Int? = null
+    ) : DialogConfig()
 }

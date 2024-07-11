@@ -54,57 +54,41 @@ actual class BurningSeriesResolver(
     actual val isAvailable: Boolean
         get() = packageInfo != null
 
-    actual fun resolveWatchedEpisodes(): ImmutableSet<Episode> {
+    actual fun resolveWatchedEpisode(seriesHref: String): Int? = scopeCatching {
         if (episodeClient == null) {
-            return persistentSetOf()
+            return@scopeCatching null
         }
 
         val episodeCursor = episodeClient.query(
             episodesContentUri,
+            arrayOf("MAX(number) as number"),
+            "finished = 1 AND seriesHref = '$seriesHref'",
             null,
-            "progress > 0 AND length > 0",
-            null,
-            null
-        ) ?: return persistentSetOf()
+            "number DESC"
+        ) ?: return@scopeCatching null
 
-        val episodes = mutableSetOf<Episode>()
-
+        var max: Int? = null
         if (episodeCursor.moveToFirst()) {
             while (!episodeCursor.isAfterLast) {
-                val progressIndex = episodeCursor.getColumnIndex("progress")
-                val lengthIndex = episodeCursor.getColumnIndex("length")
                 val numberIndex = episodeCursor.getColumnIndex("number")
-                val seriesHrefIndex = episodeCursor.getColumnIndex("seriesHref")
 
-                if (progressIndex == -1 || lengthIndex == -1 || numberIndex == -1 || seriesHrefIndex == -1) {
+                if (numberIndex == -1) {
                     episodeCursor.moveToNext()
                     continue
                 }
 
-                val progress = episodeCursor.getLong(progressIndex)
-                val length = episodeCursor.getLong(lengthIndex)
-                val number = episodeCursor.getString(numberIndex)
-                val seriesHref = episodeCursor.getString(seriesHrefIndex)
-
-                episodes.add(
-                    Episode(
-                        progress = progress,
-                        length = length,
-                        number = number,
-                        series = Series(
-                            title = seriesHref,
-                            href = seriesHref
-                        )
-                    )
-                )
+                val number = episodeCursor.getInt(numberIndex)
+                if (max == null || number > max) {
+                    max = number
+                }
 
                 episodeCursor.moveToNext()
             }
         }
 
         episodeCursor.close()
-        return episodes.toImmutableSet()
-    }
+        return@scopeCatching max
+    }.getOrNull()
 
     actual fun resolveByName(english: String?, romaji: String?): ImmutableSet<Series> {
         val englishTrimmed = english?.trim()?.ifBlank { null }?.replace("'", "")?.trim()
@@ -115,29 +99,29 @@ actual class BurningSeriesResolver(
         }
 
         val selection = if (englishTrimmed != null && romajiTrimmed != null) {
-            "fullTitle LIKE '%$englishTrimmed%' OR fullTitle LIKE '%$romajiTrimmed%'"
+            "isAnime = 1 AND fullTitle LIKE '%$englishTrimmed%' OR fullTitle LIKE '%$romajiTrimmed%'"
         } else if (englishTrimmed != null) {
-            "fullTitle LIKE '%$englishTrimmed%'"
+            "isAnime = 1 AND fullTitle LIKE '%$englishTrimmed%'"
         } else {
-            "fullTitle LIKE '%$romajiTrimmed%'"
+            "isAnime = 1 AND fullTitle LIKE '%$romajiTrimmed%'"
         }
 
         return seriesBySelection(selection).ifEmpty {
             val mainTitleSelection = if (englishTrimmed != null && romajiTrimmed != null) {
-                "mainTitle LIKE '%$englishTrimmed%' OR mainTitle LIKE '%$romajiTrimmed%'"
+                "isAnime = 1 AND mainTitle LIKE '%$englishTrimmed%' OR mainTitle LIKE '%$romajiTrimmed%'"
             } else if (englishTrimmed != null) {
-                "mainTitle LIKE '%$englishTrimmed%'"
+                "isAnime = 1 AND mainTitle LIKE '%$englishTrimmed%'"
             } else {
-                "mainTitle LIKE '%$romajiTrimmed%'"
+                "isAnime = 1 AND mainTitle LIKE '%$romajiTrimmed%'"
             }
 
             seriesBySelection(mainTitleSelection).ifEmpty {
                 val subTitleSelection = if (englishTrimmed != null && romajiTrimmed != null) {
-                    "subTitle LIKE '%$englishTrimmed%' OR subTitle LIKE '%$romajiTrimmed%'"
+                    "isAnime = 1 AND subTitle LIKE '%$englishTrimmed%' OR subTitle LIKE '%$romajiTrimmed%'"
                 } else if (englishTrimmed != null) {
-                    "subTitle LIKE '%$englishTrimmed%'"
+                    "isAnime = 1 AND subTitle LIKE '%$englishTrimmed%'"
                 } else {
-                    "subTitle LIKE '%$romajiTrimmed%'"
+                    "isAnime = 1 AND subTitle LIKE '%$romajiTrimmed%'"
                 }
 
                 seriesBySelection(subTitleSelection)
@@ -149,7 +133,7 @@ actual class BurningSeriesResolver(
         val trimmed = value.trim().replace("'", "").trim()
 
         return if (trimmed.length >= 3) {
-            seriesBySelection("fullTitle LIKE '%$trimmed%'")
+            seriesBySelection("isAnime = 1 AND fullTitle LIKE '%$trimmed%'")
         } else {
             persistentSetOf()
         }

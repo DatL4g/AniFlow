@@ -76,4 +76,5 @@ interface MediumComponent : ContentHolderComponent {
     fun edit()
 
     suspend fun searchBS(value: String)
+    fun selectBS(series: Series)
 }

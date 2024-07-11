@@ -262,7 +262,7 @@ class MediumScreenComponent(
                 componentContext = context,
                 di = di,
                 episodesOrChapters = episodesOrChapters,
-                progress = watchProgress,
+                progress = config.watched?.let(::flowOf) ?: watchProgress,
                 listStatus = listStatus,
                 repeatCount = watchRepeat,
                 episodeStartDate = mediumSuccessState.mapLatest {
@@ -374,10 +374,16 @@ class MediumScreenComponent(
     }
 
     override fun edit() {
-        dialogNavigation.activate(DialogConfig.Edit)
+        dialogNavigation.activate(DialogConfig.Edit())
     }
 
     override suspend fun searchBS(value: String) {
         bsSearch.update { value }
+    }
+
+    override fun selectBS(series: Series) {
+        val max = burningSeriesResolver.resolveWatchedEpisode(series.href)
+
+        dialogNavigation.activate(DialogConfig.Edit(max))
     }
 }
