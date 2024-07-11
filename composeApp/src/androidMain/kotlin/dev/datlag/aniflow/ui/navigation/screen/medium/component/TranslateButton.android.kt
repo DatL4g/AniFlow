@@ -86,21 +86,23 @@ actual fun TranslateButton(
                             progress = false
                             enabled = false
                         }.addOnSuccessListener {
-                            englishLocaleTranslator
-                                .translate(text)
-                                .addOnFailureListener {
-                                    progress = false
-                                    enabled = true
+                            scopeCatching {
+                                englishLocaleTranslator
+                                    .translate(text)
+                                    .addOnFailureListener {
+                                        progress = false
+                                        enabled = true
 
-                                    translated = false
-                                    onTranslation(null)
-                                }.addOnSuccessListener {
-                                    progress = false
-                                    enabled = true
+                                        translated = false
+                                        onTranslation(null)
+                                    }.addOnSuccessListener {
+                                        progress = false
+                                        enabled = true
 
-                                    translated = true
-                                    onTranslation(it)
-                                }
+                                        translated = true
+                                        onTranslation(it)
+                                    }
+                            }.getOrNull()
                         }
                 }.getOrNull()
             }
