@@ -14,6 +14,7 @@ import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.TranslatorOptions
 import dev.datlag.aniflow.SharedRes
+import dev.datlag.tooling.scopeCatching
 import dev.icerock.moko.resources.compose.stringResource
 import java.util.Locale
 
@@ -34,9 +35,11 @@ actual fun TranslateButton(
     }
 
     val targetLanguage = remember(locale) {
-        TranslateLanguage.fromLanguageTag(locale.toLanguageTag())
-            ?: TranslateLanguage.fromLanguageTag(locale.language)
-            ?: TranslateLanguage.fromLanguageTag(locale.isO3Language)
+        scopeCatching {
+            TranslateLanguage.fromLanguageTag(locale.toLanguageTag())
+                ?: TranslateLanguage.fromLanguageTag(locale.language)
+                ?: TranslateLanguage.fromLanguageTag(locale.isO3Language)
+        }.getOrNull()
     }
 
     if (targetLanguage == null || targetLanguage == TranslateLanguage.ENGLISH) {
@@ -44,17 +47,25 @@ actual fun TranslateButton(
     }
 
     val options = remember(targetLanguage) {
-        TranslatorOptions.Builder()
-            .setSourceLanguage(TranslateLanguage.ENGLISH)
-            .setTargetLanguage(targetLanguage)
-            .build()
-    }
-    val englishLocaleTranslator = remember(options) { Translation.getClient(options) }
+        scopeCatching {
+            TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(targetLanguage)
+                .build()
+        }.getOrNull()
+    } ?: return
+    val englishLocaleTranslator = remember(options) {
+        scopeCatching {
+            Translation.getClient(options)
+        }.getOrNull()
+    } ?: return
     val downloadConditions = remember {
-        DownloadConditions.Builder()
-            .requireWifi()
-            .build()
-    }
+        scopeCatching {
+            DownloadConditions.Builder()
+                .requireWifi()
+                .build()
+        }.getOrNull()
+    } ?: return
     var enabled by remember(text) { mutableStateOf(text.isNotBlank()) }
     var translated by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(false) }
@@ -68,28 +79,30 @@ actual fun TranslateButton(
                 progress = true
                 enabled = false
 
-                englishLocaleTranslator
-                    .downloadModelIfNeeded(downloadConditions)
-                    .addOnFailureListener {
-                        progress = false
-                        enabled = false
-                    }.addOnSuccessListener {
-                        englishLocaleTranslator
-                            .translate(text)
-                            .addOnFailureListener {
-                                progress = false
-                                enabled = true
+                scopeCatching {
+                    englishLocaleTranslator
+                        .downloadModelIfNeeded(downloadConditions)
+                        .addOnFailureListener {
+                            progress = false
+                            enabled = false
+                        }.addOnSuccessListener {
+                            englishLocaleTranslator
+                                .translate(text)
+                                .addOnFailureListener {
+                                    progress = false
+                                    enabled = true
 
-                                translated = false
-                                onTranslation(null)
-                            }.addOnSuccessListener {
-                                progress = false
-                                enabled = true
+                                    translated = false
+                                    onTranslation(null)
+                                }.addOnSuccessListener {
+                                    progress = false
+                                    enabled = true
 
-                                translated = true
-                                onTranslation(it)
-                            }
-                    }
+                                    translated = true
+                                    onTranslation(it)
+                                }
+                        }
+                }.getOrNull()
             }
         },
         enabled = enabled
@@ -113,7 +126,9 @@ actual fun TranslateButton(
 
     DisposableEffect(englishLocaleTranslator) {
         onDispose {
-            englishLocaleTranslator.close()
+            scopeCatching {
+                englishLocaleTranslator.close()
+            }.getOrNull()
         }
     }
 }
